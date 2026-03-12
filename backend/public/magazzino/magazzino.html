@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Magazzino</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="magazzino.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <header class="topbar">
+      <div>
+        <h1>RISTOWORD – Magazzino</h1>
+        <p class="subtitle">
+          Gestione scorte, costi e valore totale
+        </p>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi">
+          <span class="kpi-label">Prodotti</span>
+          <span class="kpi-value" id="kpi-count">0</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Pezzi totali</span>
+          <span class="kpi-value" id="kpi-qty">0</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Valore totale</span>
+          <span class="kpi-value" id="kpi-value">€ 0.00</span>
+        </div>
+        <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <!-- NUOVO PRODOTTO -->
+      <section class="card">
+        <header class="card-header">
+          <h2>Nuovo prodotto</h2>
+        </header>
+
+        <div class="card-body form-grid">
+          <label>
+            Nome prodotto
+            <input type="text" id="field-name" />
+          </label>
+
+          <label>
+            Unità
+            <input type="text" id="field-unit" placeholder="kg / pz / lt" />
+          </label>
+
+          <label>
+            Quantità iniziale
+            <input type="number" id="field-quantity" step="0.01" />
+          </label>
+
+          <label>
+            Costo unitario (€)
+            <input type="number" id="field-cost" step="0.01" />
+          </label>
+
+          <label>
+            Soglia minima
+            <input type="number" id="field-threshold" step="0.01" />
+          </label>
+
+          <div class="form-actions full">
+            <button class="btn primary" id="btn-add-product">
+              Aggiungi prodotto
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILTRI -->
+      <section class="card">
+        <header class="card-header">
+          <h2>Ricerca</h2>
+        </header>
+
+        <div class="card-body">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Cerca prodotto..."
+            class="search-input"
+          />
+        </div>
+      </section>
+
+      <!-- LISTA PRODOTTI -->
+      <section class="card">
+        <header class="card-header">
+          <h2>Prodotti in magazzino</h2>
+        </header>
+
+        <div class="card-body list" id="inventory-list">
+          <!-- popolato da js -->
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,sala,cucina,cassa"></script>
+  <script src="magazzino.js"></script>
+</body>
+</html>

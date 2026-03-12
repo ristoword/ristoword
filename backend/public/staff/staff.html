@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Staff</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="staff.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Staff</h1>
+        <p class="subtitle">
+          Anagrafica personale, ruoli e stato attivo
+        </p>
+      </div>
+
+      <div class="topbar-right">
+        <div class="kpi">
+          <span class="kpi-label">Totale staff</span>
+          <span class="kpi-value" id="kpi-total">0</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Attivi</span>
+          <span class="kpi-value" id="kpi-active">0</span>
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">Extra</span>
+          <span class="kpi-value" id="kpi-extra">0</span>
+        </div>
+        <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+      </div>
+    </header>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="main">
+
+      <!-- COLONNA SINISTRA: NUOVO MEMBRO -->
+      <section class="left-column">
+
+        <article class="card">
+          <header class="card-header">
+            <h2>Nuovo membro staff</h2>
+            <p>Inserisci un nuovo collaboratore</p>
+          </header>
+
+          <div class="card-body form-grid">
+
+            <label>
+              Nome
+              <input type="text" id="field-firstname" placeholder="Es. Paolo" />
+            </label>
+
+            <label>
+              Cognome
+              <input type="text" id="field-lastname" placeholder="Es. Rossi" />
+            </label>
+
+            <label>
+              Ruolo
+              <input type="text" id="field-role" placeholder="Chef, Cameriere, Pizzaiolo..." />
+            </label>
+
+            <label>
+              Reparto
+              <select id="field-department">
+                <option value="">Seleziona reparto...</option>
+                <option value="sala">Sala</option>
+                <option value="cucina">Cucina</option>
+                <option value="pizzeria">Pizzeria</option>
+                <option value="bar">Bar</option>
+                <option value="cassa">Cassa</option>
+                <option value="magazzino">Magazzino</option>
+                <option value="asporto">Asporto / Delivery</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="altro">Altro</option>
+              </select>
+            </label>
+
+            <label>
+              Tipo contratto
+              <select id="field-contract">
+                <option value="full-time">Full-time</option>
+                <option value="part-time">Part-time</option>
+                <option value="extra">Extra / a chiamata</option>
+                <option value="altro">Altro</option>
+              </select>
+            </label>
+
+            <label>
+              Ore settimanali
+              <input type="number" id="field-hours" min="0" step="1" placeholder="Es. 40" />
+            </label>
+
+            <label class="checkbox-row full">
+              <input type="checkbox" id="field-active" checked />
+              <span>Attivo in organico</span>
+            </label>
+
+            <label class="full">
+              Note interne
+              <textarea id="field-notes" rows="2" placeholder="Turni preferiti, limiti mansione, lingue..."></textarea>
+            </label>
+
+            <div class="form-actions full">
+              <button class="btn primary" id="btn-add-staff">
+                Aggiungi allo staff
+              </button>
+            </div>
+
+          </div>
+        </article>
+
+        <article class="card">
+          <header class="card-header">
+            <h2>Filtri</h2>
+            <p>Limita la lista in base al reparto e allo stato</p>
+          </header>
+          <div class="card-body filters-grid">
+            <label>
+              Reparto
+              <select id="filter-department">
+                <option value="">Tutti</option>
+                <option value="sala">Sala</option>
+                <option value="cucina">Cucina</option>
+                <option value="pizzeria">Pizzeria</option>
+                <option value="bar">Bar</option>
+                <option value="cassa">Cassa</option>
+                <option value="magazzino">Magazzino</option>
+                <option value="asporto">Asporto / Delivery</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="altro">Altro</option>
+              </select>
+            </label>
+
+            <label>
+              Stato
+              <select id="filter-status">
+                <option value="">Tutti</option>
+                <option value="attivo">Solo attivi</option>
+                <option value="non_attivo">Solo non attivi</option>
+                <option value="extra">Solo extra</option>
+              </select>
+            </label>
+
+            <label class="full">
+              Cerca per nome
+              <input type="text" id="filter-search" placeholder="Digita nome o cognome..." />
+            </label>
+
+            <div class="form-actions full">
+              <button class="btn ghost" id="btn-reset-filters">Reset filtri</button>
+            </div>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- COLONNA DESTRA: LISTA STAFF -->
+      <section class="right-column">
+        <article class="card">
+          <header class="card-header">
+            <h2>Staff registrato</h2>
+            <p>Elenco collaboratori con azioni rapide</p>
+          </header>
+          <div class="card-body staff-list" id="staff-list">
+            <!-- popolato da staff.js -->
+          </div>
+        </article>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="staff.js"></script>
+</body>
+</html>

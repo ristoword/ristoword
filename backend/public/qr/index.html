@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Ordina – Tavolo</title>
+  <link rel="stylesheet" href="/qr/qr.css">
+</head>
+<body>
+  <div class="qr-app">
+    <header class="qr-header">
+      <h1 id="qr-title">Ordina al tavolo</h1>
+      <p class="qr-subtitle" id="qr-table-label">—</p>
+    </header>
+
+    <main class="qr-main">
+      <nav class="qr-categories" id="qr-categories">
+        <button type="button" class="cat-btn active" data-category="">Tutti</button>
+      </nav>
+
+      <section class="qr-menu" id="qr-menu">
+        <div class="qr-loading" id="qr-loading">Caricamento menù...</div>
+        <div class="qr-menu-grid" id="qr-menu-grid"></div>
+      </section>
+
+      <aside class="qr-cart" id="qr-cart">
+        <div class="cart-header">
+          <h2>Il tuo ordine</h2>
+          <span class="cart-count" id="cart-count">0</span>
+        </div>
+        <div class="cart-items" id="cart-items"></div>
+        <div class="cart-notes">
+          <label>Note ordine</label>
+          <textarea id="cart-notes-input" rows="2" placeholder="Allergie, richieste speciali..."></textarea>
+        </div>
+        <div class="cart-total">
+          <span>Totale</span>
+          <strong id="cart-total-value">€ 0.00</strong>
+        </div>
+        <button type="button" class="btn-send" id="btn-send" disabled>Invia ordine</button>
+      </aside>
+    </main>
+
+    <div class="qr-toast" id="qr-toast"></div>
+  </div>
+
+  <script src="/qr/qr.js"></script>
+</body>
+</html>

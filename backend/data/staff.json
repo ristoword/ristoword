@@ -1,0 +1,121 @@
+[
+  {
+    "id": "st_001",
+    "name": "Marco Rossi",
+    "role": "chef",
+    "department": "cucina",
+    "roleType": "operational",
+    "pinCode": "1234",
+    "active": true,
+    "personal": {
+      "name": "Marco Rossi",
+      "surname": "",
+      "birthDate": "",
+      "phone": "",
+      "email": "",
+      "address": "",
+      "employeeCode": "",
+      "hireDate": ""
+    },
+    "work": {
+      "department": "cucina",
+      "qualification": "",
+      "role": "chef",
+      "directManager": "",
+      "contractType": "indeterminato",
+      "contractStart": "",
+      "contractEnd": "",
+      "weeklyHours": null,
+      "monthlyContractHours": null
+    },
+    "salary": {
+      "netSalary": null,
+      "grossSalary": null,
+      "hourlyRate": null,
+      "bonuses": null,
+      "overtime": null,
+      "deductions": null
+    },
+    "attendance": {
+      "hoursToday": null,
+      "hoursWeek": null,
+      "hoursMonth": null,
+      "monthlyHoursRemaining": null,
+      "overtime": null,
+      "absences": null,
+      "delays": null,
+      "earlyExits": null
+    },
+    "vacations": {
+      "earned": null,
+      "used": null,
+      "remaining": null,
+      "requestsSent": null,
+      "approved": null,
+      "rejected": null
+    }
+  },
+  {
+    "id": "st_002",
+    "name": "Laura Bianchi",
+    "role": "cameriere",
+    "department": "sala",
+    "roleType": "operational",
+    "pinCode": "2345",
+    "active": true
+  },
+  {
+    "id": "st_003",
+    "name": "Giuseppe Verdi",
+    "role": "barista",
+    "department": "bar",
+    "roleType": "operational",
+    "pinCode": "3456",
+    "active": true
+  },
+  {
+    "id": "mgr_cassa",
+    "name": "Anna Cassa",
+    "role": "cash_manager",
+    "department": "cassa",
+    "roleType": "manager",
+    "pinCode": "5678",
+    "active": true
+  },
+  {
+    "id": "mgr_cucina",
+    "name": "Roberto Chef",
+    "role": "kitchen_manager",
+    "department": "cucina",
+    "roleType": "manager",
+    "pinCode": "6789",
+    "active": true
+  },
+  {
+    "id": "mgr_sala",
+    "name": "Elena Sala",
+    "role": "sala_manager",
+    "department": "sala",
+    "roleType": "manager",
+    "pinCode": "7890",
+    "active": true
+  },
+  {
+    "id": "mgr_bar",
+    "name": "Luca Bar",
+    "role": "bar_manager",
+    "department": "bar",
+    "roleType": "manager",
+    "pinCode": "8901",
+    "active": true
+  },
+  {
+    "id": "mgr_super",
+    "name": "Supervisor Admin",
+    "role": "supervisor",
+    "department": "supervisor",
+    "roleType": "manager",
+    "pinCode": "9012",
+    "active": true
+  }
+]

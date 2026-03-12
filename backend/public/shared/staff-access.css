@@ -1,0 +1,96 @@
+/* Staff access UI – manager chip, modals, active staff list */
+.rw-staff-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.rw-staff-chip .rw-label { color: rgba(255,255,255,0.7); }
+.rw-staff-chip .rw-value { font-weight: 600; }
+.rw-staff-chip.logged-in { background: rgba(76, 175, 80, 0.25); }
+.rw-staff-chip .rw-btn {
+  margin-left: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.2);
+  color: inherit;
+}
+.rw-staff-chip .rw-btn:hover { background: rgba(255,255,255,0.3); }
+
+.rw-staff-modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9998;
+  align-items: center;
+  justify-content: center;
+}
+.rw-staff-modal-backdrop.open { display: flex; }
+
+.rw-staff-modal {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 20px;
+  min-width: 320px;
+  max-width: 420px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 9999;
+}
+.rw-staff-modal h3 { margin: 0 0 16px; font-size: 18px; }
+.rw-staff-modal .field { margin-bottom: 12px; }
+.rw-staff-modal .field label { display: block; margin-bottom: 4px; font-size: 13px; color: rgba(255,255,255,0.8); }
+.rw-staff-modal .field input,
+.rw-staff-modal .field select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  font-size: 14px;
+}
+.rw-staff-modal .actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.rw-staff-modal .btn { padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; border: none; }
+.rw-staff-modal .btn-ghost { background: rgba(255,255,255,0.1); color: #fff; }
+.rw-staff-modal .btn-primary { background: #4caf50; color: #fff; }
+.rw-staff-modal .btn-ghost:hover, .rw-staff-modal .btn-primary:hover { opacity: 0.9; }
+
+.rw-active-staff {
+  padding: 8px 0;
+}
+.rw-active-staff .rw-title { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+.rw-active-staff .rw-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.rw-active-staff .rw-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(76, 175, 80, 0.2);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.rw-active-staff .rw-badge-logout {
+  padding: 0 4px;
+  margin-left: 2px;
+  border: none;
+  background: rgba(244,67,54,0.3);
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.rw-active-staff .rw-badge-logout:hover { background: rgba(244,67,54,0.6); }
+.rw-active-staff .rw-empty { font-size: 12px; color: rgba(255,255,255,0.5); }

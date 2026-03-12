@@ -1,0 +1,162 @@
+<!-- backend/public/supervisor/staff/staff.html -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Staff</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/supervisor/supervisor.css" />
+  <link rel="stylesheet" href="staff.css" />
+  <link rel="stylesheet" href="/shared/staff-access.css" />
+</head>
+
+<body>
+  <div class="shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">RW</div>
+        <div class="brand-txt">
+          <div class="brand-title">RISTOWORD</div>
+          <div class="brand-sub">Supervisor</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item" href="/dashboard/dashboard.html">Dashboard</a>
+        <a class="nav-item" href="/sala/sala.html">Sala</a>
+        <a class="nav-item" href="/cucina/cucina.html">Cucina</a>
+        <a class="nav-item" href="/pizzeria/pizzeria.html">Pizzeria</a>
+        <a class="nav-item" href="/bar/bar.html">Bar</a>
+        <a class="nav-item" href="/cassa/cassa.html">Cassa</a>
+        <a class="nav-item" href="/magazzino/magazzino.html">Magazzino</a>
+        <a class="nav-item" href="/prenotazioni/prenotazioni.html">Prenotazioni</a>
+        <a class="nav-item" href="/supervisor/supervisor.html">Supervisor</a>
+        <a class="nav-item active" href="/supervisor/staff/staff.html">Staff</a>
+        <a class="nav-item" href="/supervisor/customers/customers.html">Clienti</a>
+      </nav>
+
+      <div class="side-footer">
+        <div class="tiny muted">© 2026 RistoWord</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- STAFF LIST VIEW -->
+      <div id="staff-list-view" class="staff-view">
+        <header class="topbar">
+          <div class="topbar-left">
+            <h1>Staff</h1>
+            <div class="sub">Gestione personale • Elenco dipendenti</div>
+          </div>
+          <div class="topbar-right">
+            <button class="btn ghost" id="btn-show-reports">Report</button>
+            <button class="btn primary" id="btn-refresh-staff">Aggiorna</button>
+          </div>
+        </header>
+
+        <article class="card full">
+          <header class="card-header">
+            <h2>Elenco staff</h2>
+            <p>Cerca e filtra per reparto e stato. Clicca su un membro per vedere il profilo completo.</p>
+          </header>
+          <div class="card-body">
+            <div class="filters staff-filters">
+              <label class="grow">
+                Cerca (nome, cognome, reparto, codice)
+                <input type="text" id="f-search" placeholder="Es. Marco, cucina, EMP001..." />
+              </label>
+              <label>
+                Reparto
+                <select id="f-department">
+                  <option value="">Tutti</option>
+                  <option value="cassa">Cassa</option>
+                  <option value="cucina">Cucina</option>
+                  <option value="sala">Sala</option>
+                  <option value="bar">Bar</option>
+                  <option value="supervisor">Supervisor</option>
+                  <option value="pizzeria">Pizzeria</option>
+                  <option value="magazzino">Magazzino</option>
+                  <option value="altro">Altro</option>
+                </select>
+              </label>
+              <label>
+                Stato
+                <select id="f-status">
+                  <option value="">Tutti</option>
+                  <option value="true">Attivi</option>
+                  <option value="false">Non attivi</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="staff-table-wrap">
+              <div class="trow head staff-trow">
+                <span>Nome</span>
+                <span>Reparto</span>
+                <span>Ruolo</span>
+                <span>Codice</span>
+                <span>Stato</span>
+                <span></span>
+              </div>
+              <div id="staff-list"></div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- STAFF PROFILE VIEW -->
+      <div id="staff-profile-view" class="staff-view" style="display:none;">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button class="btn ghost" id="btn-back-list">← Torna alla lista</button>
+            <h1 id="profile-title">Profilo staff</h1>
+          </div>
+          <div class="topbar-right profile-actions">
+            <button class="btn ghost" id="btn-cancel-profile" style="display:none;">Annulla</button>
+            <button class="btn primary" id="btn-save-profile" style="display:none;">Salva</button>
+            <button class="btn primary" id="btn-edit-profile">Modifica</button>
+          </div>
+        </header>
+
+        <nav class="profile-tabs" id="profile-tabs">
+          <button class="profile-tab active" data-tab="dati">Dati</button>
+          <button class="profile-tab" data-tab="turni">Turni</button>
+          <button class="profile-tab" data-tab="ore">Ore e contratti</button>
+          <button class="profile-tab" data-tab="richieste">Richieste</button>
+          <button class="profile-tab" data-tab="disciplina">Disciplina</button>
+        </nav>
+        <div id="profile-content" class="profile-grid">
+          <!-- Sections rendered by JS -->
+        </div>
+      </div>
+
+      <!-- REPORTS VIEW -->
+      <div id="staff-reports-view" class="staff-view" style="display:none;">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button class="btn ghost" id="btn-back-reports">← Torna alla lista</button>
+            <h1>Report staff</h1>
+          </div>
+          <div class="topbar-right">
+            <select id="report-month"></select>
+            <select id="report-year"></select>
+            <button class="btn primary" id="btn-refresh-reports">Aggiorna</button>
+          </div>
+        </header>
+        <div class="reports-grid" id="reports-content">
+          <!-- Report cards rendered by JS -->
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="/shared/api.js"></script>
+  <script src="/shared/staff-access.js"></script>
+  <script src="staff.js"></script>
+</body>
+</html>

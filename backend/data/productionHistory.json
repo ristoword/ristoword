@@ -1,0 +1,11 @@
+{
+  "id": "ph_0001",
+  "orderId": "ord_001",
+  "area": "cucina",
+  "event": "status_change",        // status_change | note | allergene | altro
+  "fromStatus": "in_preparazione",
+  "toStatus": "pronto",
+  "operatorId": "st_002",
+  "note": "Secondo pronto",
+  "createdAt": "2026-03-01T20:05:00.000Z"
+}

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Chiusura Cassa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="chiusura.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Chiusura Cassa</h1>
+        <p class="subtitle">
+          Quadratura giornaliera • riepilogo pagamenti • stampa chiusura
+        </p>
+      </div>
+
+      <div class="topbar-right">
+        <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+        <button class="btn ghost" id="btn-print">Stampa / PDF</button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <a class="tab-link" href="/cassa/cassa.html">Torna alla Cassa</a>
+    </nav>
+
+    <section class="main-grid">
+
+      <div class="col-left">
+        <article class="card">
+          <header class="card-header">
+            <h2>Filtro giornata</h2>
+            <p>Visualizza i pagamenti di una singola data</p>
+          </header>
+          <div class="card-body">
+            <div class="form-grid">
+              <label>
+                Data
+                <input type="date" id="filter-date" />
+              </label>
+
+              <label>
+                Operatore
+                <input type="text" id="filter-operator" placeholder="Es. cassiere1" />
+              </label>
+
+              <label>
+                Metodo
+                <select id="filter-method">
+                  <option value="">Tutti</option>
+                  <option value="cash">Contanti</option>
+                  <option value="card">Carta / POS</option>
+                  <option value="online">Online</option>
+                  <option value="ticket">Ticket restaurant</option>
+                  <option value="voucher">Voucher / Buono sconto</option>
+                  <option value="mixed">Misto</option>
+                </select>
+              </label>
+
+              <label>
+                Contanti dichiarati
+                <input type="number" id="cash-declared" step="0.01" min="0" placeholder="Es. 500.00" />
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn primary" id="btn-apply-filters" type="button">Applica</button>
+              <button class="btn ghost" id="btn-reset-filters" type="button">Reset</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <header class="card-header">
+            <h2>Quadratura contanti</h2>
+            <p>Differenza fra incassato e dichiarato</p>
+          </header>
+          <div class="card-body">
+            <div class="summary-list">
+              <div class="summary-row">
+                <span class="label-soft">Contanti registrati</span>
+                <strong id="cash-registered">€ 0.00</strong>
+              </div>
+              <div class="summary-row">
+                <span class="label-soft">Contanti dichiarati</span>
+                <strong id="cash-declared-view">€ 0.00</strong>
+              </div>
+              <div class="summary-row total">
+                <span>Differenza cassa</span>
+                <strong id="cash-diff">€ 0.00</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <header class="card-header">
+            <h2>Chiusura Z giornaliera</h2>
+            <p>Finalizza la giornata e salva il record di chiusura</p>
+          </header>
+          <div class="card-body">
+            <div id="closure-status" class="closure-status muted"></div>
+            <div class="form-grid" id="closure-form">
+              <label>
+                Operatore
+                <input type="text" id="closure-operator" placeholder="Nome operatore" />
+              </label>
+              <label>
+                Note (opzionale)
+                <input type="text" id="closure-notes" placeholder="Eventuali note" />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button class="btn primary" id="btn-close-z" type="button">Chiudi giornata (Z)</button>
+              <button class="btn ghost" id="btn-export-csv" type="button">Esporta CSV</button>
+              <button class="btn ghost" id="btn-export-excel" type="button">Esporta Excel</button>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="col-right">
+        <article class="card">
+          <header class="card-header">
+            <h2>Riepilogo chiusura</h2>
+            <p>Totali per metodo di pagamento</p>
+          </header>
+          <div class="card-body">
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <div class="kpi-label">Contanti</div>
+                <div class="kpi-value" id="sum-cash">€ 0.00</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Carta / POS</div>
+                <div class="kpi-value" id="sum-card">€ 0.00</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Online</div>
+                <div class="kpi-value" id="sum-online">€ 0.00</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Ticket</div>
+                <div class="kpi-value" id="sum-ticket">€ 0.00</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Voucher</div>
+                <div class="kpi-value" id="sum-voucher">€ 0.00</div>
+              </div>
+              <div class="kpi-card total">
+                <div class="kpi-label">Totale incasso</div>
+                <div class="kpi-value" id="sum-total">€ 0.00</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="summary-list">
+              <div class="summary-row">
+                <span class="label-soft">Pagamenti registrati</span>
+                <strong id="count-payments">0</strong>
+              </div>
+              <div class="summary-row">
+                <span class="label-soft">Tavoli chiusi</span>
+                <strong id="count-tables">0</strong>
+              </div>
+              <div class="summary-row">
+                <span class="label-soft">Coperti totali</span>
+                <strong id="count-covers">0</strong>
+              </div>
+              <div class="summary-row">
+                <span class="label-soft">Sconti registrati</span>
+                <strong id="sum-discounts">€ 0.00</strong>
+              </div>
+              <div class="summary-row">
+                <span class="label-soft">IVA registrata</span>
+                <strong id="sum-vat">€ 0.00</strong>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <header class="card-header">
+            <h2>Dettaglio pagamenti</h2>
+            <p>Lista completa dei pagamenti filtrati</p>
+          </header>
+          <div class="card-body">
+            <div class="payments-table-wrap">
+              <table class="payments-table">
+                <thead>
+                  <tr>
+                    <th>Ora</th>
+                    <th>Tavolo</th>
+                    <th>Metodo</th>
+                    <th>Operatore</th>
+                    <th>Coperti</th>
+                    <th>Totale</th>
+                  </tr>
+                </thead>
+                <tbody id="payments-body">
+                  <tr>
+                    <td colspan="6" class="empty-cell">Nessun pagamento trovato.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <div id="print-area" class="print-area" aria-hidden="true"></div>
+
+  <script src="/shared/api.js"></script>
+  <script src="chiusura.js"></script>
+</body>
+</html>

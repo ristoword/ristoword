@@ -1,0 +1,21 @@
+/* Chiusura Cassa - estende cassa.css */
+@import url("cassa.css");
+
+.closure-status {
+  font-size: 13px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-soft, #1b1f2b);
+}
+.closure-status.warning {
+  background: rgba(255, 165, 0, 0.15);
+  color: var(--accent, #f5b800);
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}

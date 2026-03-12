@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Supervisor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --bg-alt: #141824;
+      --bg-soft: #1b1f2b;
+      --border-soft: #2a3040;
+      --accent: #f5b800;
+      --accent-soft: #f5b8001f;
+      --accent-danger: #ff4b4b;
+      --text: #ffffff;
+      --text-soft: #b7bccd;
+      --text-muted: #7f8599;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * ,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top left, #1c2030 0, #05060a 60%);
+      color: var(--text);
+    }
+
+    .layout {
+      min-height: 100vh;
+      padding: 18px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* TOPBAR */
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .topbar-left h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0.04em;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .topbar-right {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip {
+      background: #1a1f2b;
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid #2a3040;
+      display: flex;
+      flex-direction: column;
+      min-width: 120px;
+    }
+
+    .chip-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+    }
+
+    .chip-value {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .btn-small {
+      border-radius: 999px;
+      border: 1px solid #343848;
+      background: transparent;
+      color: var(--text-soft);
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn-small:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* GRID TILE REPARTI */
+
+    .grid-reparti {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .tile {
+      background: var(--bg-alt);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      padding: 14px 14px 12px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.08s ease;
+    }
+
+    .tile:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 24px 50px rgba(0,0,0,0.7);
+      border-color: var(--accent);
+    }
+
+    .tile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .tile-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .tile-badge {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #343848;
+      color: var(--text-muted);
+    }
+
+    .tile-desc {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-bottom: 6px;
+    }
+
+    .tile-kpi {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .tile-footer {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* COLORI SPECIALI PER ALCUNI TILE */
+
+    .tile-sala {
+      border-left: 3px solid #4fd3ff;
+    }
+
+    .tile-cucina {
+      border-left: 3px solid #f5b800;
+    }
+
+    .tile-pizzeria {
+      border-left: 3px solid #ff7b3a;
+    }
+
+    .tile-bar {
+      border-left: 3px solid #6ea8ff;
+    }
+
+    .tile-magazzino {
+      border-left: 3px solid #2dd36f;
+    }
+
+    .tile-prenotazioni {
+      border-left: 3px solid #ff9a3b;
+    }
+
+    .tile-asporto {
+      border-left: 3px solid #ff4b4b;
+    }
+
+    .tile-cassa {
+      border-left: 3px solid #9b6bff;
+    }
+
+    .tile-staff {
+      border-left: 3px solid #00d8b4;
+    }
+
+    .tile-catering {
+      border-left: 3px solid #ffc857;
+    }
+
+    /* BOTTOM ROW: REPORT / AI / SETTINGS (placeholder) */
+
+    .bottom-row {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--bg-alt);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+      padding: 10px 12px 12px;
+      font-size: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 4px;
+      font-size: 14px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--text-soft);
+    }
+
+    @media (max-width: 768px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .topbar-right {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+
+    <!-- HEADER / TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Supervisor</h1>
+        <p class="subtitle">
+          Controllo centrale di sala, cucina, bar, pizzeria, magazzino e incassi.
+        </p>
+      </div>
+      <div class="topbar-right">
+        <div class="chip">
+          <span class="chip-label">Coperti oggi</span>
+          <span class="chip-value">—</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Comande aperte</span>
+          <span class="chip-value">—</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Stato servizio</span>
+          <span class="chip-value">Online</span>
+        </div>
+        <button class="btn-small" type="button" onclick="window.location.reload()">
+          Aggiorna
+        </button>
+      </div>
+    </header>
+
+    <!-- GRID REPARTI -->
+    <section class="grid-reparti">
+
+      <!-- SALA -->
+      <article class="tile tile-sala"
+        onclick="window.location.href='/sala/sala.html'">
+        <div class="tile-header">
+          <div class="tile-title">Sala</div>
+          <div class="tile-badge">ORDINI • TAVOLI</div>
+        </div>
+        <div class="tile-desc">
+          Apertura tavoli, gestione comande, stato servizio e antifrode base.
+        </div>
+        <div class="tile-footer">
+          Vai alla schermata di sala
+        </div>
+      </article>
+
+      <!-- CUCINA -->
+      <article class="tile tile-cucina"
+        onclick="window.location.href='/cucina/cucina.html'">
+        <div class="tile-header">
+          <div class="tile-title">Cucina</div>
+          <div class="tile-badge">KDS • HACCP</div>
+        </div>
+        <div class="tile-desc">
+          Monitor produzione, ricette, lista spesa vocale, HACCP e turni cucina.
+        </div>
+        <div class="tile-footer">
+          Vai al monitor cucina
+        </div>
+      </article>
+
+      <!-- PIZZERIA -->
+      <article class="tile tile-pizzeria"
+        onclick="window.location.href='/pizzeria/pizzeria.html'">
+        <div class="tile-header">
+          <div class="tile-title">Pizzeria</div>
+          <div class="tile-badge">KDS PIZZE</div>
+        </div>
+        <div class="tile-desc">
+          Comande pizza per stazione forno, con stati in attesa / in cottura / servito.
+        </div>
+        <div class="tile-footer">
+          Vai al monitor pizzeria
+        </div>
+      </article>
+
+      <!-- BAR -->
+      <article class="tile tile-bar"
+        onclick="window.location.href='/bar/bar.html'">
+        <div class="tile-header">
+          <div class="tile-title">Bar</div>
+          <div class="tile-badge">DRINKS</div>
+        </div>
+        <div class="tile-desc">
+          Comande bar, caffetteria e drink, collegati alle comande di sala.
+        </div>
+        <div class="tile-footer">
+          Vai al monitor bar
+        </div>
+      </article>
+
+      <!-- MAGAZZINO -->
+      <article class="tile tile-magazzino"
+        onclick="window.location.href='/magazzino/magazzino.html'">
+        <div class="tile-header">
+          <div class="tile-title">Magazzino</div>
+          <div class="tile-badge">SCORTE • COSTI</div>
+        </div>
+        <div class="tile-desc">
+          Anagrafica prodotti, carico/scarico, valore scorte e soglie minime.
+        </div>
+        <div class="tile-footer">
+          Apri gestione magazzino
+        </div>
+      </article>
+
+      <!-- PRENOTAZIONI -->
+      <article class="tile tile-prenotazioni"
+        onclick="window.location.href='/prenotazioni/prenotazioni.html'">
+        <div class="tile-header">
+          <div class="tile-title">Prenotazioni</div>
+          <div class="tile-badge">TAVOLI FUTURI</div>
+        </div>
+        <div class="tile-desc">
+          Gestione prenotazioni, conferme, arrivi e no-show (locale).
+        </div>
+        <div class="tile-footer">
+          Apri gestione prenotazioni
+        </div>
+      </article>
+
+      <!-- ASPORTO -->
+      <article class="tile tile-asporto"
+        onclick="window.location.href='/asporto/asporto.html'">
+        <div class="tile-header">
+          <div class="tile-title">Asporto</div>
+          <div class="tile-badge">TAKE AWAY</div>
+        </div>
+        <div class="tile-desc">
+          Gestione ordini d'asporto e delivery semplice, collegati a cucina/pizzeria.
+        </div>
+        <div class="tile-footer">
+          Vai al modulo asporto
+        </div>
+      </article>
+
+      <!-- CASSA -->
+      <article class="tile tile-cassa"
+        onclick="window.location.href='/cassa/cassa.html'">
+        <div class="tile-header">
+          <div class="tile-title">Cassa</div>
+          <div class="tile-badge">CHIUSURE</div>
+        </div>
+        <div class="tile-desc">
+          Riepilogo conti, chiusura servizio, incassi giornalieri e catering.
+        </div>
+        <div class="tile-footer">
+          Vai alla cassa
+        </div>
+      </article>
+
+      <!-- STAFF -->
+      <article class="tile tile-staff"
+        onclick="window.location.href='/staff/staff.html'">
+        <div class="tile-header">
+          <div class="tile-title">Staff</div>
+          <div class="tile-badge">TURNI • LOGIN</div>
+        </div>
+        <div class="tile-desc">
+          Turni base, ruoli e accessi (in futuro login/log-out personale).
+        </div>
+        <div class="tile-footer">
+          Gestisci lo staff
+        </div>
+      </article>
+
+      <!-- CATERING -->
+      <article class="tile tile-catering"
+        onclick="window.location.href='/catering/catering.html'">
+        <div class="tile-header">
+          <div class="tile-title">Catering</div>
+          <div class="tile-badge">BANQUETING</div>
+        </div>
+        <div class="tile-desc">
+          Menù predefiniti, caparra, costi reali e risultato per evento.
+        </div>
+        <div class="tile-footer">
+          Apri modulo catering
+        </div>
+      </article>
+
+    </section>
+
+    <!-- SEZIONE BASSA (placeholder per futuro: report / AI / impostazioni) -->
+    <section class="bottom-row">
+      <article class="card">
+        <h2>Report servizio</h2>
+        <p>
+          In futuro: tempi medi produzione, piatti più venduti, costi e margini per reparto.
+        </p>
+      </article>
+      <article class="card">
+        <h2>Centro AI</h2>
+        <p>
+          In futuro: suggerimenti menù, analisi scorte, controllo sprechi e menu engineering.
+        </p>
+      </article>
+      <article class="card">
+        <h2>Impostazioni</h2>
+        <p>
+          In futuro: configurazione sale, reparti, utenti e permessi, lingua e valute.
+        </p>
+      </article>
+    </section>
+
+  </div>
+</body>
+</html>

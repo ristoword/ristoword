@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Catering</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="catering.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <header class="topbar">
+      <div>
+        <h1>RISTOWORD – Catering</h1>
+        <p>Gestione eventi, costi reali, food cost e incassi separati</p>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <!-- DATI EVENTO -->
+      <section class="card">
+        <h2>Dati evento</h2>
+
+        <div class="grid">
+          <label>Cliente
+            <input type="text" id="cliente">
+          </label>
+
+          <label>Data evento
+            <input type="date" id="dataEvento">
+          </label>
+
+          <label>Persone previste
+            <input type="number" id="personePreviste" value="100">
+          </label>
+
+          <label>Persone effettive
+            <input type="number" id="personeEffettive" value="100">
+          </label>
+
+          <label>Prezzo per persona €
+            <input type="number" id="prezzoPersona" value="50">
+          </label>
+        </div>
+      </section>
+
+      <!-- MENU -->
+      <section class="card">
+        <h2>Menu catering</h2>
+
+        <div class="menu-type">
+          <button onclick="setMenuType(3)">3 Portate</button>
+          <button onclick="setMenuType(4)">4 Portate</button>
+          <button onclick="setMenuType(5)">5 Portate</button>
+          <button onclick="setMenuType('degustazione')">Degustazione</button>
+        </div>
+
+        <div id="menuContainer"></div>
+      </section>
+
+      <!-- SPESE EXTRA -->
+      <section class="card">
+        <h2>Spese Catering Extra</h2>
+
+        <div class="grid">
+          <label>Noleggio attrezzature €
+            <input type="number" id="spesaNoleggio" value="0">
+          </label>
+
+          <label>Personale extra €
+            <input type="number" id="spesaPersonale" value="0">
+          </label>
+
+          <label>Trasporto €
+            <input type="number" id="spesaTrasporto" value="0">
+          </label>
+
+          <label>Altro €
+            <input type="number" id="spesaAltro" value="0">
+          </label>
+        </div>
+      </section>
+
+      <!-- RISULTATI -->
+      <section class="card results">
+        <h2>Risultato economico</h2>
+
+        <div id="risultati"></div>
+
+        <button onclick="calcolaCatering()">Calcola</button>
+        <button onclick="aggiungiIncassoGiornaliero()">Aggiungi all'incasso giornaliero</button>
+      </section>
+
+      <!-- EVENTI CATERING (API) -->
+      <section class="card">
+        <h2>Eventi catering</h2>
+        <p style="font-size:12px;color:#999;margin-bottom:10px;">
+          Salva l'evento corrente o visualizza/elimina eventi salvati.
+        </p>
+        <button id="btn-save-event" style="margin-right:8px;">Salva evento corrente</button>
+        <button id="btn-refresh-events" class="btn-ghost">Aggiorna</button>
+        <div id="event-list" class="event-list"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,sala,cucina,cassa"></script>
+  <script src="catering.js"></script>
+</body>
+</html>

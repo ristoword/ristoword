@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Prenotazioni</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="prenotazioni.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Prenotazioni</h1>
+        <p class="subtitle">
+          Gestione prenotazioni, stato arrivi e no-show
+        </p>
+      </div>
+      <div class="topbar-right">
+        <div class="chip">
+          <span class="chip-label">Oggi</span>
+          <span class="chip-value" id="kpi-today">0</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Confermate</span>
+          <span class="chip-value" id="kpi-confirmed">0</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Arrivati</span>
+          <span class="chip-value" id="kpi-arrived">0</span>
+        </div>
+        <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+      </div>
+    </header>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="main">
+
+      <!-- COLONNA SINISTRA: NUOVA PRENOTAZIONE + FILTRI -->
+      <section class="left-column">
+
+        <!-- NUOVA PRENOTAZIONE -->
+        <article class="card">
+          <header class="card-header">
+            <h2>Nuova prenotazione</h2>
+            <p>Inserisci i dati della prenotazione</p>
+          </header>
+          <div class="card-body form-grid">
+            <label>
+              Data
+              <input type="date" id="field-date" />
+            </label>
+
+            <label>
+              Ora
+              <input type="time" id="field-time" />
+            </label>
+
+            <label>
+              Nome cliente
+              <input type="text" id="field-name" placeholder="Es. Rossi Mario" />
+            </label>
+
+            <label>
+              Telefono
+              <input type="tel" id="field-phone" placeholder="+39 ..." />
+            </label>
+
+            <label>
+              Persone
+              <input type="number" id="field-guests" min="1" placeholder="Es. 4" />
+            </label>
+
+            <label>
+              Area
+              <select id="field-area">
+                <option value="">Non specificato</option>
+                <option value="sala">Sala</option>
+                <option value="dehor">Dehors</option>
+                <option value="privé">Privé</option>
+              </select>
+            </label>
+
+            <label class="full">
+              Note
+              <textarea id="field-notes" rows="2" placeholder="Allergie, richieste speciali..."></textarea>
+            </label>
+
+            <div class="form-actions full">
+              <button class="btn primary" id="btn-save-booking">
+                Salva prenotazione
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- FILTRI -->
+        <article class="card">
+          <header class="card-header">
+            <h2>Filtri</h2>
+            <p>Limita la lista delle prenotazioni</p>
+          </header>
+          <div class="card-body filter-grid">
+            <label>
+              Data
+              <input type="date" id="filter-date" />
+            </label>
+
+            <label>
+              Stato
+              <select id="filter-status">
+                <option value="">Tutti</option>
+                <option value="nuova">Nuova</option>
+                <option value="confermata">Confermata</option>
+                <option value="arrivato">Arrivato</option>
+                <option value="no_show">No-show</option>
+                <option value="cancellata">Cancellata</option>
+              </select>
+            </label>
+
+            <label>
+              Nome / Telefono
+              <input type="text" id="filter-search" placeholder="Cerca..." />
+            </label>
+
+            <div class="form-actions full">
+              <button class="btn ghost" id="btn-reset-filters">
+                Reset filtri
+              </button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- COLONNA DESTRA: LISTA PRENOTAZIONI -->
+      <section class="right-column">
+        <article class="card">
+          <header class="card-header">
+            <h2>Lista prenotazioni</h2>
+            <p>Stato, note e azioni rapide</p>
+          </header>
+          <div class="card-body bookings-list" id="bookings-list">
+            <!-- popolato da prenotazioni.js -->
+          </div>
+        </article>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,sala,cucina,cassa"></script>
+  <script src="prenotazioni.js"></script>
+</body>
+</html>

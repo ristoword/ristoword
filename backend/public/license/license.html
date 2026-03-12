@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Attivazione licenza</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/login/login.css" />
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-card">
+      <div class="brand-block">
+        <div class="brand-logo">RW</div>
+        <div>
+          <h1>RISTOWORD</h1>
+          <p class="subtitle">Attivazione licenza</p>
+        </div>
+      </div>
+
+      <div id="license-message" class="login-message"></div>
+
+      <form id="license-form" class="login-form">
+        <div class="field">
+          <label for="restaurantName">Nome ristorante</label>
+          <input type="text" id="restaurantName" placeholder="Es. Ristorante La Focaccia" required />
+        </div>
+        <div class="field">
+          <label for="licenseCode">Codice licenza</label>
+          <input type="text" id="licenseCode" placeholder="Es. DEMO-TRIAL" required />
+        </div>
+        <button type="submit" class="btn-login" id="btn-activate">Attiva licenza</button>
+      </form>
+
+      <div class="demo-box">
+        <div class="demo-title">Demo</div>
+        <div class="demo-row">Codice: <strong>DEMO-TRIAL</strong> (30 giorni)</div>
+      </div>
+    </div>
+  </div>
+  <script src="license.js"></script>
+</body>
+</html>

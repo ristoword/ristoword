@@ -1,0 +1,16 @@
+[
+  {
+    "id": "d2c91cd0-8881-40ea-a76d-55a5d9010999",
+    "date": "2026-03-10",
+    "cashTotal": 0,
+    "cardTotal": 0,
+    "otherTotal": 0,
+    "grandTotal": 0,
+    "paymentsCount": 0,
+    "closedOrdersCount": 0,
+    "closedAt": "2026-03-10T17:59:50.373Z",
+    "closedBy": "",
+    "notes": "",
+    "createdAt": "2026-03-10T17:59:50.375Z"
+  }
+]

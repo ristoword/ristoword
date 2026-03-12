@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-card">
+      <div class="brand-block">
+        <div class="brand-logo">RW</div>
+        <div>
+          <h1>RISTOWORD</h1>
+          <p class="subtitle">Accesso sistema</p>
+        </div>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <div class="field">
+          <label for="username">Utente</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            placeholder="Es. supervisor"
+            autocomplete="username"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Inserisci password"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label for="role">Ruolo</label>
+          <select id="role" name="role">
+            <option value="owner">Owner</option>
+            <option value="sala">Sala</option>
+            <option value="cucina">Cucina</option>
+            <option value="cassa">Cassa</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="cashier">Cassa (demo)</option>
+            <option value="kitchen">Cucina (demo)</option>
+            <option value="customer">Cliente</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-login" id="btn-login">
+          Entra
+        </button>
+
+        <div id="login-message" class="login-message"></div>
+      </form>
+
+      <div class="demo-box">
+        <div class="demo-title">Accesso (users.json)</div>
+        <div class="demo-row"><strong>Owner</strong> → owner / admin123</div>
+        <div class="demo-row"><strong>Sala</strong> → sala / sala123</div>
+        <div class="demo-row"><strong>Cucina</strong> → cucina / cucina123</div>
+        <div class="demo-row"><strong>Cassa</strong> → cassa / cassa123</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>

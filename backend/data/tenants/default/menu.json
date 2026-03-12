@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Margherita",
+    "category": "Pizze",
+    "price": 8.5,
+    "recipe": "Margherita", 
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "Carbonara",
+    "category": "Primi",
+    "price": 14.0,
+    "recipe": "Carbonara",
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "Piatto del giorno",
+    "category": "Extra",
+    "price": 16.0,
+    "recipe": null,
+    "active": true
+  }
+]

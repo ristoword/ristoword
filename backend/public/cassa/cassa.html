@@ -1,0 +1,862 @@
+<!-- cassa.html (COMPLETO) -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Cassa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="cassa.css" />
+  <link rel="stylesheet" href="/shared/staff-access.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Cassa</h1>
+        <p class="subtitle">
+          Chiusura tavoli • sconti/IVA • pagamenti • fatture • report
+        </p>
+      </div>
+      <div class="topbar-right">
+        <div class="rw-staff-chip" id="rw-cassa-datetime">
+          <span class="rw-value" id="rw-datetime-value">—</span>
+        </div>
+        <div class="rw-staff-chip" id="rw-cassa-day-status">
+          <span class="rw-label">Giornata:</span>
+          <span class="rw-value" id="rw-day-status-value">—</span>
+        </div>
+        <div class="rw-staff-chip" id="rw-cassa-shift-status">
+          <span class="rw-label">Turno:</span>
+          <span class="rw-value" id="rw-shift-status-value">—</span>
+        </div>
+        <div class="shift-actions" id="shift-actions">
+          <button type="button" class="btn ghost" id="rw-btn-open-shift">Apri Cassa</button>
+          <button type="button" class="btn ghost" id="rw-btn-shift-change">Cambio Turno</button>
+          <button type="button" class="btn ghost" id="rw-btn-partial-close">Chiusura Parziale</button>
+          <button type="button" class="btn ghost" id="rw-btn-z-closure">Chiusura Z</button>
+        </div>
+        <div id="rw-cassa-manager-chip" class="rw-staff-chip">
+          <span class="rw-label">Manager:</span>
+          <span class="rw-value" id="rw-manager-value">—</span>
+          <button type="button" class="rw-btn" id="rw-btn-manager-login">Login</button>
+          <button type="button" class="rw-btn" id="rw-btn-manager-logout" style="display:none">Logout</button>
+        </div>
+        <div id="rw-cassa-staff-chip" class="rw-staff-chip">
+          <span class="rw-label">Staff attivi:</span>
+          <span class="rw-value" id="rw-staff-count">0</span>
+          <button type="button" class="rw-btn" id="rw-btn-staff-login">Staff login</button>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Tavoli da chiudere</span>
+          <span class="chip-value" id="kpi-tables-open">0</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Ordini serviti</span>
+          <span class="chip-value" id="kpi-orders-served">0</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Incasso simulato</span>
+          <span class="chip-value" id="kpi-total-sim">€ 0.00</span>
+        </div>
+        <button class="btn ghost" id="btn-refresh-orders">Aggiorna</button>
+      </div>
+    </header>
+
+    <!-- TABS PRINCIPALI -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="tab-cassa">Cassa / Tavoli</button>
+      <button class="tab" data-tab="tab-menu">Menù ufficiale</button>
+      <button class="tab" data-tab="tab-report">Report</button>
+    </nav>
+
+    <section class="tabs-content">
+
+      <!-- TAB 1: CASSA / TAVOLI -->
+      <section id="tab-cassa" class="tab-panel active">
+        <div class="main-grid">
+          <!-- COLONNA SINISTRA -->
+          <div class="col-left">
+            <article class="card">
+              <header class="card-header">
+                <h2>Tavoli serviti</h2>
+                <p>Solo tavoli con ordini tutti serviti – pronti per pagamento</p>
+              </header>
+              <div class="card-body">
+                <div id="tables-list" class="orders-list"></div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Staff attivi (cassa)</h2>
+                <p>Personale loggato dalla cassa</p>
+              </header>
+              <div class="card-body">
+                <div id="rw-cassa-active-staff"></div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Magazzino (snapshot)</h2>
+                <p>Disponibilità rapida (API /api/inventory)</p>
+              </header>
+              <div class="card-body">
+                <div class="form-grid">
+                  <label class="full">
+                    Cerca prodotto
+                    <input type="text" id="inv-search" placeholder="Es. Mozzarella, birra..." />
+                  </label>
+                </div>
+                <div class="mini-list" id="inv-mini-list"></div>
+                <div class="form-actions">
+                  <button class="btn ghost" type="button" id="btn-inv-refresh">Aggiorna magazzino</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- COLONNA DESTRA -->
+          <div class="col-right">
+            <article class="card">
+              <header class="card-header">
+                <h2>Dettaglio tavolo</h2>
+                <p>Piatti, storni, sconti, IVA, pagamenti, fattura, chiusura</p>
+              </header>
+              <div class="card-body">
+                <div class="bill-summary">
+                  <div class="bill-summary-row">
+                    <span class="label-soft">Tavolo</span>
+                    <span class="value-strong" id="bill-table">–</span>
+                  </div>
+                  <div class="bill-summary-row">
+                    <span class="label-soft">Coperti totali</span>
+                    <span class="value-strong" id="bill-covers">–</span>
+                  </div>
+                  <div class="bill-summary-row">
+                    <span class="label-soft">Ordini</span>
+                    <span class="value-strong" id="bill-orders-count">–</span>
+                  </div>
+                </div>
+
+                <div class="bill-items" id="bill-items"></div>
+
+                <div class="tools-row">
+                  <button class="btn ghost" type="button" id="btn-void-item">Storna riga</button>
+                  <button class="btn ghost" type="button" id="btn-invoice">Fattura</button>
+                  <button class="btn ghost" type="button" id="btn-open-payment">Pagamento</button>
+                  <button class="btn ghost" type="button" id="btn-open-split">Dividi conto</button>
+                  <button class="btn ghost" type="button" id="btn-shopping">Lista spesa</button>
+                  <button class="btn ghost" type="button" id="btn-email">Email</button>
+                  <button class="btn ghost" type="button" id="btn-ai">AI</button>
+                </div>
+
+                <div class="section-title">Sconto e simulazione</div>
+
+                <div class="form-grid">
+                  <label>
+                    Totale simulato
+                    <input type="text" id="bill-total-sim" readonly />
+                  </label>
+                  <label>
+                    Tipo sconto
+                    <select id="discount-type">
+                      <option value="none">Nessuno</option>
+                      <option value="percent">Percentuale %</option>
+                      <option value="amount">Importo €</option>
+                    </select>
+                  </label>
+                  <label>
+                    Valore sconto
+                    <input type="number" id="discount-value" step="0.01" />
+                  </label>
+                  <label>
+                    Motivo sconto
+                    <select id="discount-reason">
+                      <option value="">Nessuno</option>
+                      <option value="fidelizzato">Cliente fidelizzato</option>
+                      <option value="amici">Amici</option>
+                      <option value="parenti">Parenti</option>
+                      <option value="personale">Personale</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                  </label>
+                  <label class="full">
+                    IVA %
+                    <input type="number" id="bill-vat" value="10" step="1" min="0" max="30" />
+                  </label>
+                </div>
+
+                <div class="bill-summary" style="margin-top:8px;">
+                  <div class="bill-summary-row discount">
+                    <span class="label-soft">Storni applicati</span>
+                    <span class="value-strong" id="bill-void-applied">€ 0.00</span>
+                  </div>
+                  <div class="bill-summary-row discount">
+                    <span class="label-soft">Sconto applicato</span>
+                    <span class="value-strong" id="bill-discount-applied">€ 0.00</span>
+                  </div>
+                  <div class="bill-summary-row">
+                    <span class="label-soft">Imponibile (simulato)</span>
+                    <span class="value-strong" id="bill-subtotal">€ 0.00</span>
+                  </div>
+                  <div class="bill-summary-row">
+                    <span class="label-soft">IVA (simulata)</span>
+                    <span class="value-strong" id="bill-vat-amount">€ 0.00</span>
+                  </div>
+                  <div class="bill-summary-row total">
+                    <span>Totale finale (simulato)</span>
+                    <span id="bill-total-final">€ 0.00</span>
+                  </div>
+                </div>
+
+                <div class="section-title">Riepilogo pagamento</div>
+
+                <div class="form-grid">
+                  <label>
+                    Modalità conto
+                    <input type="text" id="payment-summary-mode" value="Pagamento singolo" readonly />
+                  </label>
+                  <label>
+                    Metodo pagamento
+                    <input type="text" id="payment-summary-method" value="Non selezionato" readonly />
+                  </label>
+                  <label>
+                    Operatore
+                    <input type="text" id="payment-summary-operator" value="—" readonly />
+                  </label>
+                  <label>
+                    Totale incasso da registrare
+                    <input type="text" id="payment-summary-total" value="€ 0.00" readonly />
+                  </label>
+                </div>
+
+                <div class="form-actions">
+                  <button class="btn ghost" type="button" id="btn-simulate-bill">Simula chiusura</button>
+                  <button class="btn primary" type="button" id="btn-close-table">Chiudi tavolo</button>
+                </div>
+
+                <div class="label-soft tiny">
+                  Simulazione e fattura sono strumenti di demo/gestione interna. Per fiscali reali serve integrazione registratore/ERP.
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: MENU UFFICIALE -->
+      <section id="tab-menu" class="tab-panel">
+        <div class="main-grid">
+          <div class="col-left">
+            <article class="card">
+              <header class="card-header">
+                <h2>Nuova voce menù</h2>
+                <p>Valido per Sala, Cassa e produzione</p>
+              </header>
+              <div class="card-body">
+                <div class="form-grid">
+                  <label class="full">
+                    Nome piatto / bevanda
+                    <input type="text" id="menu-name" placeholder="Es. Tagliata di manzo" />
+                  </label>
+                  <label>
+                    Categoria
+                    <select id="menu-category-input">
+                      <option value="ristorante">Ristorante</option>
+                      <option value="pizzeria">Pizzeria</option>
+                      <option value="bar">Bar</option>
+                      <option value="vini">Vini</option>
+                      <option value="dessert">Dessert</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                  </label>
+                  <label>
+                    Reparto
+                    <select id="menu-area">
+                      <option value="cucina">Cucina</option>
+                      <option value="pizzeria">Pizzeria</option>
+                      <option value="bar">Bar</option>
+                    </select>
+                  </label>
+                  <label>
+                    Prezzo (€)
+                    <input type="number" id="menu-price" step="0.01" min="0" />
+                  </label>
+                  <label>
+                    IVA %
+                    <input type="number" id="menu-vat" step="1" min="0" max="30" value="10" />
+                  </label>
+                  <label class="full">
+                    Note interne
+                    <textarea id="menu-notes" rows="2" placeholder="Allergeni, info cucina..."></textarea>
+                  </label>
+                </div>
+                <div class="form-actions">
+                  <button class="btn primary" type="button" id="btn-add-menu-item">Aggiungi al menù</button>
+                  <button class="btn ghost" type="button" id="btn-clear-menu-form">Svuota campi</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="col-right">
+            <article class="card">
+              <header class="card-header">
+                <h2>Menù ufficiale</h2>
+                <p>Salvato in questo dispositivo (localStorage)</p>
+              </header>
+              <div class="card-body">
+                <div class="form-grid">
+                  <label class="full">
+                    Filtra per categoria
+                    <select id="menu-filter-category">
+                      <option value="">Tutte</option>
+                      <option value="ristorante">Ristorante</option>
+                      <option value="pizzeria">Pizzeria</option>
+                      <option value="bar">Bar</option>
+                      <option value="vini">Vini</option>
+                      <option value="dessert">Dessert</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="menu-list" id="menu-list"></div>
+                <div class="form-actions">
+                  <button class="btn ghost" type="button" id="btn-clear-menu">Svuota menù</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: REPORT -->
+      <section id="tab-report" class="tab-panel">
+        <div class="main-grid">
+          <div class="col-left">
+            <article class="card">
+              <header class="card-header">
+                <h2>Report giornaliero</h2>
+                <p>Oggi / settimana scorsa / anno prima (se presenti in memoria)</p>
+              </header>
+              <div class="card-body">
+                <div class="form-grid">
+                  <label>
+                    Data
+                    <input type="date" id="report-date" />
+                  </label>
+                  <label>
+                    Spesa Food+Drink (€)
+                    <input type="number" id="report-food" step="0.01" min="0" placeholder="Es. 420.00" />
+                  </label>
+                  <label>
+                    Spesa Personale (€)
+                    <input type="number" id="report-staff" step="0.01" min="0" placeholder="Es. 380.00" />
+                  </label>
+                  <label>
+                    Note
+                    <input type="text" id="report-note" placeholder="Note del giorno..." />
+                  </label>
+                  <div class="form-actions full">
+                    <button class="btn primary" type="button" id="btn-save-report">Salva / Aggiorna</button>
+                    <button class="btn ghost" type="button" id="btn-show-compare">Confronta</button>
+                  </div>
+                </div>
+
+                <div class="report-box" id="report-box"></div>
+
+                <div class="form-actions" style="margin-top:10px;">
+                  <button class="btn ghost" type="button" id="btn-add-catering">Aggiungi incasso Catering</button>
+                  <button class="btn ghost" type="button" id="btn-export-report">Esporta (stampa/PDF)</button>
+                </div>
+
+                <div class="label-soft tiny">
+                  Il confronto funziona se esiste un report salvato per la stessa data (anno prima) o per 7 giorni prima.
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="col-right">
+            <article class="card">
+              <header class="card-header">
+                <h2>Storico report</h2>
+                <p>Locale (localStorage)</p>
+              </header>
+              <div class="card-body">
+                <div class="mini-list" id="report-history"></div>
+                <div class="form-actions">
+                  <button class="btn ghost" type="button" id="btn-clear-reports">Svuota storico</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Storico chiusure Z</h2>
+                <p>Chiusure giornaliere (Z) dal backend</p>
+              </header>
+              <div class="card-body">
+                <div class="mini-list" id="closure-history"></div>
+                <div class="form-actions">
+                  <button class="btn ghost" type="button" id="btn-refresh-closures">Aggiorna</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Fatture (storico)</h2>
+                <p>Locale (localStorage)</p>
+              </header>
+              <div class="card-body">
+                <div class="mini-list" id="invoice-history"></div>
+                <div class="form-actions">
+                  <button class="btn ghost" type="button" id="btn-clear-invoices">Svuota fatture</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+    </section>
+  </div>
+
+  <!-- MODAL: STORNO -->
+  <div class="modal-backdrop" id="modal-void">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Storno riga</div>
+        <button class="btn-xs danger" type="button" id="btn-void-close">Chiudi</button>
+      </div>
+      <div class="modal-body">
+        <div class="label-soft tiny">Lo storno qui è “da cassa” (non modifica l’ordine sul server). Riduce il totale simulato e viene tracciato.</div>
+        <div class="form-grid" style="margin-top:10px;">
+          <label class="full">
+            Riga
+            <select id="void-item-select"></select>
+          </label>
+          <label>
+            Quantità
+            <input type="number" id="void-qty" min="1" step="1" value="1" />
+          </label>
+          <label>
+            Motivo
+            <select id="void-reason">
+              <option value="errore">Errore inserimento</option>
+              <option value="reclamo">Reclamo cliente</option>
+              <option value="omaggio">Omaggio</option>
+              <option value="rottura">Rottura / scarto</option>
+              <option value="altro">Altro</option>
+            </select>
+          </label>
+          <label class="full">
+            Nota
+            <input type="text" id="void-note" placeholder="Dettaglio..." />
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn ghost" type="button" id="btn-void-remove-all">Svuota storni tavolo</button>
+          <button class="btn primary" type="button" id="btn-void-confirm">Conferma storno</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: FATTURA -->
+  <div class="modal-backdrop" id="modal-invoice">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <div class="modal-title">Fattura</div>
+        <div class="modal-actions">
+          <button class="btn ghost" type="button" id="btn-invoice-print">Stampa / PDF</button>
+          <button class="btn-xs danger" type="button" id="btn-invoice-close">Chiudi</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="two-cols-tight">
+          <div>
+            <div class="section-title">Dati ristorante</div>
+            <div class="form-grid">
+              <label class="full">Ragione sociale<input type="text" id="inv-rest-name" placeholder="RISTOWORD SRL" /></label>
+              <label class="full">Indirizzo<input type="text" id="inv-rest-addr" placeholder="Via..., CAP, Città" /></label>
+              <label>P.IVA<input type="text" id="inv-rest-vat" placeholder="IT..." /></label>
+              <label>SDI/PEC<input type="text" id="inv-rest-pec" placeholder="..." /></label>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title">Dati cliente</div>
+            <div class="form-grid">
+              <label class="full">Intestazione<input type="text" id="inv-cli-name" placeholder="Cliente / Azienda" /></label>
+              <label class="full">Indirizzo<input type="text" id="inv-cli-addr" placeholder="Via..., CAP, Città" /></label>
+              <label>P.IVA/CF<input type="text" id="inv-cli-vat" placeholder="..." /></label>
+              <label>Email<input type="email" id="inv-cli-email" placeholder="cliente@email.com" /></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:12px;">Righe fattura (dal tavolo selezionato)</div>
+        <div id="invoice-lines" class="invoice-lines"></div>
+
+        <div class="invoice-totals">
+          <div><span class="label-soft">Imponibile</span><span class="value-strong" id="inv-sub">€ 0.00</span></div>
+          <div><span class="label-soft">IVA</span><span class="value-strong" id="inv-vat">€ 0.00</span></div>
+          <div class="total"><span>Totale</span><span id="inv-total">€ 0.00</span></div>
+        </div>
+
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn ghost" type="button" id="btn-invoice-save">Salva fattura (storico)</button>
+          <button class="btn primary" type="button" id="btn-invoice-email">Invia via Email (mailto)</button>
+        </div>
+
+        <div id="invoice-print-area" class="print-area" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PAGAMENTO -->
+  <div class="modal-backdrop" id="modal-payment">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <div class="modal-title">Pagamento</div>
+        <div class="modal-actions">
+          <button class="btn-xs danger" type="button" id="btn-payment-close">Chiudi</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="label-soft tiny">Configura il pagamento che verrà registrato alla chiusura tavolo.</div>
+
+        <div class="section-title" style="margin-top:10px;">Metodo di pagamento</div>
+        <div class="form-grid">
+          <label>
+            Metodo
+            <select id="payment-method">
+              <option value="cash">Contanti</option>
+              <option value="card">Carta / POS</option>
+            </select>
+          </label>
+          <label>
+            Operatore
+            <input type="text" id="payment-operator" placeholder="Es. cassiere1" />
+          </label>
+          <label>
+            Importo ricevuto
+            <input type="number" id="payment-received" step="0.01" min="0" placeholder="Es. 100.00" />
+          </label>
+          <label>
+            Resto
+            <input type="text" id="payment-change" value="€ 0.00" readonly />
+          </label>
+          <label class="full">
+            Note pagamento
+            <input type="text" id="payment-note" placeholder="Note facoltative..." />
+          </label>
+        </div>
+
+        <div id="payment-ticket-box" class="payment-box" style="display:none;">
+          <div class="section-title">Ticket restaurant</div>
+          <div class="form-grid">
+            <label>
+              Numero ticket
+              <input type="number" id="ticket-count" min="0" step="1" value="0" />
+            </label>
+            <label>
+              Valore singolo ticket
+              <input type="number" id="ticket-unit" min="0" step="0.01" value="0" />
+            </label>
+            <label class="full">
+              Totale ticket
+              <input type="text" id="ticket-total" value="€ 0.00" readonly />
+            </label>
+          </div>
+        </div>
+
+        <div id="payment-voucher-box" class="payment-box" style="display:none;">
+          <div class="section-title">Voucher / Buono sconto</div>
+          <div class="form-grid">
+            <label>
+              Codice voucher
+              <input type="text" id="voucher-code" placeholder="Es. PROMO123" />
+            </label>
+            <label>
+              Valore voucher
+              <input type="number" id="voucher-amount" min="0" step="0.01" value="0" />
+            </label>
+          </div>
+        </div>
+
+        <div id="payment-mixed-box" class="payment-box" style="display:none;">
+          <div class="section-title">Pagamento misto</div>
+          <div class="form-grid">
+            <label>
+              Contanti
+              <input type="number" id="mixed-cash" min="0" step="0.01" value="0" />
+            </label>
+            <label>
+              Carta / POS
+              <input type="number" id="mixed-card" min="0" step="0.01" value="0" />
+            </label>
+            <label>
+              Online
+              <input type="number" id="mixed-online" min="0" step="0.01" value="0" />
+            </label>
+            <label>
+              Ticket
+              <input type="number" id="mixed-ticket" min="0" step="0.01" value="0" />
+            </label>
+            <label>
+              Voucher
+              <input type="number" id="mixed-voucher" min="0" step="0.01" value="0" />
+            </label>
+            <label>
+              Totale misto
+              <input type="text" id="mixed-total" value="€ 0.00" readonly />
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:12px;">
+          <button class="btn ghost" type="button" id="btn-payment-reset">Reset pagamento</button>
+          <button class="btn primary" type="button" id="btn-payment-confirm">Conferma pagamento</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DIVISIONE CONTO -->
+  <div class="modal-backdrop" id="modal-split">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <div class="modal-title">Divisione conto</div>
+        <div class="modal-actions">
+          <button class="btn-xs danger" type="button" id="btn-split-close">Chiudi</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="label-soft tiny">Configura come dividere il conto prima della chiusura tavolo.</div>
+
+        <div class="form-grid" style="margin-top:10px;">
+          <label>
+            Modalità divisione
+            <select id="split-mode">
+              <option value="single">Pagamento singolo</option>
+              <option value="equal">Dividi per numero persone</option>
+              <option value="manual">Divisione manuale / quote</option>
+            </select>
+          </label>
+          <label>
+            Numero persone
+            <input type="number" id="split-people" min="1" step="1" value="2" />
+          </label>
+        </div>
+
+        <div id="split-equal-box" class="payment-box" style="display:none;">
+          <div class="section-title">Divisione uguale</div>
+          <div class="form-grid">
+            <label>
+              Totale a testa
+              <input type="text" id="split-equal-amount" value="€ 0.00" readonly />
+            </label>
+          </div>
+        </div>
+
+        <div id="split-manual-box" class="payment-box" style="display:none;">
+          <div class="section-title">Quote manuali</div>
+          <div class="label-soft tiny">Inserisci gli importi manualmente. La somma deve coincidere con il totale finale.</div>
+          <div class="mini-list" id="split-manual-list"></div>
+          <div class="form-grid" style="margin-top:10px;">
+            <label>
+              Totale quote
+              <input type="text" id="split-manual-total" value="€ 0.00" readonly />
+            </label>
+            <label>
+              Differenza
+              <input type="text" id="split-manual-diff" value="€ 0.00" readonly />
+            </label>
+          </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:12px;">
+          <button class="btn ghost" type="button" id="btn-split-reset">Reset divisione</button>
+          <button class="btn primary" type="button" id="btn-split-confirm">Conferma divisione</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EMAIL -->
+  <div class="modal-backdrop" id="modal-email">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Email</div>
+        <button class="btn-xs danger" type="button" id="btn-email-close">Chiudi</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <label class="full">
+            Destinatario
+            <input type="email" id="email-to" placeholder="fornitore@email.com" />
+          </label>
+          <label class="full">
+            Oggetto
+            <input type="text" id="email-subject" placeholder="Ordine / Richiesta / Info" />
+          </label>
+          <label class="full">
+            Messaggio
+            <textarea id="email-body" rows="6" placeholder="Testo email..."></textarea>
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn ghost" type="button" id="btn-email-fill-shopping">Inserisci lista spesa</button>
+          <button class="btn primary" type="button" id="btn-email-send">Apri mailto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LISTA SPESA -->
+  <div class="modal-backdrop" id="modal-shopping">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Lista spesa</div>
+        <div class="modal-actions">
+          <button class="btn ghost" type="button" id="btn-shopping-print">Stampa / PDF</button>
+          <button class="btn-xs danger" type="button" id="btn-shopping-close">Chiudi</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="label-soft tiny">Generata da: prodotti sotto soglia + appunti manuali.</div>
+        <div class="form-grid" style="margin-top:10px;">
+          <label class="full">
+            Appunti manuali
+            <textarea id="shopping-notes" rows="4" placeholder="Aggiunte manuali..."></textarea>
+          </label>
+        </div>
+        <div class="mini-list" id="shopping-list"></div>
+        <div id="shopping-print-area" class="print-area" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: APRI CASSA -->
+  <div class="modal-backdrop" id="modal-open-shift">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Apri Cassa</div>
+        <button class="btn-xs danger" type="button" id="btn-open-shift-close">Chiudi</button>
+      </div>
+      <div class="modal-body">
+        <div class="label-soft tiny">Nuova apertura cassa. Inserisci il cambio iniziale (float).</div>
+        <div class="form-grid" style="margin-top:10px;">
+          <label class="full">
+            Operatore
+            <input type="text" id="open-shift-operator" placeholder="Nome operatore" />
+          </label>
+          <label class="full">
+            Cambio iniziale (€)
+            <input type="number" id="open-shift-float" step="0.01" min="0" value="0" placeholder="Es. 100.00" />
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn primary" type="button" id="btn-open-shift-confirm">Apri Cassa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CAMBIO TURNO -->
+  <div class="modal-backdrop" id="modal-shift-change">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Cambio Turno</div>
+        <button class="btn-xs danger" type="button" id="btn-shift-change-close">Chiudi</button>
+      </div>
+      <div class="modal-body">
+        <div class="label-soft tiny">Conteggio cassa al cambio turno. Chiude il turno corrente e ne apre uno nuovo.</div>
+        <div class="form-grid" style="margin-top:10px;">
+          <label class="full">
+            Operatore nuovo turno
+            <input type="text" id="shift-change-operator" placeholder="Nome operatore" />
+          </label>
+          <label class="full">
+            Contanti contati in cassa (€)
+            <input type="number" id="shift-change-counted" step="0.01" min="0" value="0" placeholder="Importo contanti effettivi" />
+          </label>
+          <label class="full">
+            Cambio iniziale nuovo turno (€)
+            <input type="number" id="shift-change-new-float" step="0.01" min="0" value="0" placeholder="Default: stesso importo contati" />
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn primary" type="button" id="btn-shift-change-confirm">Cambio Turno</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CHIUSURA PARZIALE -->
+  <div class="modal-backdrop" id="modal-partial-close">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Chiusura Parziale</div>
+        <button class="btn-xs danger" type="button" id="btn-partial-close-close">Chiudi</button>
+      </div>
+      <div class="modal-body">
+        <div class="label-soft tiny">Calcola i totali correnti senza chiudere il turno né la giornata. Inserisci i contanti contati per calcolare la differenza.</div>
+        <div class="form-grid" style="margin-top:10px;">
+          <label class="full">
+            Contanti contati (€)
+            <input type="number" id="partial-close-counted" step="0.01" min="0" placeholder="Contanti effettivi in cassa" />
+          </label>
+        </div>
+        <div id="partial-close-report" class="partial-close-report" style="margin-top:12px;"></div>
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn primary" type="button" id="btn-partial-close-fetch">Calcola</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CHIUSURA Z -->
+  <div class="modal-backdrop" id="modal-z-report">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Chiusura Z</div>
+        <button class="btn-xs danger" type="button" id="btn-z-report-close">Chiudi</button>
+      </div>
+      <div class="modal-body">
+        <div class="label-soft tiny">Chiusura definitiva della giornata. Calcola i totali di tutti i turni e chiude la giornata.</div>
+        <div class="form-grid" style="margin-top:10px;">
+          <label class="full">
+            Contanti contati in cassa (€) – se turno ancora aperto
+            <input type="number" id="z-report-counted" step="0.01" min="0" value="0" placeholder="0 se turno già chiuso" />
+          </label>
+          <label class="full">
+            Operatore
+            <input type="text" id="z-report-closed-by" placeholder="Nome operatore" />
+          </label>
+          <label class="full">
+            Note
+            <input type="text" id="z-report-notes" placeholder="Note facoltative" />
+          </label>
+        </div>
+        <div class="form-actions" style="margin-top:10px;">
+          <button class="btn primary" type="button" id="btn-z-report-confirm">Chiusura Z</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared -->
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,cassa"></script>
+  <script src="/shared/api.js"></script>
+  <script src="/shared/websocket.js"></script>
+  <script src="/shared/staff-access.js"></script>
+  <script src="cassa.js"></script>
+</body>
+</html>

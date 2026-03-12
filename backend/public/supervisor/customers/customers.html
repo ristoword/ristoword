@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Clienti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/supervisor/supervisor.css" />
+  <link rel="stylesheet" href="customers.css" />
+</head>
+
+<body>
+  <div class="shell">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">RW</div>
+        <div class="brand-txt">
+          <div class="brand-title">RISTOWORD</div>
+          <div class="brand-sub">Supervisor</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item" href="/dashboard/dashboard.html">Dashboard</a>
+        <a class="nav-item" href="/sala/sala.html">Sala</a>
+        <a class="nav-item" href="/cucina/cucina.html">Cucina</a>
+        <a class="nav-item" href="/pizzeria/pizzeria.html">Pizzeria</a>
+        <a class="nav-item" href="/bar/bar.html">Bar</a>
+        <a class="nav-item" href="/cassa/cassa.html">Cassa</a>
+        <a class="nav-item" href="/magazzino/magazzino.html">Magazzino</a>
+        <a class="nav-item" href="/prenotazioni/prenotazioni.html">Prenotazioni</a>
+        <a class="nav-item" href="/supervisor/supervisor.html">Supervisor</a>
+        <a class="nav-item" href="/supervisor/staff/staff.html">Staff</a>
+        <a class="nav-item active" href="/supervisor/customers/customers.html">Clienti</a>
+      </nav>
+
+      <div class="side-footer">
+        <div class="tiny muted">© 2026 RistoWord</div>
+      </div>
+    </aside>
+
+    <main class="main">
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Clienti (CRM)</h1>
+          <div class="sub">Gestione profili clienti • Prenotazioni • Pagamenti</div>
+        </div>
+        <div class="topbar-right">
+          <button class="btn primary" id="btn-add-customer">Nuovo cliente</button>
+          <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+        </div>
+      </header>
+
+      <article class="card full">
+        <header class="card-header">
+          <h2>Elenco clienti</h2>
+          <p>Cerca per nome o telefono. Filtra per categoria. Clicca per modificare.</p>
+        </header>
+        <div class="card-body">
+          <div class="filters customer-filters">
+            <label class="grow">
+              Cerca (nome, cognome, telefono)
+              <input type="text" id="f-search" placeholder="Es. Mario Rossi, +39..." />
+            </label>
+            <label>
+              Categoria
+              <select id="f-category">
+                <option value="">Tutte</option>
+                <option value="normal">Normal</option>
+                <option value="top">Top</option>
+                <option value="vip">VIP</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="customer-table-wrap">
+            <div class="trow head customer-trow">
+              <span>Nome</span>
+              <span>Telefono</span>
+              <span>Email</span>
+              <span>Categoria</span>
+              <span></span>
+            </div>
+            <div id="customer-list"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Modal: nuovo / modifica cliente -->
+      <div class="modal-backdrop" id="modal-customer" aria-hidden="true">
+        <div class="modal modal-wide">
+          <div class="modal-header">
+            <div class="modal-title" id="modal-title">Nuovo cliente</div>
+            <button class="btn ghost" type="button" id="btn-modal-close">Chiudi</button>
+          </div>
+          <div class="modal-body">
+            <form id="form-customer" class="form-grid">
+              <input type="hidden" id="field-id" />
+              <label>
+                Nome <input type="text" id="field-name" required />
+              </label>
+              <label>
+                Cognome <input type="text" id="field-surname" />
+              </label>
+              <label>
+                Telefono <input type="tel" id="field-phone" />
+              </label>
+              <label>
+                Email <input type="email" id="field-email" />
+              </label>
+              <label class="full">
+                Note <textarea id="field-notes" rows="2"></textarea>
+              </label>
+              <label>
+                Data di nascita <input type="date" id="field-birthday" />
+              </label>
+              <label>
+                Categoria
+                <select id="field-category">
+                  <option value="normal">Normal</option>
+                  <option value="top">Top</option>
+                  <option value="vip">VIP</option>
+                </select>
+              </label>
+              <label class="full">
+                Allergie (separate da virgola) <input type="text" id="field-allergies" placeholder="Es. glutine, lattosio" />
+              </label>
+              <label class="full">
+                Intolleranze (separate da virgola) <input type="text" id="field-intolerances" placeholder="Es. lattosio" />
+              </label>
+              <label class="full">
+                Preferenze (separate da virgola) <input type="text" id="field-preferences" placeholder="Es. tavolo finestra, acqua naturale" />
+              </label>
+              <div class="form-actions full">
+                <button type="submit" class="btn primary">Salva</button>
+                <button type="button" class="btn ghost" id="btn-form-cancel">Annulla</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="/shared/api.js"></script>
+  <script src="customers.js"></script>
+</body>
+</html>

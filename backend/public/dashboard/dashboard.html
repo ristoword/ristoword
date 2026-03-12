@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>RISTOWORD – Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+<div class="brand">
+<div class="brand-logo">RW</div>
+<div class="brand-text">
+<div class="brand-title">RISTOWORD</div>
+<div class="brand-subtitle">Control Center</div>
+</div>
+</div>
+
+<nav class="side-nav">
+
+<button class="side-nav-item active" data-link="/dashboard/dashboard.html">Dashboard</button>
+<button class="side-nav-item" data-link="/sala/sala.html">Sala</button>
+<button class="side-nav-item" data-link="/cucina/cucina.html">Cucina</button>
+<button class="side-nav-item" data-link="/pizzeria/pizzeria.html">Pizzeria</button>
+<button class="side-nav-item" data-link="/bar/bar.html">Bar</button>
+<button class="side-nav-item" data-link="/cassa/cassa.html">Cassa</button>
+<button class="side-nav-item" data-link="/magazzino/magazzino.html">Magazzino</button>
+<button class="side-nav-item" data-link="/catering/catering.html">Catering</button>
+<button class="side-nav-item" data-link="/prenotazioni/prenotazioni.html">Prenotazioni</button>
+<button class="side-nav-item" data-link="/asporto/asporto.html">Asporto</button>
+<button class="side-nav-item" data-link="/supervisor/supervisor.html">Supervisor</button>
+<button class="side-nav-item" data-link="/menu-admin/menu-admin.html">Menu Admin</button>
+
+</nav>
+
+<div class="side-footer">
+<div class="side-footer-text">© 2026 Ristoword</div>
+<div class="side-footer-sub">Kitchen-First System</div>
+</div>
+
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<header class="topbar">
+
+<div class="topbar-left">
+<h1>Dashboard operativa</h1>
+<p class="subtitle">
+Controllo totale di Sala → Cucina → Pizzeria → Magazzino → Cassa
+</p>
+</div>
+
+<div class="topbar-right">
+
+<div class="user-box">
+<div class="user-status-dot"></div>
+<div class="user-info">
+<div class="user-label">Account</div>
+<div class="user-name" id="user-name-label">Ospite</div>
+</div>
+</div>
+
+<button class="btn ghost" id="btn-login">Login</button>
+<button class="btn primary" id="btn-logout" disabled>Logout</button>
+
+</div>
+
+</header>
+
+<!-- KPI -->
+<section class="kpi-row">
+
+<article class="kpi-card">
+<div class="kpi-label">Ordini aperti</div>
+<div class="kpi-value" id="kpi-open">0</div>
+<div class="kpi-note">In tutti i reparti</div>
+</article>
+
+<article class="kpi-card">
+<div class="kpi-label">Tavoli occupati</div>
+<div class="kpi-value" id="kpi-tables">0</div>
+<div class="kpi-note">Attivi</div>
+</article>
+
+<article class="kpi-card">
+<div class="kpi-label">Pronti</div>
+<div class="kpi-value" id="kpi-ready">0</div>
+<div class="kpi-note">Da ritirare</div>
+</article>
+
+<article class="kpi-card">
+<div class="kpi-label">In preparazione</div>
+<div class="kpi-value" id="kpi-prep">0</div>
+<div class="kpi-note">Cucina + Pizzeria</div>
+</article>
+
+<article class="kpi-card warning">
+<div class="kpi-label">In ritardo</div>
+<div class="kpi-value" id="kpi-late">0</div>
+<div class="kpi-note">> 15 minuti</div>
+</article>
+
+</section>
+
+<!-- CASH + ALERTS -->
+<section class="dashboard-status-row">
+<article class="status-card" id="cash-status-card">
+<div class="status-label">Cassa</div>
+<div class="status-value" id="cash-status-value">—</div>
+</article>
+<article class="alerts-card" id="alerts-card">
+<div class="alerts-label">Avvisi</div>
+<div class="alerts-list" id="alerts-list"></div>
+</article>
+</section>
+
+<!-- GRID -->
+<section class="grid-main">
+
+<!-- MODULI -->
+<section class="grid-col">
+
+<header class="grid-section-header">
+<h2>Operatività</h2>
+<p>Apri un reparto.</p>
+</header>
+
+<div class="modules-grid">
+
+<article class="module-card" data-link="/sala/sala.html">
+<div class="module-icon">🍽</div>
+<div class="module-title">Sala</div>
+<div class="module-desc">Gestione tavoli</div>
+</article>
+
+<article class="module-card" data-link="/cucina/cucina.html">
+<div class="module-icon">🔥</div>
+<div class="module-title">Cucina</div>
+<div class="module-desc">Preparazione piatti</div>
+</article>
+
+<article class="module-card" data-link="/pizzeria/pizzeria.html">
+<div class="module-icon">🍕</div>
+<div class="module-title">Pizzeria</div>
+</article>
+
+<article class="module-card" data-link="/bar/bar.html">
+<div class="module-icon">🍸</div>
+<div class="module-title">Bar</div>
+</article>
+
+<article class="module-card" data-link="/magazzino/magazzino.html">
+<div class="module-icon">📦</div>
+<div class="module-title">Magazzino</div>
+</article>
+
+<article class="module-card" data-link="/cassa/cassa.html">
+<div class="module-icon">💳</div>
+<div class="module-title">Cassa</div>
+</article>
+
+<article class="module-card" data-link="/catering/catering.html">
+<div class="module-icon">🎉</div>
+<div class="module-title">Catering</div>
+</article>
+
+<article class="module-card" data-link="/prenotazioni/prenotazioni.html">
+<div class="module-icon">📅</div>
+<div class="module-title">Prenotazioni</div>
+</article>
+
+<article class="module-card" data-link="/supervisor/supervisor.html">
+<div class="module-icon">🧭</div>
+<div class="module-title">Supervisor</div>
+</article>
+
+</div>
+
+</section>
+
+<!-- ULTIME COMANDE -->
+<section class="grid-col">
+
+<header class="grid-section-header">
+<h2>Ultime comande</h2>
+</header>
+
+<article class="card last-orders-card">
+<div class="card-body" id="last-orders-list">
+<div class="placeholder">
+Nessuna comanda trovata
+</div>
+</div>
+</article>
+
+<header class="grid-section-header">
+<h2>AI Assist</h2>
+<p>Assistente operativo</p>
+</header>
+
+<article class="card ai-card">
+<div class="card-body ai-body">
+
+<label class="ai-label">
+Scrivi una domanda
+<input type="text" id="ai-input" placeholder="In arrivo">
+</label>
+
+<button class="btn primary" id="ai-btn" disabled>
+Chiedi
+</button>
+
+</div>
+</article>
+
+</section>
+
+</section>
+
+</main>
+
+</div>
+
+<script src="/shared/auth-guard.js" data-allowed-roles="owner,sala,cucina,cassa"></script>
+<script src="/shared/websocket.js"></script>
+<script src="dashboard.js"></script>
+
+</body>
+</html>

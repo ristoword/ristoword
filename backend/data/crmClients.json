@@ -1,0 +1,16 @@
+{
+  "id": "cli_001",
+  "type": "privato",              // privato | azienda
+  "name": "Mario Rossi",
+  "company": null,
+  "vatNumber": null,
+  "phone": "+39 333 1234567",
+  "email": "mario.rossi@email.it",
+  "city": "Amsterdam",
+  "notes": "Celiaco, viene spesso il sabato",
+  "tags": ["vip", "matrimonio_2027"],
+  "totalBookings": 5,
+  "totalSpent": 780.5,
+  "createdAt": "2025-12-01T18:30:00.000Z",
+  "updatedAt": "2026-02-10T09:10:00.000Z"
+}

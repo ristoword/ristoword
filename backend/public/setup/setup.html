@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Configurazione iniziale</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/login/login.css" />
+  <style>
+    .setup-card { max-width: 520px; }
+    .dept-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .dept-row input[type="checkbox"] { width: auto; }
+  </style>
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-card setup-card">
+      <div class="brand-block">
+        <div class="brand-logo">RW</div>
+        <div>
+          <h1>RISTOWORD</h1>
+          <p class="subtitle">Configurazione iniziale</p>
+        </div>
+      </div>
+
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">
+        Imposta i dati del tuo ristorante. Potrai modificarli in seguito dalla dashboard.
+      </p>
+
+      <div id="setup-message" class="login-message"></div>
+
+      <form id="setup-form" class="login-form">
+        <div class="field">
+          <label for="restaurantName">Nome ristorante</label>
+          <input type="text" id="restaurantName" placeholder="Es. Ristorante La Focaccia" required />
+        </div>
+        <div class="field">
+          <label for="numTables">Numero tavoli</label>
+          <input type="number" id="numTables" min="1" max="999" value="20" />
+        </div>
+        <div class="field">
+          <label>Reparti attivi</label>
+          <div class="dept-row">
+            <input type="checkbox" id="dept-sala" checked />
+            <label for="dept-sala" style="margin:0">Sala</label>
+          </div>
+          <div class="dept-row">
+            <input type="checkbox" id="dept-cucina" checked />
+            <label for="dept-cucina" style="margin:0">Cucina</label>
+          </div>
+          <div class="dept-row">
+            <input type="checkbox" id="dept-pizzeria" checked />
+            <label for="dept-pizzeria" style="margin:0">Pizzeria</label>
+          </div>
+          <div class="dept-row">
+            <input type="checkbox" id="dept-bar" checked />
+            <label for="dept-bar" style="margin:0">Bar</label>
+          </div>
+        </div>
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px">
+            <input type="checkbox" id="seedMenu" checked />
+            Inserisci menu di esempio
+          </label>
+        </div>
+        <button type="submit" class="btn-login" id="btn-setup">Completa configurazione</button>
+      </form>
+    </div>
+  </div>
+  <script src="setup.js"></script>
+</body>
+</html>

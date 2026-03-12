@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Crea piatti</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/dashboard/dashboard.css" />
+  <link rel="stylesheet" href="menu-admin.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">RW</div>
+        <div class="brand-text">
+          <div class="brand-title">RISTOWORD</div>
+          <div class="brand-subtitle">Crea piatti</div>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <a class="side-nav-item" href="/dashboard/dashboard.html">Dashboard</a>
+        <a class="side-nav-item" href="/sala/sala.html">Sala</a>
+        <a class="side-nav-item" href="/cucina/cucina.html">Cucina</a>
+        <a class="side-nav-item" href="/pizzeria/pizzeria.html">Pizzeria</a>
+        <a class="side-nav-item" href="/bar/bar.html">Bar</a>
+        <a class="side-nav-item" href="/cassa/cassa.html">Cassa</a>
+        <a class="side-nav-item" href="/magazzino/magazzino.html">Magazzino</a>
+        <a class="side-nav-item" href="/catering/catering.html">Catering</a>
+        <a class="side-nav-item" href="/prenotazioni/prenotazioni.html">Prenotazioni</a>
+        <a class="side-nav-item" href="/asporto/asporto.html">Asporto</a>
+        <a class="side-nav-item" href="/supervisor/supervisor.html">Supervisor</a>
+        <a class="side-nav-item active" href="/menu-admin/menu-admin.html">Menu Admin</a>
+      </nav>
+
+      <div class="side-footer">
+        <div class="side-footer-text">© 2026 Ristoword</div>
+        <div class="side-footer-sub">Kitchen-First System</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>RISTOWORD – Crea piatti</h1>
+          <p class="subtitle">
+            Anagrafica piatti e bevande per cucina, pizzeria e bar
+          </p>
+        </div>
+        <div class="topbar-right">
+          <button class="btn ghost" type="button" onclick="window.location.href='/'">
+            ⬅ Dashboard
+          </button>
+          <button class="btn ghost" type="button" onclick="window.location.href='/cucina/cucina.html'">
+            🍳 Torna in cucina
+          </button>
+        </div>
+      </header>
+
+      <div class="menu-admin-content">
+        <section class="left">
+          <article class="card">
+            <header class="card-header">
+              <h2>Nuovo piatto / bevanda</h2>
+              <p>Compila i dati e aggiungi al menu locale</p>
+            </header>
+            <div class="card-body form-grid">
+              <label class="full">
+                Nome piatto
+                <input type="text" id="field-name" placeholder="Es. Risotto ai funghi" />
+              </label>
+
+              <label>
+                Categoria
+                <input type="text" id="field-category" placeholder="Antipasto / Primo / Secondo / Dessert / Bevanda" />
+              </label>
+
+              <label>
+                Reparto
+                <select id="field-area">
+                  <option value="cucina">Cucina</option>
+                  <option value="pizzeria">Pizzeria</option>
+                  <option value="bar">Bar</option>
+                </select>
+              </label>
+
+              <label>
+                Prezzo (€)
+                <input type="number" step="0.01" id="field-price" placeholder="Es. 12.50" />
+              </label>
+
+              <label>
+                Codice interno
+                <input type="text" id="field-code" placeholder="Es. RIS001" />
+              </label>
+
+              <label>
+                Attivo
+                <select id="field-active">
+                  <option value="true" selected>Sì</option>
+                  <option value="false">No (nascosto)</option>
+                </select>
+              </label>
+
+              <label class="full">
+                Note / descrizione
+                <textarea id="field-notes" rows="3" placeholder="Ingredienti, allergeni, note per la sala..."></textarea>
+              </label>
+
+              <div class="form-actions full">
+                <button class="btn primary" id="btn-add-item">Aggiungi al menu</button>
+                <button class="btn ghost" id="btn-clear-form">Svuota campi</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <header class="card-header">
+              <h2>Filtri</h2>
+              <p>Filtra l'elenco piatti</p>
+            </header>
+            <div class="card-body filters-grid">
+              <label>
+                Cerca nome
+                <input type="text" id="filter-search" placeholder="Digita parte del nome..." />
+              </label>
+
+              <label>
+                Reparto
+                <select id="filter-area">
+                  <option value="">Tutti</option>
+                  <option value="cucina">Cucina</option>
+                  <option value="pizzeria">Pizzeria</option>
+                  <option value="bar">Bar</option>
+                </select>
+              </label>
+
+              <label>
+                Solo attivi
+                <select id="filter-active">
+                  <option value="">Tutti</option>
+                  <option value="true" selected>Sì</option>
+                  <option value="false">No</option>
+                </select>
+              </label>
+
+              <div class="form-actions full">
+                <button class="btn ghost" id="btn-reset-filters">Reset filtri</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="right">
+          <article class="card">
+            <header class="card-header">
+              <h2>Piatti registrati (solo su questo dispositivo)</h2>
+              <p id="menu-stats">0 piatti</p>
+            </header>
+            <div class="card-body">
+              <div class="menu-list-header">
+                <span>Nome</span>
+                <span>Reparto</span>
+                <span>Prezzo</span>
+                <span>Stato</span>
+                <span>Azioni</span>
+              </div>
+              <div id="menu-list" class="menu-list">
+                <!-- popolato da menu-admin.js -->
+              </div>
+            </div>
+            <footer class="card-footer">
+              <button class="btn ghost danger" id="btn-clear-all">
+                Svuota completamente il menu locale
+              </button>
+            </footer>
+          </article>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,sala,cucina,cassa"></script>
+  <script src="menu-admin.js"></script>
+</body>
+</html>

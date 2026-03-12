@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Cucina</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="cucina.css" />
+  <link rel="stylesheet" href="/shared/staff-access.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Cucina</h1>
+        <p class="subtitle">
+          Monitor produzione ordini + strumenti di lavoro cucina
+        </p>
+      </div>
+      <div class="topbar-right">
+        <div id="rw-cucina-manager-chip" class="rw-staff-chip">
+          <span class="rw-label">Manager:</span>
+          <span class="rw-value" id="rw-manager-value">—</span>
+          <button type="button" class="rw-btn" id="rw-btn-manager-login">Manager login</button>
+          <button type="button" class="rw-btn" id="rw-btn-manager-logout" style="display:none">Logout</button>
+        </div>
+        <div class="chip">
+          <span class="chip-label">In preparazione</span>
+          <span class="chip-value" id="kpi-prep">–</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Pronti</span>
+          <span class="chip-value" id="kpi-ready">–</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">In ritardo</span>
+          <span class="chip-value" id="kpi-late">–</span>
+        </div>
+        <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+      </div>
+    </header>
+
+    <!-- NAV PULSANTI TOUCH -->
+    <nav class="kitchen-nav">
+      <button class="nav-btn active" data-view="comande">Comande</button>
+
+      <!-- link alle altre pagine reparto -->
+      <button class="nav-btn"
+              type="button"
+              onclick="window.location.href='/magazzino/magazzino.html'">
+        Magazzino
+      </button>
+      <button class="nav-btn"
+              type="button"
+              onclick="window.location.href='/menu-admin/menu-admin.html'">
+        Crea piatti
+      </button>
+      <button class="nav-btn"
+              type="button"
+              onclick="window.location.href='/catering/catering.html'">
+        Catering
+      </button>
+
+      <!-- viste interne di questa pagina -->
+      <button class="nav-btn" data-view="ricette">Ricette</button>
+      <button class="nav-btn" data-view="spesa">Lista spesa</button>
+      <button class="nav-btn" data-view="haccp">HACCP</button>
+      <button class="nav-btn" data-view="turni">Turni cucina</button>
+      <button class="nav-btn" data-view="vocale">Comandi vocali</button>
+    </nav>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="main">
+
+      <!-- VIEW 1: KDS COMANDE A SCHERMO INTERO -->
+      <section id="view-comande" class="view active-view">
+        <article class="card" style="margin-bottom:12px;">
+          <header class="card-header">
+            <h2>Staff attivi (cucina)</h2>
+            <p>Personale loggato in cucina</p>
+          </header>
+          <div class="card-body">
+            <div id="rw-cucina-active-staff"></div>
+          </div>
+        </article>
+        <div class="orders-container">
+          <div class="kds-column">
+            <header class="kds-column-header">Nuove / In attesa</header>
+            <div class="kds-column-body" id="col-pending">
+              <!-- popolato da cucina.js -->
+            </div>
+          </div>
+
+          <div class="kds-column">
+            <header class="kds-column-header">In preparazione</header>
+            <div class="kds-column-body" id="col-prep">
+              <!-- popolato da cucina.js -->
+            </div>
+          </div>
+
+          <div class="kds-column">
+            <header class="kds-column-header">Pronti da servire</header>
+            <div class="kds-column-body" id="col-ready">
+              <!-- popolato da cucina.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: RICETTE -->
+      <section id="view-ricette" class="view">
+        <div class="two-cols">
+          <article class="card">
+            <header class="card-header">
+              <h2>Nuova ricetta</h2>
+              <p>Dettagli base + note di lavorazione</p>
+            </header>
+            <div class="card-body form-grid">
+              <label class="full">
+                Nome ricetta
+                <input type="text" id="recipe-name" placeholder="Es. Risotto ai funghi" />
+              </label>
+              <label>
+                Categoria
+                <input type="text" id="recipe-category" placeholder="Primo / Secondo / Dessert..." />
+              </label>
+              <label>
+                Porzioni
+                <input type="number" id="recipe-servings" min="1" placeholder="Es. 4" />
+              </label>
+              <label class="full">
+                Note / Procedimento
+                <textarea id="recipe-notes" rows="4" placeholder="Dettatura o appunti della ricetta..."></textarea>
+              </label>
+              <label class="full">
+                URL foto (opzionale)
+                <input type="text" id="recipe-photo" placeholder="In futuro: scatto diretto dalla cucina" />
+              </label>
+              <div class="form-actions full">
+                <button class="btn primary" id="btn-save-recipe">Salva ricetta</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <header class="card-header">
+              <h2>Ricette salvate</h2>
+              <p>Memorizzate in questo dispositivo (localStorage)</p>
+            </header>
+            <div class="card-body list" id="recipes-list">
+              <!-- popolato da cucina.js -->
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- VIEW 3: LISTA SPESA / COMANDI VOCALI -->
+      <section id="view-spesa" class="view">
+        <article class="card">
+          <header class="card-header">
+            <h2>Lista spesa vocale</h2>
+            <p>
+              Premi il microfono e detta: "2 casse acqua, 5 kg limoni, 10 kg entrecote..."
+            </p>
+          </header>
+          <div class="card-body">
+            <div class="voice-row">
+              <button class="btn primary" id="btn-voice-start">🎤 Dettatura ON</button>
+              <button class="btn ghost" id="btn-voice-stop">Stop</button>
+              <span class="voice-status" id="voice-status">Pronto</span>
+            </div>
+            <label class="voice-textarea-label">
+              Testo dettato / note
+              <textarea id="voice-raw" rows="3" placeholder="Qui apparirà il testo dettato..."></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="btn primary" id="btn-add-shopping-items">
+                Aggiungi alla lista spesa
+              </button>
+              <button class="btn ghost" id="btn-clear-shopping">
+                Svuota lista
+              </button>
+            </div>
+            <div class="shopping-list" id="shopping-list">
+              <!-- popolato da cucina.js -->
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- VIEW 4: HACCP -->
+      <section id="view-haccp" class="view">
+        <div class="two-cols">
+          <article class="card">
+            <header class="card-header">
+              <h2>Registrazione HACCP</h2>
+              <p>Temperature frigo / congelatore + firma operatore</p>
+            </header>
+            <div class="card-body form-grid">
+              <label>
+                Data
+                <input type="date" id="haccp-date" />
+              </label>
+              <label>
+                Ora
+                <input type="time" id="haccp-time" />
+              </label>
+              <label>
+                Tipo
+                <select id="haccp-type">
+                  <option value="frigo">Frigo</option>
+                  <option value="congelatore">Congelatore</option>
+                  <option value="cappa">Cappa</option>
+                </select>
+              </label>
+              <label>
+                N° / Nome
+                <input type="text" id="haccp-unit" placeholder="Es. Frigo 1, Congelatore 3..." />
+              </label>
+              <label>
+                Temperatura (°C)
+                <input type="number" step="0.1" id="haccp-temp" placeholder="Es. 3.5" />
+              </label>
+              <label>
+                Operatore
+                <input type="text" id="haccp-operator" placeholder="Nome" />
+              </label>
+              <label class="full">
+                Note
+                <textarea id="haccp-notes" rows="2" placeholder="Eventuali anomalie o interventi..."></textarea>
+              </label>
+              <div class="form-actions full">
+                <button class="btn primary" id="btn-save-haccp">Registra</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <header class="card-header">
+              <h2>Storico HACCP (locale)</h2>
+              <p>Salvato in questo dispositivo</p>
+            </header>
+            <div class="card-body list" id="haccp-list">
+              <!-- popolato da cucina.js -->
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- VIEW 5: TURNI CUCINA -->
+      <section id="view-turni" class="view">
+        <article class="card">
+          <header class="card-header">
+            <h2>Turni cucina – settimana</h2>
+            <p>Schema base per massimo 50 persone, salvato in locale</p>
+          </header>
+          <div class="card-body">
+            <div class="turni-grid">
+              <div class="turni-col">
+                <h3>Giorno</h3>
+                <select id="turni-day">
+                  <option value="Lunedì">Lunedì</option>
+                  <option value="Martedì">Martedì</option>
+                  <option value="Mercoledì">Mercoledì</option>
+                  <option value="Giovedì">Giovedì</option>
+                  <option value="Venerdì">Venerdì</option>
+                  <option value="Sabato">Sabato</option>
+                  <option value="Domenica">Domenica</option>
+                </select>
+              </div>
+              <div class="turni-col">
+                <h3>Nome</h3>
+                <input type="text" id="turni-name" placeholder="Cuoco / Aiuto / Pasticcere..." />
+              </div>
+              <div class="turni-col">
+                <h3>Orario</h3>
+                <input type="text" id="turni-hours" placeholder="Es. 10:00–15:00 / 18:00–23:00" />
+              </div>
+              <div class="turni-col">
+                <h3>Ruolo</h3>
+                <input type="text" id="turni-role" placeholder="Capo partita, lavapiatti..." />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn primary" id="btn-add-shift">Aggiungi turno</button>
+              <button class="btn ghost" id="btn-clear-shifts">Svuota turni</button>
+            </div>
+            <div class="list" id="turni-list">
+              <!-- popolato da cucina.js -->
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- VIEW 6: COMANDI VOCALI – Kitchen AI Assistant -->
+      <section id="view-vocale" class="view">
+        <article class="card">
+          <header class="card-header">
+            <h2>Assistente cucina Risto</h2>
+            <p>Digita o detta comandi. Usa "Ehi Risto" per attivare.</p>
+          </header>
+          <div class="card-body">
+            <div class="kitchen-command-row">
+              <input type="text"
+                     id="kitchen-command-input"
+                     class="kitchen-command-input"
+                     placeholder='Es. Ehi Risto, aggiungi 5 kg di entrecôte alla lista ordine...'
+                     autocomplete="off" />
+              <button type="button" class="btn primary kitchen-command-mic" id="kitchen-command-mic" title="Microfono">
+                🎤
+              </button>
+              <button type="button" class="btn primary" id="kitchen-command-send">
+                Invia
+              </button>
+            </div>
+            <div class="kitchen-command-status" id="kitchen-command-status"></div>
+            <div class="kitchen-command-sent" id="kitchen-command-sent" aria-live="polite"></div>
+            <div class="kitchen-ai-response" id="kitchen-ai-response">
+              <span class="kitchen-ai-placeholder">La risposta dell'assistente apparirà qui.</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="card" style="margin-top:12px;">
+          <header class="card-header">
+            <h2>Appunti cucina (opzionale)</h2>
+            <p>Note rapide salvate in locale</p>
+          </header>
+          <div class="card-body">
+            <label class="voice-textarea-label">
+              <textarea id="voice-notes" rows="3" placeholder="Appunti rapidi per la brigata..."></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="btn ghost" id="btn-save-voice-notes">Salva</button>
+              <button class="btn ghost" id="btn-clear-voice-notes">Svuota</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,cucina"></script>
+  <script src="/shared/websocket.js"></script>
+  <script src="/shared/staff-access.js"></script>
+  <script src="cucina.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "id": "catm_001",
+  "name": "Matrimonio Silver",
+  "type": "matrimonio",           // matrimonio | aziendale | battesimo | generico
+  "pricePerPerson": 55.0,         // prezzo di vendita per persona
+  "estimatedFoodCostPerPerson": 22.0,
+  "minGuests": 40,
+  "maxGuests": 180,
+  "courses": [
+    {
+      "course": "Antipasti",
+      "items": ["Buffet di mare", "Antipasto misto terra"]
+    },
+    {
+      "course": "Primo",
+      "items": ["Risotto ai frutti di mare", "Ravioli ricotta e spinaci"]
+    }
+  ],
+  "includedDrinks": "Acqua, vino della casa, caffè",
+  "allergens": ["glutine", "latte", "pesce"],
+  "notes": "Possibile upgrade vini +10€/persona",
+  "active": true,
+  "createdAt": "2026-02-20T11:00:00.000Z",
+  "updatedAt": "2026-02-20T11:00:00.000Z"
+}

@@ -1,0 +1,12 @@
+{
+  "supervisor": "$2b$10$cCXJ77LtzCrt.S9uG9MJguoR5M/GjwzhtNdA5aKx413TtZ4SZe/Ha",
+  "cassa": "$2b$10$TyOLe.X/1qsQ2JzVsgA3b.9D6gFSambkxyQLSrYD8URCuMN3AyKj6",
+  "cucina": "$2b$10$GXwVFO01eBQaq6GECmENzOOO.tNa08LfQBoCXGejUMWGaBEwcNmNu",
+  "staff": "$2b$10$8UgLI8p47E7pbiGAPpj1a.3qvAe3V1Dynzn3HtmqVDvh9h4Fm7dV2",
+  "cliente": "$2b$10$yHDpTwmNEYlCt73T33XiRuV6vjmgQah4MsmJiLCgi46IDHMAENqV2",
+  "cash_manager": "$2b$10$TExkA3VL7FXO.LmT8HRvJe4vk9gyeC6DlInd0IuY59UlcG06f8V8q",
+  "kitchen_manager": "$2b$10$9gA4./aoI11UgqClQLX2CeQlKaV3M5h6E13c1maMqzsgIIxkvzz2a",
+  "sala_manager": "$2b$10$hw12LA.h7w5YARujmdFieuVpSqNiSPixP.0Odp28um9mSscqjwPGq",
+  "bar_manager": "$2b$10$GXHgZAG1OQzmY8XZtn2aI.UhOsmfWvhZWdFTgwzh3.DwibnJEuXdO",
+  "supervisor_mgr": "$2b$10$oQRrzSArLhSkkXxUJhYgUOAlHXO40UtYEWN6LfaXXZs9GdyYViSbC"
+}

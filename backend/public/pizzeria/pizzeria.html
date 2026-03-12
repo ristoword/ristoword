@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Pizzeria</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="pizzeria.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Pizzeria</h1>
+        <p class="subtitle">
+          Monitor produzione pizze + strumenti di lavoro pizzeria
+        </p>
+      </div>
+      <div class="topbar-right">
+        <div class="chip">
+          <span class="chip-label">In preparazione</span>
+          <span class="chip-value" id="kpi-prep">–</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Pronte</span>
+          <span class="chip-value" id="kpi-ready">–</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">In ritardo</span>
+          <span class="chip-value" id="kpi-late">–</span>
+        </div>
+        <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+      </div>
+    </header>
+
+    <!-- NAV PULSANTI TOUCH -->
+    <nav class="pizzeria-nav">
+      <button class="nav-btn active" data-view="comande">Comande</button>
+      <button class="nav-btn" data-view="ricette">Ricette</button>
+      <button class="nav-btn" data-view="vocale">Comandi vocali</button>
+    </nav>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="main">
+
+      <!-- VIEW 1: KDS COMANDE A SCHERMO INTERO -->
+      <section id="view-comande" class="view active-view">
+        <div class="orders-container">
+          <div class="kds-column">
+            <header class="kds-column-header">Nuove / In attesa</header>
+            <div class="kds-column-body" id="col-pending">
+              <!-- popolato da pizzeria.js -->
+            </div>
+          </div>
+
+          <div class="kds-column">
+            <header class="kds-column-header">In preparazione</header>
+            <div class="kds-column-body" id="col-prep">
+              <!-- popolato da pizzeria.js -->
+            </div>
+          </div>
+
+          <div class="kds-column">
+            <header class="kds-column-header">Pronte da servire</header>
+            <div class="kds-column-body" id="col-ready">
+              <!-- popolato da pizzeria.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: RICETTE PIZZERIA -->
+      <section id="view-ricette" class="view">
+        <div class="two-cols">
+          <article class="card">
+            <header class="card-header">
+              <h2>Nuova ricetta pizza</h2>
+              <p>Dettagli base + note di lavorazione</p>
+            </header>
+            <div class="card-body form-grid">
+              <label class="full">
+                Nome pizza
+                <input type="text" id="recipe-name" placeholder="Es. Margherita, Diavola, Quattro formaggi..." />
+              </label>
+              <label>
+                Categoria
+                <input type="text" id="recipe-category" placeholder="Rosse / Bianche / Speciali..." />
+              </label>
+              <label>
+                Diametro
+                <input type="text" id="recipe-size" placeholder="Es. 30 cm, pala..." />
+              </label>
+              <label class="full">
+                Note / Procedimento
+                <textarea id="recipe-notes" rows="4" placeholder="Dettatura o appunti della ricetta..."></textarea>
+              </label>
+              <label class="full">
+                URL foto (opzionale)
+                <input type="text" id="recipe-photo" placeholder="In futuro: scatto diretto dalla pizzeria" />
+              </label>
+              <div class="form-actions full">
+                <button class="btn primary" id="btn-save-recipe">Salva ricetta</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <header class="card-header">
+              <h2>Ricette salvate</h2>
+              <p>Memorizzate in questo dispositivo (localStorage)</p>
+            </header>
+            <div class="card-body list" id="recipes-list">
+              <!-- popolato da pizzeria.js -->
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- VIEW 3: COMANDI VOCALI / NOTE -->
+      <section id="view-vocale" class="view">
+        <article class="card">
+          <header class="card-header">
+            <h2>Comandi vocali – Note pizzeria</h2>
+            <p>Appunti rapidi per il fornaio / pizzaiolo</p>
+          </header>
+          <div class="card-body">
+            <label class="voice-textarea-label">
+              Appunti vocali
+              <textarea id="voice-notes" rows="4" placeholder="Note su impasti, tempi lievitazione, turni forno..."></textarea>
+            </label>
+            <div class="form-actions">
+              <button class="btn primary" id="btn-save-voice-notes">Salva appunti</button>
+              <button class="btn ghost" id="btn-clear-voice-notes">Svuota</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,sala,cucina,cassa"></script>
+  <script src="/shared/websocket.js"></script>
+  <script src="pizzeria.js"></script>
+</body>
+</html>

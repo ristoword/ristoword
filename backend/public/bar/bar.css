@@ -1,0 +1,11 @@
+/* Ri-usa stile cucina per avere stesso look */
+@import url("../cucina/cucina.css");
+
+/* Piccole differenze per il bar */
+.topbar-left h1 {
+  color: #ffd65c;
+}
+
+.kds-column-header {
+  font-size: 18px;
+}

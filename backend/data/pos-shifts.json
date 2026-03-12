@@ -1,0 +1,26 @@
+{
+  "shifts": [
+    {
+      "id": "67fe17da-b1b8-482e-9ec8-76a371a272e5",
+      "opened_at": "2026-03-10T21:47:40.839Z",
+      "closed_at": "2026-03-10T21:47:40.910Z",
+      "operator": "Mario",
+      "opening_float": 100,
+      "cash_total": 150,
+      "card_total": 0,
+      "other_total": 0,
+      "status": "closed"
+    },
+    {
+      "id": "3aa6c8e3-6d2f-461a-a7ac-281f57940bf5",
+      "opened_at": "2026-03-10T21:47:40.910Z",
+      "closed_at": null,
+      "operator": "",
+      "opening_float": 150,
+      "cash_total": 0,
+      "card_total": 0,
+      "other_total": 0,
+      "status": "open"
+    }
+  ]
+}

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Sala</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="sala.css" />
+  <link rel="stylesheet" href="/shared/staff-access.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <!-- HEADER -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Sala</h1>
+        <p class="subtitle">Gestione tavoli, ordini e stato servizio</p>
+      </div>
+      <div class="topbar-right">
+        <div id="rw-sala-manager-chip" class="rw-staff-chip">
+          <span class="rw-label">Manager:</span>
+          <span class="rw-value" id="rw-manager-value">—</span>
+          <button type="button" class="rw-btn" id="rw-btn-manager-login">Manager login</button>
+          <button type="button" class="rw-btn" id="rw-btn-manager-logout" style="display:none">Logout</button>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Tavoli attivi</span>
+          <span class="chip-value" id="kpi-tables">–</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Ordini aperti</span>
+          <span class="chip-value" id="kpi-open-orders">–</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">In attesa conto</span>
+          <span class="chip-value" id="kpi-awaiting-bill">–</span>
+        </div>
+        <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+      </div>
+    </header>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <main class="main">
+
+      <!-- COLONNA SINISTRA: NUOVO ORDINE + FILTRI + PIATTI -->
+      <section class="left-column">
+        <!-- NUOVO ORDINE BASE -->
+        <article class="card">
+          <header class="card-header">
+            <h2>Nuovo ordine</h2>
+            <p>Apri un nuovo tavolo o aggiungi un ordine alla sala</p>
+          </header>
+          <div class="card-body form-grid">
+            <label>
+              Tavolo
+              <input type="number" id="field-table" min="1" placeholder="Es. 12" />
+            </label>
+
+            <label>
+              Coperti
+              <input type="number" id="field-covers" min="1" placeholder="Es. 4" />
+            </label>
+
+            <label>
+              Reparto principale
+              <select id="field-area">
+                <option value="cucina">Cucina</option>
+                <option value="pizzeria">Pizzeria</option>
+                <option value="bar">Bar</option>
+              </select>
+            </label>
+
+            <label>
+              Cameriere
+              <input type="text" id="field-waiter" placeholder="Nome cameriere" />
+            </label>
+
+            <label class="full">
+              Note ordine
+              <textarea id="field-notes" rows="2" placeholder="Allergie, preferenze, note speciali..."></textarea>
+            </label>
+          </div>
+        </article>
+
+        <article class="card">
+          <header class="card-header">
+            <h2>Staff attivi (sala)</h2>
+            <p>Personale loggato in sala</p>
+          </header>
+          <div class="card-body">
+            <div id="rw-sala-active-staff"></div>
+          </div>
+        </article>
+
+        <!-- SEZIONE PIATTI / BEVANDE -->
+        <article class="card">
+          <header class="card-header">
+            <h2>Piatti e bevande</h2>
+            <p>
+              Seleziona dal menù ufficiale o aggiungi piatti fuori menù.
+            </p>
+          </header>
+          <div class="card-body form-grid">
+            <!-- BLOCCO MENU UFFICIALE -->
+            <label class="full">
+              Categoria menù
+              <select id="menu-category">
+                <option value="">Tutte le categorie</option>
+                <option value="ristorante">Ristorante</option>
+                <option value="pizzeria">Pizzeria</option>
+                <option value="bar">Bar</option>
+                <option value="vini">Vini</option>
+                <option value="dessert">Dessert</option>
+                <option value="altro">Altro</option>
+              </select>
+            </label>
+
+            <label class="full">
+              Voce menù
+              <select id="menu-item">
+                <option value="">Menù non caricato o vuoto</option>
+              </select>
+            </label>
+
+            <label>
+              Quantità
+              <input type="number" id="menu-qty" min="1" value="1" />
+            </label>
+
+            <div class="form-actions">
+              <button class="btn primary" type="button" id="btn-add-from-menu">
+                Aggiungi da menù
+              </button>
+            </div>
+
+            <!-- SEPARATORE -->
+            <div class="full" style="border-top:1px solid #2b3140;margin:8px 0;"></div>
+
+            <!-- BLOCCO FUORI MENU -->
+            <label class="full">
+              Piatto fuori menù
+              <input type="text" id="custom-name" placeholder="Es. Piatto del giorno, fuori carta..." />
+            </label>
+
+            <label>
+              Quantità
+              <input type="number" id="custom-qty" min="1" value="1" />
+            </label>
+
+            <label>
+              Reparto
+              <select id="custom-area">
+                <option value="">Auto (come reparto ordine)</option>
+                <option value="cucina">Cucina</option>
+                <option value="pizzeria">Pizzeria</option>
+                <option value="bar">Bar</option>
+              </select>
+            </label>
+
+            <label class="full">
+              Note piatto
+              <textarea id="custom-notes" rows="2" placeholder="Es. poca cipolla, extra olive..."></textarea>
+            </label>
+
+            <div class="form-actions full">
+              <button class="btn ghost" type="button" id="btn-add-custom">
+                Aggiungi piatto fuori menù
+              </button>
+            </div>
+
+            <!-- RIEPILOGO PIATTI -->
+            <div class="full">
+              <h3 style="font-size:12px;margin:6px 0 4px;">Piatti nell'ordine</h3>
+              <div id="selected-items" class="selected-items-box">
+                <!-- popolato da sala.js -->
+              </div>
+            </div>
+
+            <div class="form-actions full">
+              <button class="btn primary" id="btn-create-order">
+                Apri ordine / Invia comanda
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- FILTRI -->
+        <article class="card">
+          <header class="card-header">
+            <h2>Filtri</h2>
+            <p>Limita la lista degli ordini</p>
+          </header>
+          <div class="card-body filter-grid">
+            <label>
+              Stato
+              <select id="filter-status">
+                <option value="">Tutti</option>
+                <option value="in_attesa">In attesa</option>
+                <option value="in_preparazione">In preparazione</option>
+                <option value="pronto">Pronto</option>
+                <option value="servito">Servito</option>
+                <option value="chiuso">Chiuso</option>
+                <option value="annullato">Annullato</option>
+              </select>
+            </label>
+
+            <label>
+              Reparto
+              <select id="filter-area">
+                <option value="">Tutti</option>
+                <option value="cucina">Cucina</option>
+                <option value="pizzeria">Pizzeria</option>
+                <option value="bar">Bar</option>
+              </select>
+            </label>
+
+            <label>
+              Tavolo
+              <input type="number" id="filter-table" min="1" placeholder="N°" />
+            </label>
+
+            <div class="form-actions full">
+              <button class="btn ghost" id="btn-reset-filters">Reset filtri</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- COLONNA DESTRA: TAVOLI + ORDINI -->
+      <section class="right-column">
+
+        <!-- GRIGLIA TAVOLI -->
+        <article class="card">
+          <header class="card-header">
+            <h2>Mappa tavoli attivi</h2>
+            <p>Tavoli con ordini aperti o in attesa conto</p>
+          </header>
+          <div class="card-body">
+            <div id="tables-grid" class="tables-grid"></div>
+          </div>
+        </article>
+
+        <!-- LISTA ORDINI -->
+        <article class="card">
+          <header class="card-header">
+            <h2>Ordini</h2>
+            <p>Lista ordini con stato, piatti e azioni rapide</p>
+          </header>
+          <div class="card-body orders-list" id="orders-list">
+            <!-- popolato da sala.js -->
+          </div>
+        </article>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,sala"></script>
+  <script src="/shared/websocket.js"></script>
+  <script src="/shared/staff-access.js"></script>
+  <script src="sala.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "owner",
+      "password": "admin123",
+      "role": "owner",
+      "is_active": true
+    },
+    {
+      "id": "2",
+      "username": "sala",
+      "password": "sala123",
+      "role": "sala",
+      "is_active": true
+    },
+    {
+      "id": "3",
+      "username": "cucina",
+      "password": "cucina123",
+      "role": "cucina",
+      "is_active": true
+    },
+    {
+      "id": "4",
+      "username": "cassa",
+      "password": "cassa123",
+      "role": "cassa",
+      "is_active": true
+    }
+  ]
+}

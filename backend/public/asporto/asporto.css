@@ -1,0 +1,56 @@
+@import url("../cucina/cucina.css");
+
+.topbar-left h1 {
+  color: #ffb3b3;
+}
+
+.form-card {
+  background: var(--bg-alt);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+  margin-bottom: 12px;
+  padding: 12px 14px 14px;
+}
+
+.form-card h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.form-grid label {
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+.form-grid input,
+.form-grid textarea {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #343848;
+  background: #151822;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.orders-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1000px) {
+  .orders-container {
+    grid-template-c

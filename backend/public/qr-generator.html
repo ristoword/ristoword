@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generatore QR – Ristoword</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f1219;
+      color: #f0f0f0;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 20px; margin-bottom: 16px; }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #2a3040;
+      background: #1a1e28;
+      color: #f0f0f0;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      background: #f5b800;
+      color: #111;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+    }
+    .qr-card {
+      background: #1a1e28;
+      border: 1px solid #2a3040;
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+    .qr-card img {
+      width: 120px;
+      height: 120px;
+      display: block;
+      margin: 0 auto 8px;
+      border-radius: 8px;
+    }
+    .qr-card span { font-size: 12px; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <h1>QR Code Tavoli</h1>
+  <div class="controls">
+    <input type="text" id="base-url" placeholder="Base URL (es. https://ristoword.local)">
+    <input type="number" id="tables-count" value="10" min="1" max="50" style="width:70px;">
+    <button type="button" id="btn-gen">Genera</button>
+  </div>
+  <div class="grid" id="qr-grid"></div>
+
+  <script>
+    (function () {
+      const defaultBase = window.location.origin || "https://ristoword.local";
+      document.getElementById("base-url").value = defaultBase;
+      document.getElementById("base-url").placeholder = defaultBase;
+
+      function gen() {
+        const base = (document.getElementById("base-url").value || defaultBase).replace(/\/$/, "");
+        const n = Math.min(50, Math.max(1, parseInt(document.getElementById("tables-count").value, 10) || 10));
+        const grid = document.getElementById("qr-grid");
+        grid.innerHTML = "";
+        for (let i = 1; i <= n; i++) {
+          const url = base + "/qr/" + i;
+          const qr = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(url);
+          const div = document.createElement("div");
+          div.className = "qr-card";
+          div.innerHTML = '<img src="' + qr + '" alt="Tavolo ' + i + '"><span>Tavolo ' + i + '</span>';
+          grid.appendChild(div);
+        }
+      }
+      document.getElementById("btn-gen").addEventListener("click", gen);
+      gen();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "id": "rec_001",
+  "name": "Pizza Margherita",
+  "category": "Pizza",
+  "portions": 1,
+  "ingredients": [
+    {
+      "inventoryId": "inv_001",
+      "name": "Impasto pizza",
+      "quantity": 0.28,
+      "unit": "kg"
+    },
+    {
+      "inventoryId": "inv_010",
+      "name": "Mozzarella",
+      "quantity": 0.10,
+      "unit": "kg"
+    }
+  ],
+  "steps": [
+    "Stendere l'impasto a 32 cm",
+    "Condire con pomodoro e mozzarella",
+    "Cuocere a 320°C per 90 secondi"
+  ],
+  "allergens": ["glutine", "latte"],
+  "notes": "Usare solo mozzarella fresca",
+  "estimatedCostPerPortion": 2.2,
+  "createdAt": "2026-02-10T11:00:00.000Z",
+  "updatedAt": "2026-02-18T09:00:00.000Z"
+}

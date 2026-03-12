@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Asporto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="asporto.css" />
+</head>
+<body>
+  <div class="layout">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Asporto</h1>
+        <p class="subtitle">Gestione ordini da asporto (locale)</p>
+      </div>
+      <div class="topbar-right">
+        <div class="chip">
+          <span class="chip-label">Nuovi</span>
+          <span class="chip-value" id="kpi-new">–</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">In preparazione</span>
+          <span class="chip-value" id="kpi-prep">–</span>
+        </div>
+        <div class="chip">
+          <span class="chip-label">Consegnati</span>
+          <span class="chip-value" id="kpi-done">–</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="form-card">
+        <h2>Nuovo ordine asporto</h2>
+        <div class="form-grid">
+          <label>
+            Nome cliente
+            <input id="field-name" type="text" />
+          </label>
+          <label>
+            Telefono
+            <input id="field-phone" type="text" />
+          </label>
+          <label>
+            Orario ritiro
+            <input id="field-time" type="time" />
+          </label>
+          <label>
+            Persone / porzioni
+            <input id="field-people" type="number" min="1" />
+          </label>
+          <label class="full">
+            Dettaglio ordine
+            <textarea id="field-notes" rows="2" placeholder="Piatti, bevande..."></textarea>
+          </label>
+          <label>
+            Importo stimato (€)
+            <input id="field-amount" type="number" step="0.01" />
+          </label>
+          <div class="form-actions">
+            <button class="btn primary" id="btn-add">Aggiungi ordine</button>
+            <button class="btn ghost" id="btn-clear-all">Svuota giornata</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="orders-container">
+        <div class="kds-column">
+          <header class="kds-column-header">Nuovi</header>
+          <div class="kds-column-body" id="col-new"></div>
+        </div>
+        <div class="kds-column">
+          <header class="kds-column-header">In preparazione</header>
+          <div class="kds-column-body" id="col-prep"></div>
+        </div>
+        <div class="kds-column">
+          <header class="kds-column-header">Consegnati</header>
+          <div class="kds-column-body" id="col-done"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="asporto.js"></script>
+</body>
+</html>

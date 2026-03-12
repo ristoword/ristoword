@@ -1,0 +1,10 @@
+[
+  {
+    "orderId": 999,
+    "date": "2026-03-11",
+    "totalFoodCost": 0,
+    "closedAt": "2026-03-11T16:40:12.682Z",
+    "estimatedRevenue": 10,
+    "estimatedMargin": 10
+  }
+]

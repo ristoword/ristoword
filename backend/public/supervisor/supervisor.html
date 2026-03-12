@@ -1,0 +1,533 @@
+<!-- backend/public/supervisor/supervisor.html -->
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Supervisor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="supervisor.css" />
+  <link rel="stylesheet" href="/shared/staff-access.css" />
+</head>
+
+<body>
+  <div class="shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">RW</div>
+        <div class="brand-txt">
+          <div class="brand-title">RISTOWORD</div>
+          <div class="brand-sub">Supervisor</div>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <a class="nav-item" href="/dashboard/dashboard.html">Dashboard</a>
+        <a class="nav-item" href="/sala/sala.html">Sala</a>
+        <a class="nav-item" href="/cucina/cucina.html">Cucina</a>
+        <a class="nav-item" href="/pizzeria/pizzeria.html">Pizzeria</a>
+        <a class="nav-item" href="/bar/bar.html">Bar</a>
+        <a class="nav-item" href="/cassa/cassa.html">Cassa</a>
+        <a class="nav-item" href="/magazzino/magazzino.html">Magazzino</a>
+        <a class="nav-item" href="/prenotazioni/prenotazioni.html">Prenotazioni</a>
+        <a class="nav-item active" href="/supervisor/supervisor.html">Supervisor</a>
+        <a class="nav-item" href="/supervisor/staff/staff.html">Staff</a>
+        <a class="nav-item" href="/supervisor/customers/customers.html">Clienti</a>
+      </nav>
+
+      <div class="side-actions">
+        <button class="btn ghost" id="btn-refresh">Aggiorna</button>
+        <button class="btn ghost" id="btn-open-email">Email fornitori</button>
+        <button class="btn ghost" id="btn-open-shopping">Lista spesa</button>
+      </div>
+
+      <div class="side-footer">
+        <div class="tiny muted">© 2026 RistoWord</div>
+        <div class="tiny muted" id="backend-status">Backend: —</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h1>Controllo economico</h1>
+          <div class="sub">
+            Incasso live • Report • Storni • Confronti • Menù • Email fornitori
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div id="rw-supervisor-manager-chip" class="rw-staff-chip">
+            <span class="rw-label">Supervisor:</span>
+            <span class="rw-value" id="rw-manager-value">—</span>
+            <button type="button" class="rw-btn" id="rw-btn-manager-login">Supervisor login</button>
+            <button type="button" class="rw-btn" id="rw-btn-manager-logout" style="display:none">Logout</button>
+          </div>
+          <div class="chip">
+            <div class="chip-label">Oggi</div>
+            <div class="chip-value" id="kpi-date">—</div>
+          </div>
+          <div class="chip">
+            <div class="chip-label">Incasso lordo</div>
+            <div class="chip-value" id="kpi-gross">€ 0.00</div>
+          </div>
+          <div class="chip">
+            <div class="chip-label">Storni</div>
+            <div class="chip-value danger" id="kpi-storni">€ 0.00</div>
+          </div>
+          <div class="chip">
+            <div class="chip-label">Netto stimato</div>
+            <div class="chip-value" id="kpi-net">€ 0.00</div>
+          </div>
+
+          <button class="btn primary" id="btn-close-day">Chiudi giornata (salva report)</button>
+        </div>
+      </header>
+
+      <!-- TABS -->
+      <nav class="tabs" aria-label="Sezioni Supervisor">
+        <button class="tab active" data-tab="tab-report">Report</button>
+        <button class="tab" data-tab="tab-storni">Storni</button>
+        <button class="tab" data-tab="tab-menu">Menù</button>
+        <button class="tab" data-tab="tab-magazzino">Magazzino</button>
+        <button class="tab" data-tab="tab-email">Email</button>
+      </nav>
+
+      <section class="tabs-content">
+
+        <!-- REPORT -->
+        <section id="tab-report" class="tab-panel active">
+          <div class="grid">
+            <article class="card full">
+              <header class="card-header">
+                <h2>KPI Business (oggi)</h2>
+                <p>Dati da ordini e pagamenti • Aggiornamento in tempo reale</p>
+              </header>
+              <div class="card-body">
+                <div class="kpi-row">
+                  <div class="kpi-widget">
+                    <div class="kpi-label">Incasso oggi</div>
+                    <div class="kpi-value" id="kpi-revenue">€ 0.00</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">Ordini oggi</div>
+                    <div class="kpi-value" id="kpi-orders">0</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">Scontrino medio</div>
+                    <div class="kpi-value" id="kpi-avg-ticket">€ 0.00</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">Coperti</div>
+                    <div class="kpi-value" id="kpi-covers">0</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">Tavoli aperti</div>
+                    <div class="kpi-value" id="kpi-open-tables">0</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">In preparazione</div>
+                    <div class="kpi-value" id="kpi-in-prep">0</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">Pronti</div>
+                    <div class="kpi-value highlight" id="kpi-ready">0</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">In ritardo (&gt;15 min)</div>
+                    <div class="kpi-value danger" id="kpi-late">0</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">Scorta bassa</div>
+                    <div class="kpi-value" id="kpi-low-stock">0</div>
+                  </div>
+                  <div class="kpi-widget">
+                    <div class="kpi-label">Costo cibo oggi</div>
+                    <div class="kpi-value" id="kpi-food-cost">€ 0.00</div>
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="tiny muted" id="kpi-payments-breakdown">—</div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Staff attivi (tutti i reparti)</h2>
+                <p>Personale attualmente loggato</p>
+              </header>
+              <div class="card-body">
+                <div id="rw-supervisor-active-staff"></div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Incasso live (da ordini)</h2>
+                <p>Calcolato dai prezzi (item.price o menù ufficiale). Non è fiscale.</p>
+              </header>
+              <div class="card-body">
+                <div class="metrics">
+                  <div class="metric">
+                    <div class="metric-label">Ordini totali</div>
+                    <div class="metric-value" id="m-orders">0</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-label">Ordini chiusi</div>
+                    <div class="metric-value" id="m-closed">0</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-label">Coperti stimati</div>
+                    <div class="metric-value" id="m-covers">0</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-label">Scontrini stimati</div>
+                    <div class="metric-value" id="m-receipts">0</div>
+                  </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="compare">
+                  <div class="compare-row">
+                    <div class="compare-title">Confronto con settimana scorsa (stesso giorno)</div>
+                    <div class="compare-value" id="cmp-week">—</div>
+                  </div>
+                  <div class="compare-row">
+                    <div class="compare-title">Confronto con anno scorso (stesso giorno)</div>
+                    <div class="compare-value" id="cmp-year">—</div>
+                  </div>
+                  <div class="tiny muted">
+                    I confronti si basano sui report salvati con “Chiudi giornata”.
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Storico giornate salvate</h2>
+                <p>Ultimi report (localStorage). Puoi esportare/importare.</p>
+              </header>
+              <div class="card-body">
+                <div class="row-actions">
+                  <button class="btn ghost" id="btn-export-reports">Esporta JSON</button>
+                  <label class="btn ghost filebtn">
+                    Importa JSON
+                    <input type="file" id="file-import-reports" accept="application/json" />
+                  </label>
+                  <button class="btn ghost danger" id="btn-clear-reports">Svuota storico</button>
+                </div>
+
+                <div class="list" id="reports-list"></div>
+              </div>
+            </article>
+
+            <article class="card full">
+              <header class="card-header">
+                <h2>Dettaglio ordini (oggi)</h2>
+                <p>Vista rapida: tavolo, stato, totale stimato, reparto.</p>
+              </header>
+              <div class="card-body">
+                <div class="filters">
+                  <label>
+                    Stato
+                    <select id="f-status">
+                      <option value="">Tutti</option>
+                      <option value="in_attesa">In attesa</option>
+                      <option value="in_preparazione">In preparazione</option>
+                      <option value="pronto">Pronto</option>
+                      <option value="servito">Servito</option>
+                      <option value="chiuso">Chiuso</option>
+                      <option value="annullato">Annullato</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Reparto
+                    <select id="f-area">
+                      <option value="">Tutti</option>
+                      <option value="cucina">Cucina</option>
+                      <option value="pizzeria">Pizzeria</option>
+                      <option value="bar">Bar</option>
+                    </select>
+                  </label>
+
+                  <label class="grow">
+                    Cerca (tavolo/cameriere/nota)
+                    <input type="text" id="f-q" placeholder="Es. tavolo 7, pippo..." />
+                  </label>
+                </div>
+
+                <div class="table" id="orders-table"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- STORNI -->
+        <section id="tab-storni" class="tab-panel">
+          <div class="grid">
+            <article class="card">
+              <header class="card-header">
+                <h2>Nuovo storno</h2>
+                <p>Riduce il netto stimato. Salvato in locale.</p>
+              </header>
+              <div class="card-body">
+                <div class="form-grid">
+                  <label>
+                    Importo €
+                    <input type="number" id="st-amount" step="0.01" min="0" />
+                  </label>
+                  <label>
+                    Motivo
+                    <select id="st-reason">
+                      <option value="errore">Errore</option>
+                      <option value="omaggio">Omaggio</option>
+                      <option value="reclamo">Reclamo</option>
+                      <option value="personale">Personale</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                  </label>
+                  <label>
+                    Tavolo (opz.)
+                    <input type="text" id="st-table" placeholder="Es. 12" />
+                  </label>
+                  <label>
+                    ID Ordine (opz.)
+                    <input type="text" id="st-orderid" placeholder="Es. 38" />
+                  </label>
+                  <label class="full">
+                    Nota (opz.)
+                    <textarea id="st-note" rows="3" placeholder="Dettagli storno..."></textarea>
+                  </label>
+                </div>
+
+                <div class="row-actions">
+                  <button class="btn primary" id="btn-add-storno">Aggiungi storno</button>
+                  <button class="btn ghost danger" id="btn-clear-storni">Svuota storni</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Elenco storni (oggi)</h2>
+                <p>Totale storni: <strong id="st-total">€ 0.00</strong></p>
+              </header>
+              <div class="card-body">
+                <div class="list" id="storni-list"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- MENU -->
+        <section id="tab-menu" class="tab-panel">
+          <div class="grid">
+            <article class="card">
+              <header class="card-header">
+                <h2>Nuova voce menù</h2>
+                <p>Condiviso con Cassa (stessa chiave localStorage).</p>
+              </header>
+              <div class="card-body">
+                <div class="form-grid">
+                  <label class="full">
+                    Nome
+                    <input type="text" id="menu-name" placeholder="Es. Risotto frutti di mare" />
+                  </label>
+                  <label>
+                    Categoria
+                    <select id="menu-category">
+                      <option value="ristorante">Ristorante</option>
+                      <option value="pizzeria">Pizzeria</option>
+                      <option value="bar">Bar</option>
+                      <option value="vini">Vini</option>
+                      <option value="dessert">Dessert</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                  </label>
+                  <label>
+                    Reparto
+                    <select id="menu-area">
+                      <option value="cucina">Cucina</option>
+                      <option value="pizzeria">Pizzeria</option>
+                      <option value="bar">Bar</option>
+                    </select>
+                  </label>
+                  <label>
+                    Prezzo €
+                    <input type="number" id="menu-price" step="0.01" min="0" />
+                  </label>
+                  <label>
+                    IVA %
+                    <input type="number" id="menu-vat" step="1" min="0" max="30" value="10" />
+                  </label>
+                  <label class="full">
+                    Note
+                    <textarea id="menu-notes" rows="2" placeholder="Allergeni / note interne..."></textarea>
+                  </label>
+                </div>
+
+                <div class="row-actions">
+                  <button class="btn primary" id="btn-menu-add">Aggiungi</button>
+                  <button class="btn ghost" id="btn-menu-clear-form">Svuota campi</button>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="row-actions">
+                  <button class="btn ghost" id="btn-menu-export">Esporta menù JSON</button>
+                  <label class="btn ghost filebtn">
+                    Importa menù JSON
+                    <input type="file" id="file-menu-import" accept="application/json" />
+                  </label>
+                  <button class="btn ghost danger" id="btn-menu-clear-all">Svuota menù</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Menù ufficiale</h2>
+                <p>Filtra e gestisci. (Elimina voce disponibile)</p>
+              </header>
+              <div class="card-body">
+                <div class="filters">
+                  <label>
+                    Filtro categoria
+                    <select id="menu-filter">
+                      <option value="">Tutte</option>
+                      <option value="ristorante">Ristorante</option>
+                      <option value="pizzeria">Pizzeria</option>
+                      <option value="bar">Bar</option>
+                      <option value="vini">Vini</option>
+                      <option value="dessert">Dessert</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                  </label>
+                  <label class="grow">
+                    Cerca nome
+                    <input type="text" id="menu-q" placeholder="Es. risotto, pizza..." />
+                  </label>
+                </div>
+
+                <div class="list" id="menu-list"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- MAGAZZINO -->
+        <section id="tab-magazzino" class="tab-panel">
+          <div class="grid">
+            <article class="card">
+              <header class="card-header">
+                <h2>Snapshot magazzino</h2>
+                <p>Legge <code>/api/inventory</code>. Se non esiste, mostra “non disponibile”.</p>
+              </header>
+              <div class="card-body">
+                <div class="row-actions">
+                  <button class="btn ghost" id="btn-inv-refresh">Aggiorna magazzino</button>
+                </div>
+
+                <div class="inv-kpis">
+                  <div class="metric">
+                    <div class="metric-label">Prodotti</div>
+                    <div class="metric-value" id="inv-count">—</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-label">Sotto soglia</div>
+                    <div class="metric-value danger" id="inv-low">—</div>
+                  </div>
+                  <div class="metric">
+                    <div class="metric-label">Valore stimato</div>
+                    <div class="metric-value" id="inv-value">—</div>
+                  </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="list" id="inv-list"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- EMAIL -->
+        <section id="tab-email" class="tab-panel">
+          <div class="grid">
+            <article class="card">
+              <header class="card-header">
+                <h2>Email fornitori</h2>
+                <p>Compila e apre mailto (invio da client). Puoi inserire lista spesa.</p>
+              </header>
+              <div class="card-body">
+                <div class="form-grid">
+                  <label class="full">
+                    Destinatario
+                    <input type="email" id="email-to" placeholder="fornitore@email.com" />
+                  </label>
+                  <label class="full">
+                    Oggetto
+                    <input type="text" id="email-subject" placeholder="Ordine / Richiesta / Info" />
+                  </label>
+                  <label class="full">
+                    Messaggio
+                    <textarea id="email-body" rows="10" placeholder="Testo email..."></textarea>
+                  </label>
+                </div>
+
+                <div class="row-actions">
+                  <button class="btn ghost" id="btn-email-fill-shopping">Inserisci lista spesa</button>
+                  <button class="btn primary" id="btn-email-open">Apri mailto</button>
+                </div>
+
+                <div class="tiny muted">
+                  Nota: “mailto” apre l’app email (non invia direttamente dal browser).
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: LISTA SPESA -->
+  <div class="modal-backdrop" id="modal-shopping" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Lista spesa</div>
+        <div class="modal-actions">
+          <button class="btn ghost" type="button" id="btn-shopping-print">Stampa / PDF</button>
+          <button class="btn ghost danger" type="button" id="btn-shopping-close">Chiudi</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="tiny muted">Generata da prodotti sotto soglia + appunti manuali.</div>
+        <div class="form-grid" style="margin-top:10px;">
+          <label class="full">
+            Appunti manuali
+            <textarea id="shopping-notes" rows="4" placeholder="Aggiunte manuali..."></textarea>
+          </label>
+        </div>
+        <div class="mini-list" id="shopping-list"></div>
+        <div id="shopping-print-area" class="print-area" aria-hidden="true"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- script -->
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,supervisor"></script>
+  <script src="/shared/api.js"></script>
+  <script src="/shared/websocket.js"></script>
+  <script src="/shared/staff-access.js"></script>
+  <script src="supervisor.js"></script>
+</body>
+</html>

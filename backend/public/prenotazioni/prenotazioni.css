@@ -1,0 +1,367 @@
+:root {
+  --bg: #13151b;
+  --bg-alt: #1b1f27;
+  --bg-soft: #202432;
+  --border-soft: #2b3140;
+  --accent: #f5b800;
+  --accent-soft: #f5b8001f;
+  --accent-danger: #ff4b4b;
+  --text: #f5f5f7;
+  --text-soft: #a4a7b3;
+  --text-muted: #808491;
+  --radius-lg: 14px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+}
+
+/* RESET */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, "SF Pro Text", "Segoe UI", Roboto,
+    sans-serif;
+  background: radial-gradient(circle at top left, #202331 0, #111218 55%);
+  color: var(--text);
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 16px 18px;
+}
+
+/* TOPBAR */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.topbar-left h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* CHIP KPI */
+
+.chip {
+  background: #1f222b;
+  border-radius: 999px;
+  padding: 6px 12px;
+  border: 1px solid #2b3040;
+  display: flex;
+  flex-direction: column;
+  min-width: 110px;
+}
+
+.chip-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.chip-value {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+/* MAIN GRID */
+
+.main {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* COLONNE */
+
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* CARD */
+
+.card {
+  background: var(--bg-alt);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  padding: 10px 12px 6px;
+  border-bottom: 1px solid #2a3040;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.card-header p {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+.card-body {
+  padding: 10px 12px 12px;
+}
+
+/* FORM NUOVA PRENOTAZIONE */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.form-grid label {
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #343848;
+  background: #151822;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.form-grid textarea {
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* FILTRI */
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.filter-grid label {
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.filter-grid input,
+.filter-grid select {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid #343848;
+  background: #151822;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* BUTTONS */
+
+.btn {
+  border-radius: 999px;
+  border: none;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: #000;
+}
+
+.btn.primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--text-soft);
+  border: 1px solid #343848;
+}
+
+.btn.ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* LISTA PRENOTAZIONI */
+
+.bookings-list {
+  max-height: 460px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.booking-card {
+  background: #181b25;
+  border-radius: var(--radius-md);
+  border: 1px solid #2c3240;
+  padding: 8px 9px;
+  font-size: 12px;
+}
+
+.booking-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.booking-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.booking-name {
+  font-weight: 600;
+}
+
+.booking-meta {
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+.booking-status-badge {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+/* COLORI STATI */
+
+.status-nuova {
+  background: #292c3a;
+  color: var(--accent);
+}
+
+.status-confermata {
+  background: #1d3f2c;
+  color: #4fd36b;
+}
+
+.status-arrivato {
+  background: #24304a;
+  color: #6ea8ff;
+}
+
+.status-no_show {
+  background: #4a2222;
+  color: #ff9a9a;
+}
+
+.status-cancellata {
+  background: #2b3040;
+  color: var(--text-muted);
+}
+
+/* PULSANTI AZIONI */
+
+.booking-actions {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.btn-xs {
+  padding: 3px 8px;
+  font-size: 10px;
+  border-radius: 999px;
+  border: 1px solid #343848;
+  background: transparent;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
+.btn-xs:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-xs.danger {
+  border-color: var(--accent-danger);
+  color: var(--accent-danger);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topbar-right {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}

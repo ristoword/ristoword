@@ -1,0 +1,15 @@
+{
+  "shifts": [
+    {
+      "id": "9d066105-77ad-495f-8c6b-b1187218aad4",
+      "opened_at": "2026-03-10T21:49:05.711Z",
+      "closed_at": null,
+      "operator": "Test",
+      "opening_float": 50,
+      "cash_total": 0,
+      "card_total": 0,
+      "other_total": 0,
+      "status": "open"
+    }
+  ]
+}

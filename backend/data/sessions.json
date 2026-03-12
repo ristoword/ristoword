@@ -1,0 +1,12 @@
+[
+  {
+    "id": "a82223c4-556d-45c3-9f80-b75ade1b1a11",
+    "userId": "cash_manager",
+    "name": "Anna Cassa",
+    "department": "cassa",
+    "loginTime": "2026-03-10T17:55:47.707Z",
+    "logoutTime": null,
+    "authorizedBy": null,
+    "source": "module"
+  }
+]

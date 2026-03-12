@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "name": "pane",
+    "unit": "kg",
+    "quantity": 100,
+    "cost": 4,
+    "threshold": 10,
+    "createdAt": "2026-02-28T11:23:46.880Z",
+    "updatedAt": "2026-02-28T11:23:46.882Z"
+  }
+]
