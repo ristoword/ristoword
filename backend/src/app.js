@@ -49,15 +49,11 @@ const ROLES_PAYMENTS = ["owner", "cassa"];
 const ROLES_REPORTS = ["owner", "sala", "cucina", "cassa"];
 const ROLES_CLOSURES = ["owner", "cassa"];
 
-// Serve tutti i file statici da /public
-// Es: /dashboard/dashboard.html, /sala/sala.html, /cucina/cucina.html, ecc.
-app.use(express.static(path.join(__dirname, "../public")));
-
 // =======================
-//  ROUTE PAGINA HOME / DASHBOARD
+//  ROUTE PAGINA HOME / DASHBOARD (prima di static, così / serve la dashboard)
 // =======================
 
-// Home -> dashboard supervisor
+// Home -> operational dashboard (Sala, Cucina, Pizzeria, Bar, Magazzino, Cassa)
 app.get("/", (req, res) => {
   res.sendFile(
     path.join(__dirname, "../public/dashboard/dashboard.html")
@@ -78,6 +74,10 @@ app.get("/qr", (req, res) => {
 app.get("/qr/:table", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/qr/index.html"));
 });
+
+// Serve tutti i file statici da /public
+// Es: /dashboard/dashboard.html, /sala/sala.html, /cucina/cucina.html, ecc.
+app.use(express.static(path.join(__dirname, "../public")));
 
 // =======================
 //  API (ROUTES) – se esistono i file
