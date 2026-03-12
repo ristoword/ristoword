@@ -11,13 +11,12 @@ function showMessage(text, type = "") {
 function getRedirectByRole(role) {
   const r = (role || "").toLowerCase();
   if (r === "owner") return "/dashboard/dashboard.html";
-  if (r === "sala") return "/sala/sala.html";
-  if (r === "cucina") return "/cucina/cucina.html";
-  if (r === "cassa") return "/cassa/cassa.html";
+  if (r === "sala" || r === "sala_manager") return "/sala/sala.html";
+  if (r === "cucina" || r === "kitchen" || r === "kitchen_manager") return "/cucina/cucina.html";
+  if (r === "cassa" || r === "cashier" || r === "cash_manager") return "/cassa/cassa.html";
   if (r === "supervisor") return "/supervisor/supervisor.html";
-  if (r === "cashier") return "/cassa/cassa.html";
-  if (r === "kitchen") return "/cucina/cucina.html";
   if (r === "staff") return "/staff/staff.html";
+  if (r === "bar" || r === "bar_manager") return "/bar/bar.html";
   if (r === "customer") return "/dashboard/dashboard.html";
   return "/dashboard/dashboard.html";
 }

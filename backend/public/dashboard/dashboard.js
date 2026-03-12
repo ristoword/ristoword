@@ -268,8 +268,7 @@ logout.addEventListener("click",async ()=>{
     await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
   } catch (_) {}
   clearStoredAuth()
-  updateAuthUI()
-  alert("Logout effettuato")
+  window.location.href = "/login/login.html"
 })
 
 }
@@ -469,6 +468,8 @@ setupAuthButtons()
 setupAI()
 
 window.addEventListener("rw:orders-update", () => loadDashboard());
+
+window.addEventListener("rw:auth-ready", () => updateAuthUI());
 
 window.addEventListener("rw:supervisor-sync", (e) => {
   const d = e.detail || {};

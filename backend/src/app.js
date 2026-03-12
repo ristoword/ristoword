@@ -6,6 +6,9 @@ const { ensureTenantMigration } = require("./utils/tenantMigration");
 
 const app = express();
 
+// Trust proxy (Railway, Heroku, etc.)
+app.set("trust proxy", 1);
+
 // Ensure default tenant has data (migrate from legacy data/ if needed)
 ensureTenantMigration();
 
@@ -24,6 +27,7 @@ const { requireLicense } = require("./middleware/requireLicense.middleware");
 const { requireSetup } = require("./middleware/requireSetup.middleware");
 const { requireAuth } = require("./middleware/requireAuth.middleware");
 const { requireRole } = require("./middleware/requireRole.middleware");
+const { requirePageAuth } = require("./middleware/requirePageAuth.middleware");
 
 app.use(requireLicense);
 app.use(requireSetup);
@@ -53,27 +57,30 @@ const ROLES_CLOSURES = ["owner", "cassa"];
 //  ROUTE PAGINA HOME / DASHBOARD (prima di static, così / serve la dashboard)
 // =======================
 
-// Home -> operational dashboard (Sala, Cucina, Pizzeria, Bar, Magazzino, Cassa)
-app.get("/", (req, res) => {
+// Home -> operational dashboard (requires session)
+app.get("/", requirePageAuth, (req, res) => {
   res.sendFile(
     path.join(__dirname, "../public/dashboard/dashboard.html")
   );
 });
 
 // Alias esplicito /dashboard
-app.get("/dashboard", (req, res) => {
+app.get("/dashboard", requirePageAuth, (req, res) => {
   res.sendFile(
     path.join(__dirname, "../public/dashboard/dashboard.html")
   );
 });
 
-// QR table ordering: /qr/1, /qr/2, etc.
+// QR table ordering: /qr/1, /qr/2, etc. (no auth – public QR)
 app.get("/qr", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/qr/index.html"));
 });
 app.get("/qr/:table", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/qr/index.html"));
 });
+
+// Protected HTML pages – redirect to login if no session
+app.use(requirePageAuth);
 
 // Serve tutti i file statici da /public
 // Es: /dashboard/dashboard.html, /sala/sala.html, /cucina/cucina.html, ecc.
