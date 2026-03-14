@@ -40,7 +40,7 @@ function extractPizzaItems(order) {
 // =============================
 
 async function apiGetOrders() {
-  const res = await fetch("/api/orders", { credentials: "same-origin" });
+  const res = await fetch("/api/orders?active=true", { credentials: "same-origin" });
   if (!res.ok) throw new Error("Errore caricamento ordini");
   return await res.json();
 }

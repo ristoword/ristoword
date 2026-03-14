@@ -62,36 +62,6 @@ function formatMoney(v){
 }
 
 // =============================
-// NAVIGAZIONE
-// =============================
-
-function setupSideNav(){
-
-document.querySelectorAll(".side-nav-item").forEach(btn=>{
-btn.addEventListener("click",()=>{
-const link=btn.getAttribute("data-link")
-openLink(link,true)
-})
-})
-
-}
-
-function setupModuleCards(){
-
-document.querySelectorAll(".module-card").forEach(card=>{
-
-card.addEventListener("click",()=>{
-const link=card.getAttribute("data-link")
-openLink(link,true)
-})
-
-card.setAttribute("tabindex","0")
-
-})
-
-}
-
-// =============================
 // API
 // =============================
 
@@ -99,7 +69,7 @@ async function fetchOrders(){
 
 try{
 
-const res=await fetch("/api/orders",{credentials:"same-origin"})
+const res=await fetch("/api/orders?active=true",{credentials:"same-origin"})
 if(!res.ok) throw new Error()
 
 const data=await res.json()
@@ -462,8 +432,6 @@ async function loadDashboard() {
 
 document.addEventListener("DOMContentLoaded",()=>{
 
-setupSideNav()
-setupModuleCards()
 setupAuthButtons()
 setupAI()
 

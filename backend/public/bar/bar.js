@@ -27,7 +27,7 @@ function createElement(tag, className, html) {
 // =============================
 
 async function fetchBarOrders() {
-  const res = await fetch("/api/orders", { credentials: "same-origin" });
+  const res = await fetch("/api/orders?active=true", { credentials: "same-origin" });
   if (!res.ok) throw new Error("Errore caricamento ordini bar");
   const all = await res.json();
   return all.filter((o) => o.area === "bar");

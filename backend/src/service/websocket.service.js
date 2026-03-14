@@ -27,16 +27,14 @@ async function computeSupervisorStats() {
   dateFrom.setHours(0, 0, 0, 0);
   const dateTo = new Date(today);
   dateTo.setHours(23, 59, 59, 999);
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-  const allOrders = await ordersService.listActiveOrders();
+  const dailyOrders = await ordersService.listOrdersByDate(todayStr);
   const payments = await paymentsRepository.listPayments({
     dateFrom: dateFrom.toISOString(),
     dateTo: dateTo.toISOString(),
   });
 
-  const dailyOrders = allOrders.filter((o) =>
-    isSameDay(o.updatedAt || o.createdAt, today)
-  );
   const dailyPayments = payments.filter((p) =>
     isSameDay(p.closedAt || p.createdAt, today)
   );

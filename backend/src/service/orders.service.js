@@ -2,7 +2,6 @@
 // Business logic for orders. Data access via orders.repository only.
 
 const ordersRepository = require("../repositories/orders.repository");
-const closuresRepository = require("../repositories/closures.repository");
 
 async function listOrders() {
   return ordersRepository.getAllOrders();
@@ -20,24 +19,16 @@ function getOrderDateStr(order) {
 }
 
 /**
- * Returns only operationally active orders:
- * - Non-closed/non-cancelled OR
- * - Closed/cancelled but their date has NOT been closed with Z (chiusura cassa)
- * Used by Sala, Cassa, Supervisor active view.
+ * Returns only operationally active orders.
+ * EXCLUDES: chiuso, annullato, closed, cancelled, archived, pagato (final states).
+ * Used by Sala, Cassa, Supervisor active view. Closed/cancelled never appear in active.
  */
 async function listActiveOrders() {
   const all = ordersRepository.getAllOrders();
-  const closures = await closuresRepository.listClosures({});
-  const closedDates = new Set(
-    (closures || []).map((c) => String(c.date || "").slice(0, 10)).filter(Boolean)
-  );
-
+  const excludeStatuses = ["chiuso", "annullato", "closed", "cancelled", "archived", "pagato", "paid"];
   return all.filter((o) => {
-    const status = String(o.status || "").toLowerCase();
-    if (status !== "chiuso" && status !== "annullato") return true;
-    const dateStr = getOrderDateStr(o);
-    if (!dateStr) return true;
-    return !closedDates.has(dateStr);
+    const status = String(o.status || "").toLowerCase().trim();
+    return !excludeStatuses.includes(status);
   });
 }
 
