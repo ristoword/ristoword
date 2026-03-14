@@ -2,6 +2,7 @@ const setupConfig = require("../config/setup");
 const paths = require("../config/paths");
 const path = require("path");
 const fs = require("fs");
+const onboardingService = require("../service/onboarding.service");
 
 // GET /api/setup/status
 async function getStatus(req, res) {
@@ -59,7 +60,7 @@ async function runSetup(req, res) {
   }
 
   const TENANT_FILES = [
-    "orders.json", "inventory.json", "payments.json", "bookings.json",
+    "orders.json", "inventory.json", "inventory-transfers.json", "payments.json", "bookings.json",
     "menu.json", "closures.json", "catering-events.json", "haccp-checks.json",
   ];
   for (const f of TENANT_FILES) {
@@ -86,7 +87,22 @@ async function runSetup(req, res) {
   });
 }
 
+// POST /api/setup/onboard-restaurant (protected by ONBOARDING_SECRET)
+async function onboardRestaurant(req, res) {
+  try {
+    const result = await onboardingService.onboardRestaurant(req.body, req);
+    return res.status(201).json(result);
+  } catch (err) {
+    const status = err.message.includes("required") || err.message.includes("Invalid") ? 400 : 409;
+    return res.status(status).json({
+      success: false,
+      error: err.message,
+    });
+  }
+}
+
 module.exports = {
   getStatus,
   runSetup,
+  onboardRestaurant,
 };

@@ -60,9 +60,31 @@ function findByUsername(username) {
   return safe;
 }
 
+async function createUser(userData) {
+  const users = readUsers();
+  const username = normalizeUsername(userData.username);
+  if (users.some((x) => normalizeUsername(x.username) === username)) {
+    return null;
+  }
+  const id = String(users.length + 1);
+  const record = {
+    id,
+    username: userData.username,
+    password: userData.password,
+    role: userData.role || "owner",
+    is_active: userData.is_active !== false,
+    restaurantId: userData.restaurantId || null,
+    mustChangePassword: userData.mustChangePassword === true,
+  };
+  users.push(record);
+  writeUsers(users);
+  return record;
+}
+
 module.exports = {
   readUsers,
   writeUsers,
   findByCredentials,
   findByUsername,
+  createUser,
 };

@@ -502,7 +502,42 @@ window.addEventListener("rw:supervisor-sync", (e) => {
 });
 
 loadDashboard();
+loadDailyMenuDash();
 
 setInterval(loadDashboard, 20000);
+setInterval(loadDailyMenuDash, 60000);
 
 })
+
+async function loadDailyMenuDash() {
+  const container = document.getElementById("daily-menu-dash-content");
+  if (!container) return;
+  try {
+    const res = await fetch("/api/daily-menu/active", { credentials: "same-origin" });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data.menuActive || !data.dishes || data.dishes.length === 0) {
+      container.innerHTML = "<div class='placeholder'>Menu del giorno non attivo.</div>";
+      return;
+    }
+    const byCat = {};
+    data.dishes.forEach((d) => {
+      const c = d.category || "extra";
+      if (!byCat[c]) byCat[c] = [];
+      byCat[c].push(d);
+    });
+    const labels = { antipasto: "Antipasto", primo: "Primo", secondo: "Secondo", contorno: "Contorno", dolce: "Dolce", bevanda: "Bevanda", extra: "Extra" };
+    const order = ["antipasto", "primo", "secondo", "contorno", "dolce", "bevanda", "extra"];
+    let html = "";
+    order.forEach((cat) => {
+      const list = byCat[cat] || [];
+      if (list.length === 0) return;
+      html += "<div class='daily-menu-dash-cat'><strong>" + (labels[cat] || cat) + ":</strong> ";
+      html += list.map((d) => d.name + " €" + (Number(d.price) || 0).toFixed(2)).join(" · ");
+      html += "</div>";
+    });
+    container.innerHTML = html || "<div class='placeholder'>Nessun piatto attivo.</div>";
+  } catch (_) {
+    container.innerHTML = "<div class='placeholder'>Menu del giorno non disponibile.</div>";
+  }
+}

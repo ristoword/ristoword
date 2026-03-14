@@ -441,6 +441,12 @@ body {
   padding: 10px 12px 12px;
 }
 
+.daily-menu-dash-cat {
+  font-size: 13px;
+  margin-bottom: 8px;
+  color: var(--text-soft);
+}
+
 /* ULTIME COMANDE */
 
 .last-orders-card {

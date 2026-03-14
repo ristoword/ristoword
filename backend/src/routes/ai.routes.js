@@ -23,4 +23,7 @@ router.post("/sales", asyncHandler(aiController.getSalesSuggestion));
 // POST /api/ai/production
 router.post("/production", asyncHandler(aiController.getProductionSuggestion));
 
+// POST /api/ai/inventory – Magazzino multi-livello
+router.post("/inventory", asyncHandler(aiController.getInventorySuggestion));
+
 module.exports = router;

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>RISTOWORD – Menu del Giorno</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/cucina/cucina.css" />
+  <link rel="stylesheet" href="daily-menu.css" />
+</head>
+<body>
+  <div class="layout">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>RISTOWORD – Menu del Giorno</h1>
+        <p class="subtitle">Gestione menu giornaliero – piatti singoli per portata</p>
+      </div>
+      <div class="topbar-right">
+        <div class="chip" id="menu-status-chip">
+          <span class="chip-label">Menu</span>
+          <span class="chip-value" id="menu-status-value">Spento</span>
+        </div>
+        <button class="btn primary" id="btn-toggle-menu">Attiva menu</button>
+        <button class="btn ghost" onclick="window.location.href='/cucina/cucina.html'">← Cucina</button>
+      </div>
+    </header>
+
+    <main class="main daily-menu-main">
+
+      <!-- FORM NUOVO PIATTO -->
+      <article class="card">
+        <header class="card-header">
+          <h2>Nuovo piatto menu del giorno</h2>
+          <p>Ogni piatto è singolo e indipendente</p>
+        </header>
+        <div class="card-body form-grid daily-menu-form">
+          <label class="full">
+            Nome piatto
+            <input type="text" id="field-name" placeholder="Es. Risotto ai funghi" />
+          </label>
+          <label class="full">
+            Descrizione breve (opzionale)
+            <input type="text" id="field-description" placeholder="Es. con funghi porcini e grana" />
+          </label>
+          <label>
+            Portata / Categoria
+            <select id="field-category">
+              <option value="antipasto">Antipasto</option>
+              <option value="primo">Primo</option>
+              <option value="secondo">Secondo</option>
+              <option value="contorno">Contorno</option>
+              <option value="dolce">Dolce</option>
+              <option value="bevanda">Bevanda</option>
+              <option value="extra">Extra</option>
+            </select>
+          </label>
+          <label>
+            Prezzo (€)
+            <input type="number" id="field-price" step="0.01" min="0" placeholder="12.50" />
+          </label>
+          <label class="full">
+            Note allergeni (opzionale)
+            <input type="text" id="field-allergens" placeholder="Es. glutine, lattosio" />
+          </label>
+          <div class="form-actions full">
+            <button class="btn primary" id="btn-add-dish">Aggiungi piatto</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- ELENCO PIATTI PER PORTATA -->
+      <article class="card">
+        <header class="card-header">
+          <h2>Piatti del giorno – per portata</h2>
+          <p>Modifica, elimina o attiva/disattiva ogni singolo piatto</p>
+        </header>
+        <div class="card-body" id="dishes-container">
+          <div id="dishes-loading" class="loading-msg">Caricamento...</div>
+          <div id="dishes-by-category"></div>
+        </div>
+      </article>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL MODIFICA -->
+  <div id="edit-modal" class="modal-overlay" style="display:none">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3>Modifica piatto</h3>
+        <button type="button" class="btn-close" id="btn-close-modal">&times;</button>
+      </header>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id" />
+        <label class="full">Nome <input type="text" id="edit-name" /></label>
+        <label class="full">Descrizione <input type="text" id="edit-description" /></label>
+        <label>Portata <select id="edit-category"></select></label>
+        <label>Prezzo (€) <input type="number" id="edit-price" step="0.01" min="0" /></label>
+        <label class="full">Allergeni <input type="text" id="edit-allergens" /></label>
+      </div>
+      <div class="modal-footer">
+        <button class="btn ghost" id="btn-cancel-edit">Annulla</button>
+        <button class="btn primary" id="btn-save-edit">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,cucina,kitchen,kitchen_manager"></script>
+  <script src="daily-menu.js"></script>
+</body>
+</html>

@@ -5,6 +5,7 @@ const { WebSocketServer } = require("ws");
 const logger = require("../utils/logger");
 const paymentsRepository = require("../repositories/payments.repository");
 const ordersRepository = require("../repositories/orders.repository");
+const ordersService = require("./orders.service");
 const paymentsService = require("./payments.service");
 
 let wss = null;
@@ -27,7 +28,7 @@ async function computeSupervisorStats() {
   const dateTo = new Date(today);
   dateTo.setHours(23, 59, 59, 999);
 
-  const allOrders = ordersRepository.getAllOrders();
+  const allOrders = await ordersService.listActiveOrders();
   const payments = await paymentsRepository.listPayments({
     dateFrom: dateFrom.toISOString(),
     dateTo: dateTo.toISOString(),

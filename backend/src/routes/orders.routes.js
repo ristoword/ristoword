@@ -5,8 +5,11 @@ const asyncHandler = require("../utils/asyncHandler");
 
 const router = express.Router();
 
-// elenco ordini (Sala, Cucina, Supervisor)
+// elenco ordini (Sala, Cucina, Supervisor) — ?active=true esclude chiusi di giornate già chiuse con Z
 router.get("/", asyncHandler(OrdersController.listOrders));
+
+// storico comande per giorno (Supervisor)
+router.get("/history", asyncHandler(OrdersController.listOrdersHistory));
 
 // creazione ordine (Sala)
 router.post("/", asyncHandler(OrdersController.createOrder));

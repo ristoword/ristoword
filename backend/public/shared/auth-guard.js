@@ -68,6 +68,12 @@
       const role = user.role || "";
       const username = user.username || "";
 
+      if (user.mustChangePassword === true && !window.location.pathname.includes("/change-password")) {
+        overlay.remove();
+        window.location.replace("/change-password/change-password.html");
+        return;
+      }
+
       if (allowedRoles && allowedRoles.length > 0 && !roleMatchesAllowed(allowedRoles, role)) {
         overlay.remove();
         redirectToLogin(true);

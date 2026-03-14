@@ -34,6 +34,7 @@
         <a class="nav-item active" href="/supervisor/supervisor.html">Supervisor</a>
         <a class="nav-item" href="/supervisor/staff/staff.html">Staff</a>
         <a class="nav-item" href="/supervisor/customers/customers.html">Clienti</a>
+        <a class="nav-item" href="/daily-menu/daily-menu.html">Menu del Giorno</a>
       </nav>
 
       <div class="side-actions">
@@ -91,6 +92,7 @@
       <!-- TABS -->
       <nav class="tabs" aria-label="Sezioni Supervisor">
         <button class="tab active" data-tab="tab-report">Report</button>
+        <button class="tab" data-tab="tab-storico">Storico giornaliero</button>
         <button class="tab" data-tab="tab-storni">Storni</button>
         <button class="tab" data-tab="tab-menu">Menù</button>
         <button class="tab" data-tab="tab-magazzino">Magazzino</button>
@@ -229,8 +231,8 @@
 
             <article class="card full">
               <header class="card-header">
-                <h2>Dettaglio ordini (oggi)</h2>
-                <p>Vista rapida: tavolo, stato, totale stimato, reparto.</p>
+                <h2>Dettaglio ordini attivi</h2>
+                <p>Vista operativa: solo ordini non ancora archiviati (esclusi chiusi di giornate già chiuse con Z)</p>
               </header>
               <div class="card-body">
                 <div class="filters">
@@ -264,6 +266,31 @@
                 </div>
 
                 <div class="table" id="orders-table"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- STORICO GIORNALIERO -->
+        <section id="tab-storico" class="tab-panel">
+          <div class="grid">
+            <article class="card full">
+              <header class="card-header">
+                <h2>Storico comande per giorno</h2>
+                <p>Richiama tutte le comande di un giorno (anche già chiuse e archiviate dopo chiusura cassa)</p>
+              </header>
+              <div class="card-body">
+                <div class="form-grid" style="margin-bottom:14px;">
+                  <label>
+                    Data
+                    <input type="date" id="storico-date" />
+                  </label>
+                  <label style="align-self:flex-end;">
+                    <button class="btn primary" id="btn-storico-load">Carica comande</button>
+                  </label>
+                </div>
+                <div class="tiny muted" id="storico-status">Seleziona una data e clicca Carica.</div>
+                <div class="table" id="storico-orders-table" style="margin-top:12px;"></div>
               </div>
             </article>
           </div>
@@ -387,6 +414,18 @@
                     <input type="file" id="file-menu-import" accept="application/json" />
                   </label>
                   <button class="btn ghost danger" id="btn-menu-clear-all">Svuota menù</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="card">
+              <header class="card-header">
+                <h2>Menu del Giorno</h2>
+                <p>Piatti del giorno – gestito dalla Cucina (<a href="/daily-menu/daily-menu.html" style="color:var(--accent)">modifica</a>)</p>
+              </header>
+              <div class="card-body">
+                <div id="daily-menu-supervisor-content">
+                  <div class="muted tiny">Caricamento...</div>
                 </div>
               </div>
             </article>

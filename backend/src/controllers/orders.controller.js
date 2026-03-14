@@ -6,7 +6,7 @@ const logger = require("../utils/logger");
 
 async function broadcastOrderUpdates() {
   try {
-    const orders = await ordersService.listOrders();
+    const orders = await ordersService.listActiveOrders();
     broadcastOrders(orders);
   } catch (err) {
     logger.error("WebSocket broadcast error", { message: err.message });
@@ -15,7 +15,18 @@ async function broadcastOrderUpdates() {
 
 async function listOrders(req, res, next) {
   try {
-    const orders = await ordersService.listOrders();
+    const active = String(req.query.active || "").toLowerCase() === "true";
+    const orders = active ? await ordersService.listActiveOrders() : await ordersService.listOrders();
+    res.json(orders);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function listOrdersHistory(req, res, next) {
+  try {
+    const dateStr = req.query.date || "";
+    const orders = await ordersService.listOrdersByDate(dateStr);
     res.json(orders);
   } catch (err) {
     next(err);
@@ -62,6 +73,7 @@ async function setStatus(req, res, next) {
 
 module.exports = {
   listOrders,
+  listOrdersHistory,
   createOrder,
   setStatus,
 };

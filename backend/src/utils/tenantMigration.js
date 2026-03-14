@@ -25,6 +25,8 @@ const TENANT_FILES = [
   "haccp-checks.json",
   "catering-events.json",
   "sessions.json",
+  "daily-menu.json",
+  "inventory-transfers.json",
 ];
 
 let migrated = false;

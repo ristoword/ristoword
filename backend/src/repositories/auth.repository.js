@@ -48,7 +48,8 @@ function buildToken(user) {
 }
 
 function normalize(user, token = true) {
-  const redirectTo = user.redirectTo || ROLE_REDIRECT[user.role];
+  const baseRedirect = user.redirectTo || ROLE_REDIRECT[user.role];
+  const redirectTo = user.mustChangePassword === true ? "/change-password/change-password.html" : baseRedirect;
   const department = user.department || (MANAGER_ROLES[user.role] && MANAGER_ROLES[user.role].department);
   const out = { ...user, department, redirectTo };
   if (token) out.token = buildToken(user);

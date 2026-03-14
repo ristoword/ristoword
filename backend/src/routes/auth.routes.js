@@ -22,4 +22,11 @@ router.get(
   asyncHandler(authController.me)
 );
 
+// CAMBIO PASSWORD – requires auth
+router.post(
+  "/change-password",
+  requireAuth,
+  asyncHandler(authController.changePassword)
+);
+
 module.exports = router;

@@ -63,7 +63,7 @@ function inferAreaFromCategory(cat) {
 // =============================
 
 async function apiGetOrders() {
-  const res = await fetch("/api/orders", { credentials: "same-origin" });
+  const res = await fetch("/api/orders?active=true", { credentials: "same-origin" });
   if (!res.ok) throw new Error("Errore caricamento ordini");
   return await res.json();
 }
@@ -720,4 +720,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadOrdersAndRender();
 
   setInterval(loadOrdersAndRender, 15000); // fallback polling
+
+  // Menu del Giorno (sola lettura)
+  loadDailyMenuSala();
 });
+
+async function loadDailyMenuSala() {
+  const container = document.getElementById("daily-menu-sala-content");
+  if (!container) return;
+  try {
+    const res = await fetch("/api/daily-menu/active", { credentials: "same-origin" });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data.menuActive || !data.dishes || data.dishes.length === 0) {
+      container.innerHTML = '<div class="daily-menu-empty">Menu del giorno non attivo o vuoto.</div>';
+      return;
+    }
+    const byCat = {};
+    data.dishes.forEach((d) => {
+      const c = d.category || "extra";
+      if (!byCat[c]) byCat[c] = [];
+      byCat[c].push(d);
+    });
+    const labels = { antipasto: "Antipasto", primo: "Primo", secondo: "Secondo", contorno: "Contorno", dolce: "Dolce", bevanda: "Bevanda", extra: "Extra" };
+    const order = ["antipasto", "primo", "secondo", "contorno", "dolce", "bevanda", "extra"];
+    let html = "";
+    order.forEach((cat) => {
+      const list = byCat[cat] || [];
+      if (list.length === 0) return;
+      html += '<div class="daily-cat"><div class="daily-cat-title">' + (labels[cat] || cat) + "</div>";
+      list.forEach((d) => {
+        const price = "€ " + (Number(d.price) || 0).toFixed(2);
+        html += '<div class="daily-dish-row"><span>' + escapeHtml(d.name) + "</span><span class='price'>" + price + "</span></div>";
+      });
+      html += "</div>";
+    });
+    container.innerHTML = html || '<div class="daily-menu-empty">Nessun piatto attivo.</div>';
+  } catch (_) {
+    container.innerHTML = '<div class="daily-menu-empty">Menu del giorno non disponibile.</div>';
+  }
+}
+
+function escapeHtml(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}

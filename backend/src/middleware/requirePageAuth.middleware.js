@@ -5,6 +5,7 @@
 const LOGIN_PATH = "/login/login.html";
 
 const PROTECTED_PATTERNS = [
+  /^\/change-password\/change-password\.html$/,
   /^\/dashboard\/dashboard\.html$/,
   /^\/sala\/sala\.html$/,
   /^\/cucina\/cucina\.html$/,
@@ -21,6 +22,7 @@ const PROTECTED_PATTERNS = [
   /^\/supervisor\/staff\/staff\.html$/,
   /^\/supervisor\/customers\/customers\.html$/,
   /^\/menu-admin\/menu-admin\.html$/,
+  /^\/daily-menu\/daily-menu\.html$/,
 ];
 
 function isProtectedPath(pathname) {

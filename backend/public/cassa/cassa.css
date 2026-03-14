@@ -397,6 +397,13 @@ body{
 .invoice-totals > div{display:flex;justify-content:space-between}
 .invoice-totals .total{font-weight:900;font-size:14px}
 
+/* Menu del Giorno (Cassa) */
+.daily-menu-cassa .daily-menu-loading{color:var(--text-muted);font-size:13px}
+.daily-menu-cassa-cat{margin-bottom:12px}
+.daily-menu-cassa-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:6px}
+.daily-menu-cassa-row{display:flex;justify-content:space-between;padding:4px 0;font-size:14px}
+.daily-menu-cassa-row .price{font-weight:700;color:var(--accent);margin-left:8px}
+
 /* Print helpers */
 .print-area{display:none}
 @media print{

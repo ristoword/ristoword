@@ -968,6 +968,75 @@ async function gatherInventoryContext() {
   return { lowStock, expiringItems };
 }
 
+/**
+ * Magazzino multi-livello: Centrale + Scorte reparti.
+ * Suggerimenti per: centrale sotto soglia, reparti quasi scarichi, prodotti da reintegrare.
+ */
+async function getInventoryWarehouseSuggestion() {
+  const inventory = inventoryRepository.getAll();
+  const DEPARTMENTS = inventoryRepository.DEPARTMENTS || ["cucina", "sala"];
+  const centralLow = [];
+  const deptLow = { cucina: [], sala: [] };
+  const suggestTransfer = [];
+  const topMoved = [];
+
+  for (const item of inventory || []) {
+    const central = Number(item.central ?? item.quantity) || 0;
+    const threshold = Number(item.threshold ?? item.min_stock) || 0;
+    const name = item.name || "Senza nome";
+
+    if (threshold > 0 && central <= threshold) {
+      centralLow.push({ name, quantity: central, threshold });
+    }
+    for (const dept of DEPARTMENTS) {
+      const qty = Number(item.stocks && item.stocks[dept]) || 0;
+      if (threshold > 0 && qty > 0 && qty <= threshold) {
+        (deptLow[dept] || (deptLow[dept] = [])).push({ name, quantity: qty, threshold });
+      }
+      if (central > 0 && qty === 0) {
+        suggestTransfer.push({
+          product: name,
+          unit: item.unit || "un",
+          central,
+          to: dept,
+        });
+      }
+    }
+  }
+
+  const messages = [];
+  if (centralLow.length > 0) {
+    messages.push(
+      `Centrale sotto soglia: ${centralLow.map((x) => x.name).join(", ")}. Valuta riordino.`
+    );
+  }
+  for (const dept of DEPARTMENTS) {
+    const list = deptLow[dept] || [];
+    if (list.length > 0) {
+      messages.push(
+        `Scorta ${dept} quasi esaurita: ${list.map((x) => x.name).join(", ")}. Trasferisci dal centrale.`
+      );
+    }
+  }
+  if (suggestTransfer.length > 0 && messages.length < 3) {
+    const sample = suggestTransfer.slice(0, 3);
+    messages.push(
+      `Prodotti da reintegrare nei reparti: ${sample.map((s) => `${s.product} → ${s.to}`).join("; ")}.`
+    );
+  }
+  if (messages.length === 0) {
+    messages.push("Magazzino OK. Nessun alert centrale o reparti.");
+  }
+
+  return {
+    type: "inventory",
+    message: messages.join(" "),
+    lowStockCentral: centralLow,
+    lowStockByDept: deptLow,
+    suggestTransfer: suggestTransfer.slice(0, 10),
+  };
+}
+
 // Mapping: ingredient keyword -> dishes per course (antipasto, primo, secondo, dolce)
 const DISH_MAPPING = {
   pane: {
@@ -1486,4 +1555,5 @@ module.exports = {
   getOperationalStatus,
   getPredictiveKitchen,
   getDailyBrain,
+  getInventoryWarehouseSuggestion,
 };

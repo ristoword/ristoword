@@ -1,0 +1,192 @@
+/* daily-menu.css – Menu del Giorno */
+
+.daily-menu-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.daily-menu-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.daily-menu-form .full {
+  grid-column: 1 / -1;
+}
+
+.daily-menu-form .form-actions {
+  margin-top: 8px;
+}
+
+.loading-msg {
+  color: var(--text-muted);
+  padding: 20px;
+  text-align: center;
+}
+
+/* CATEGORIA BLOCCO */
+.daily-category-block {
+  margin-bottom: 24px;
+}
+
+.daily-category-block:last-child {
+  margin-bottom: 0;
+}
+
+.daily-category-title {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-warning);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.daily-dish-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.daily-dish-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-alt);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+}
+
+.daily-dish-card.inactive {
+  opacity: 0.6;
+}
+
+.daily-dish-card.inactive .daily-dish-name {
+  text-decoration: line-through;
+}
+
+.daily-dish-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.daily-dish-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.daily-dish-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.daily-dish-allergens {
+  font-size: 11px;
+  color: var(--accent-danger);
+  margin-top: 2px;
+}
+
+.daily-dish-price {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--accent-warning);
+  margin-right: 12px;
+}
+
+.daily-dish-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.daily-dish-actions .btn {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modal-card {
+  background: var(--bg-alt);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-soft);
+  width: 90%;
+  max-width: 440px;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-close:hover {
+  color: var(--text);
+}
+
+.modal-body {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-body .full {
+  grid-column: 1 / -1;
+}
+
+.modal-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.modal-body input,
+.modal-body select {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-soft);
+}

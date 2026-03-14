@@ -118,7 +118,7 @@ function initViewSwitcher() {
 // =======================================
 
 async function fetchOrders() {
-  const res = await fetch(ORDERS_API, { credentials: "same-origin" });
+  const res = await fetch(ORDERS_API + "?active=true", { credentials: "same-origin" });
   if (!res.ok) {
     throw new Error("Errore caricamento ordini dalla cucina");
   }

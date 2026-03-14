@@ -704,8 +704,8 @@ function setupMenuForm() {
 // =============================
 
 async function fetchOrders() {
-  if (window.RW_API?.get) return await window.RW_API.get("/api/orders");
-  const res = await fetch("/api/orders", { credentials: "same-origin" });
+  if (window.RW_API?.get) return await window.RW_API.get("/api/orders?active=true");
+  const res = await fetch("/api/orders?active=true", { credentials: "same-origin" });
   if (!res.ok) throw new Error("Errore caricamento ordini");
   return await res.json();
 }
@@ -1162,6 +1162,42 @@ async function refreshInventory() {
     inventoryCache = [];
     renderInventoryMini();
     renderShoppingList();
+  }
+}
+
+async function loadDailyMenuCassa() {
+  const container = document.getElementById("daily-menu-cassa-content");
+  if (!container) return;
+  try {
+    const res = await fetch("/api/daily-menu/active", { credentials: "same-origin" });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data.menuActive || !data.dishes || data.dishes.length === 0) {
+      container.innerHTML = '<div class="label-soft tiny">Menu del giorno non attivo.</div>';
+      return;
+    }
+    const byCat = {};
+    data.dishes.forEach((d) => {
+      const c = d.category || "extra";
+      if (!byCat[c]) byCat[c] = [];
+      byCat[c].push(d);
+    });
+    const labels = { antipasto: "Antipasto", primo: "Primo", secondo: "Secondo", contorno: "Contorno", dolce: "Dolce", bevanda: "Bevanda", extra: "Extra" };
+    const order = ["antipasto", "primo", "secondo", "contorno", "dolce", "bevanda", "extra"];
+    let html = "";
+    order.forEach((cat) => {
+      const list = byCat[cat] || [];
+      if (list.length === 0) return;
+      html += '<div class="daily-menu-cassa-cat"><div class="daily-menu-cassa-title">' + (labels[cat] || cat) + "</div>";
+      list.forEach((d) => {
+        const price = toMoney(d.price);
+        html += '<div class="daily-menu-cassa-row"><span>' + (d.name || "") + "</span><span class='price'>" + price + "</span></div>";
+      });
+      html += "</div>";
+    });
+    container.innerHTML = html || '<div class="label-soft tiny">Nessun piatto attivo.</div>';
+  } catch (_) {
+    container.innerHTML = '<div class="label-soft tiny">Menu del giorno non disponibile.</div>';
   }
 }
 
@@ -2526,6 +2562,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadOrdersAndRender();
   refreshInventory();
+  loadDailyMenuCassa();
 
   setupShiftModals();
 

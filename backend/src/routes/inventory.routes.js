@@ -8,7 +8,10 @@ const inventoryController = require("../controllers/inventory.controller");
 const router = express.Router();
 
 router.get("/", asyncHandler(inventoryController.listInventory));
+router.get("/transfers", asyncHandler(inventoryController.listTransfers));
 router.post("/", asyncHandler(inventoryController.createInventory));
+router.post("/transfer", asyncHandler(inventoryController.transferInventory));
+router.post("/return", asyncHandler(inventoryController.returnToCentral));
 router.patch("/:id/adjust", asyncHandler(inventoryController.adjustInventory));
 router.get("/:id", asyncHandler(inventoryController.getInventoryById));
 router.patch("/:id", asyncHandler(inventoryController.updateInventory));

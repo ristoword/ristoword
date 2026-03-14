@@ -3,7 +3,7 @@
 
 const { getLicense } = require("../config/license");
 
-const SKIP_PATHS = ["/login", "/api/auth", "/api/license", "/api/setup", "/license", "/setup", "/api/system/health", "/api/health", "/api/qr", "/qr"];
+const SKIP_PATHS = ["/login", "/api/auth", "/api/license", "/api/setup", "/license", "/setup", "/api/system/health", "/api/health", "/api/qr", "/qr", "/change-password"];
 
 function shouldSkipLicenseCheck(path) {
   const p = (path || "").split("?")[0];

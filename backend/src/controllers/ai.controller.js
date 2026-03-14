@@ -94,3 +94,16 @@ exports.getProductionSuggestion = async (req, res) => {
   const result = await getResponseWithContext("production", req.body || {});
   res.json(result);
 };
+
+// POST /api/ai/inventory – Magazzino multi-livello (Centrale + reparti)
+exports.getInventorySuggestion = async (req, res) => {
+  try {
+    const result = await aiAssistantService.getInventoryWarehouseSuggestion();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({
+      error: "inventory_suggestion_error",
+      message: err.message || "Errore durante l'analisi magazzino.",
+    });
+  }
+};

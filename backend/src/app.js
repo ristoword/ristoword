@@ -71,6 +71,13 @@ app.get("/dashboard", requirePageAuth, (req, res) => {
   );
 });
 
+// Cambio password obbligatorio al primo accesso
+app.get("/change-password", requirePageAuth, (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../public/change-password/change-password.html")
+  );
+});
+
 // QR table ordering: /qr/1, /qr/2, etc. (no auth – public QR)
 app.get("/qr", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/qr/index.html"));
@@ -133,6 +140,14 @@ try {
   app.use("/api/inventory", requireAuth, requireRole(ROLES_ALL), inventoryRouter);
 } catch (e) {
   console.warn("inventory.routes non trovato (ok se non ancora creato)");
+}
+
+// DAILY MENU (Menu del Giorno)
+try {
+  const dailyMenuRouter = require("./routes/daily-menu.routes");
+  app.use("/api/daily-menu", requireAuth, requireRole(ROLES_ALL), dailyMenuRouter);
+} catch (e) {
+  console.warn("daily-menu.routes non trovato (ok se non ancora creato)");
 }
 
 // HACCP

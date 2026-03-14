@@ -13,98 +13,209 @@
       <div>
         <h1>RISTOWORD – Magazzino</h1>
         <p class="subtitle">
-          Gestione scorte, costi e valore totale
+          Magazzino Centrale + Scorte reparti
         </p>
       </div>
-
       <div class="kpi-row">
         <div class="kpi">
           <span class="kpi-label">Prodotti</span>
           <span class="kpi-value" id="kpi-count">0</span>
         </div>
         <div class="kpi">
-          <span class="kpi-label">Pezzi totali</span>
-          <span class="kpi-value" id="kpi-qty">0</span>
+          <span class="kpi-label">Centrale</span>
+          <span class="kpi-value" id="kpi-central">0</span>
         </div>
         <div class="kpi">
-          <span class="kpi-label">Valore totale</span>
+          <span class="kpi-label">Valore</span>
           <span class="kpi-value" id="kpi-value">€ 0.00</span>
         </div>
         <button class="btn ghost" id="btn-refresh">Aggiorna</button>
       </div>
     </header>
 
+    <!-- TAB NAVIGAZIONE -->
+    <nav class="mag-tabs">
+      <button class="mag-tab active" data-tab="centrale">Magazzino Centrale</button>
+      <button class="mag-tab" data-tab="cucina">Scorta Cucina</button>
+      <button class="mag-tab" data-tab="sala">Scorta Sala</button>
+      <button class="mag-tab" data-tab="movimenti">Movimenti interni</button>
+    </nav>
+
     <main class="main">
 
-      <!-- NUOVO PRODOTTO -->
-      <section class="card">
+      <!-- NUOVO PRODOTTO (visibile in tab Centrale) -->
+      <section class="card card-form" id="section-new-product">
         <header class="card-header">
           <h2>Nuovo prodotto</h2>
+          <button type="button" class="btn-voice" id="btn-voice-product" title="Inserimento vocale">🎤</button>
         </header>
-
         <div class="card-body form-grid">
           <label>
             Nome prodotto
             <input type="text" id="field-name" />
           </label>
-
+          <label>
+            Categoria (opz.)
+            <input type="text" id="field-category" placeholder="Es. pasta, pane" />
+          </label>
           <label>
             Unità
-            <input type="text" id="field-unit" placeholder="kg / pz / lt" />
+            <select id="field-unit">
+              <option value="kg">kg</option>
+              <option value="lt">lt</option>
+              <option value="unità">unità</option>
+              <option value="pezzi">pezzi</option>
+            </select>
           </label>
-
           <label>
             Quantità iniziale
             <input type="number" id="field-quantity" step="0.01" />
           </label>
-
           <label>
             Costo unitario (€)
             <input type="number" id="field-cost" step="0.01" />
           </label>
-
           <label>
             Soglia minima
             <input type="number" id="field-threshold" step="0.01" />
           </label>
-
+          <label>
+            Lotto provenienza (opz.)
+            <input type="text" id="field-lot" placeholder="Lotto" />
+          </label>
+          <label class="full">
+            Note (opz.)
+            <input type="text" id="field-notes" placeholder="Note" />
+          </label>
           <div class="form-actions full">
-            <button class="btn primary" id="btn-add-product">
-              Aggiungi prodotto
-            </button>
+            <button class="btn primary" id="btn-add-product">Aggiungi prodotto</button>
           </div>
         </div>
       </section>
 
-      <!-- FILTRI -->
+      <!-- RICERCA -->
       <section class="card">
         <header class="card-header">
           <h2>Ricerca</h2>
         </header>
-
         <div class="card-body">
-          <input
-            type="text"
-            id="search-input"
-            placeholder="Cerca prodotto..."
-            class="search-input"
-          />
+          <input type="text" id="search-input" placeholder="Cerca prodotto..." class="search-input" />
         </div>
       </section>
 
-      <!-- LISTA PRODOTTI -->
-      <section class="card">
+      <!-- MAGAZZINO CENTRALE -->
+      <section class="card card-tab" id="tab-centrale">
         <header class="card-header">
-          <h2>Prodotti in magazzino</h2>
+          <h2>Prodotti in Magazzino Centrale</h2>
         </header>
+        <div class="card-body list" id="inventory-central-list"></div>
+      </section>
 
-        <div class="card-body list" id="inventory-list">
-          <!-- popolato da js -->
+      <!-- SCORTA CUCINA -->
+      <section class="card card-tab" id="tab-cucina">
+        <header class="card-header">
+          <h2>Scorta Cucina</h2>
+        </header>
+        <div class="card-body list" id="inventory-cucina-list"></div>
+      </section>
+
+      <!-- SCORTA SALA -->
+      <section class="card card-tab" id="tab-sala">
+        <header class="card-header">
+          <h2>Scorta Sala</h2>
+        </header>
+        <div class="card-body list" id="inventory-sala-list"></div>
+      </section>
+
+      <!-- MOVIMENTI INTERNI -->
+      <section class="card card-tab" id="tab-movimenti">
+        <header class="card-header">
+          <h2>Storico movimenti interni</h2>
+        </header>
+        <div class="card-body list" id="transfers-list"></div>
+      </section>
+
+      <!-- PANNELLO AI -->
+      <section class="card card-ai">
+        <header class="card-header">
+          <h2>Assistente Magazzino</h2>
+        </header>
+        <div class="card-body">
+          <p id="ai-message" class="ai-message">Carica suggerimenti...</p>
+          <button class="btn ghost" id="btn-ai-refresh">Aggiorna suggerimenti</button>
         </div>
       </section>
 
     </main>
 
+  </div>
+
+  <!-- MODALE RIENTRO AL CENTRALE -->
+  <div class="modal-overlay" id="modal-return">
+    <div class="modal">
+      <header class="modal-header">
+        <h3>Restituisci al Centrale</h3>
+        <button type="button" class="modal-close" id="modal-return-close">&times;</button>
+      </header>
+      <div class="modal-body">
+        <p class="modal-product" id="return-product-name">—</p>
+        <p class="modal-dept" id="return-dept-label">Reparto: Cucina</p>
+        <label>
+          Quantità da restituire
+          <input type="number" id="return-qty" step="0.01" min="0.01" />
+          <span class="modal-unit" id="return-unit">kg</span>
+        </label>
+        <label>
+          Operatore (opz.)
+          <input type="text" id="return-operator" placeholder="Chi restituisce" />
+        </label>
+        <label>
+          Nota (opz.)
+          <input type="text" id="return-note" placeholder="Es. rientro eccedenza" />
+        </label>
+      </div>
+      <footer class="modal-footer">
+        <button class="btn ghost" id="modal-return-cancel">Annulla</button>
+        <button class="btn primary" id="modal-return-confirm">Conferma rientro</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- MODALE TRASFERIMENTO -->
+  <div class="modal-overlay" id="modal-transfer">
+    <div class="modal">
+      <header class="modal-header">
+        <h3>Trasferisci a reparto</h3>
+        <button type="button" class="modal-close" id="modal-transfer-close">&times;</button>
+      </header>
+      <div class="modal-body">
+        <p class="modal-product" id="transfer-product-name">—</p>
+        <label>
+          Reparto destinazione
+          <select id="transfer-dept">
+            <option value="cucina">Cucina</option>
+            <option value="sala">Sala</option>
+          </select>
+        </label>
+        <label>
+          Quantità
+          <input type="number" id="transfer-qty" step="0.01" min="0.01" />
+          <span class="modal-unit" id="transfer-unit">kg</span>
+        </label>
+        <label>
+          Operatore / Reparto richiedente (opz.)
+          <input type="text" id="transfer-operator" placeholder="Chi prende" />
+        </label>
+        <label>
+          Nota (opz.)
+          <input type="text" id="transfer-note" placeholder="Nota" />
+        </label>
+      </div>
+      <footer class="modal-footer">
+        <button class="btn ghost" id="modal-transfer-cancel">Annulla</button>
+        <button class="btn primary" id="modal-transfer-confirm">Conferma trasferimento</button>
+      </footer>
+    </div>
   </div>
 
   <script src="/shared/auth-guard.js" data-allowed-roles="owner,sala,cucina,cassa"></script>

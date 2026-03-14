@@ -83,6 +83,39 @@ function findMenuItemByName(name){
   return menuOfficial.find(m => (m.name||"").trim().toLowerCase() === n) || null;
 }
 
+async function loadDailyMenuSupervisor(){
+  const container = document.getElementById("daily-menu-supervisor-content");
+  if (!container) return;
+  try {
+    const res = await fetch("/api/daily-menu/active", { credentials: "same-origin" });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data.menuActive || !data.dishes || data.dishes.length === 0) {
+      container.innerHTML = "<div class='muted tiny'>Menu del giorno non attivo.</div>";
+      return;
+    }
+    const byCat = {};
+    data.dishes.forEach((d) => {
+      const c = d.category || "extra";
+      if (!byCat[c]) byCat[c] = [];
+      byCat[c].push(d);
+    });
+    const labels = { antipasto: "Antipasto", primo: "Primo", secondo: "Secondo", contorno: "Contorno", dolce: "Dolce", bevanda: "Bevanda", extra: "Extra" };
+    const order = ["antipasto", "primo", "secondo", "contorno", "dolce", "bevanda", "extra"];
+    let html = "";
+    order.forEach((cat) => {
+      const list = byCat[cat] || [];
+      if (list.length === 0) return;
+      html += "<div class='daily-menu-sup-cat'><strong>" + (labels[cat] || cat) + ":</strong> ";
+      html += list.map((d) => d.name + " " + toMoney(d.price)).join(" • ");
+      html += "</div>";
+    });
+    container.innerHTML = html || "<div class='muted tiny'>Nessun piatto attivo.</div>";
+  } catch (_) {
+    container.innerHTML = "<div class='muted tiny'>Menu del giorno non disponibile.</div>";
+  }
+}
+
 // =============================
 //  REPORTS (day close history)
 // =============================
@@ -178,8 +211,14 @@ function receiptsEstimate(orders){
 //  API
 // =============================
 async function apiGetOrders(){
-  const res = await fetch("/api/orders", { credentials: "same-origin" });
+  const res = await fetch("/api/orders?active=true", { credentials: "same-origin" });
   if (!res.ok) throw new Error("Errore /api/orders");
+  return await res.json();
+}
+
+async function apiGetOrdersHistory(dateStr){
+  const res = await fetch("/api/orders/history?date=" + encodeURIComponent(dateStr || ""), { credentials: "same-origin" });
+  if (!res.ok) throw new Error("Errore storico ordini");
   return await res.json();
 }
 async function apiGetDashboardSummary(){
@@ -907,6 +946,77 @@ function setupShopping(){
 }
 
 // =============================
+//  UI: STORICO GIORNALIERO
+// =============================
+function statusLabelStorico(s) {
+  const labels = { in_attesa: "In attesa", in_preparazione: "In preparazione", pronto: "Pronto", servito: "Servito", chiuso: "Chiuso", annullato: "Annullato" };
+  return labels[s] || s || "—";
+}
+
+function renderStoricoOrders(orders, dateStr) {
+  const table = document.getElementById("storico-orders-table");
+  const statusEl = document.getElementById("storico-status");
+  if (!table || !statusEl) return;
+
+  if (!orders || !orders.length) {
+    statusEl.textContent = dateStr ? `Nessuna comanda trovata per il ${dateStr}.` : "Seleziona una data e clicca Carica.";
+    table.innerHTML = "";
+    return;
+  }
+
+  statusEl.textContent = `${orders.length} comande per il ${dateStr}`;
+  orders.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+
+  const head = document.createElement("div");
+  head.className = "trow head";
+  head.innerHTML = `<div>Tavolo</div><div>Ora</div><div>Articoli</div><div>Totale</div><div>Stato</div>`;
+  table.innerHTML = "";
+  table.appendChild(head);
+
+  for (const o of orders) {
+    const tot = computeOrderTotal(o);
+    const items = Array.isArray(o.items) ? o.items : [];
+    const itemsTxt = items.map((i) => `${safeText(i.name)} x${Number(i.qty) || 1}`).join(" • ") || "—";
+    const timeStr = o.createdAt ? new Date(o.createdAt).toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }) : "—";
+
+    const row = document.createElement("div");
+    row.className = "trow";
+    row.innerHTML = `
+      <div>${safeText(o.table)}</div>
+      <div>${timeStr}</div>
+      <div>${itemsTxt}</div>
+      <div>${toMoney(tot)}</div>
+      <div><span class="badge ${safeText(o.status)}">${statusLabelStorico(o.status)}</span></div>
+    `;
+    table.appendChild(row);
+  }
+}
+
+function setupStorico() {
+  const dateEl = document.getElementById("storico-date");
+  if (dateEl && !dateEl.value) {
+    dateEl.value = todayKey();
+  }
+
+  document.getElementById("btn-storico-load")?.addEventListener("click", async () => {
+    const dateStr = document.getElementById("storico-date")?.value || todayKey();
+    if (!dateStr) {
+      document.getElementById("storico-status").textContent = "Seleziona una data.";
+      return;
+    }
+    document.getElementById("storico-status").textContent = "Caricamento...";
+    try {
+      const orders = await apiGetOrdersHistory(dateStr);
+      renderStoricoOrders(orders, dateStr);
+    } catch (err) {
+      console.error(err);
+      document.getElementById("storico-status").textContent = "Errore caricamento storico.";
+      document.getElementById("storico-orders-table").innerHTML = "";
+    }
+  });
+}
+
+// =============================
 //  UI: EMAIL
 // =============================
 function setupEmail(){
@@ -1042,8 +1152,10 @@ document.addEventListener("DOMContentLoaded", ()=>{
   loadMenu();
   loadReports();
   loadStorni();
+  loadDailyMenuSupervisor();
 
   setupReportsActions();
+  setupStorico();
   setupStorni();
   setupMenu();
   setupEmail();
