@@ -53,4 +53,36 @@ function injectHtmlAssetVersion(publicRoot) {
   };
 }
 
-module.exports = { injectHtmlAssetVersion, resolveAssetVersion };
+/**
+ * Invia un HTML da public/ con sostituzione __RW_ASSET_VERSION__.
+ * Usare per route che usano sendFile (/, /dashboard) così non bypassano il middleware inject.
+ */
+function sendPublicHtmlInjected(res, publicRoot, relativePath) {
+  const rootResolved = path.resolve(publicRoot);
+  const rel = String(relativePath || "").replace(/^\/+/, "");
+  if (!rel || rel.includes("..")) {
+    res.status(400).type("text/plain").send("Percorso non valido");
+    return;
+  }
+  const full = path.join(rootResolved, rel);
+  if (!full.startsWith(rootResolved)) {
+    res.status(400).type("text/plain").send("Percorso non valido");
+    return;
+  }
+  fs.readFile(full, "utf8", (err, html) => {
+    if (err) {
+      if (err.code === "ENOENT") return res.status(404).type("text/plain").send("Not found");
+      return res.status(500).type("text/plain").send("Errore lettura file");
+    }
+    const v = resolveAssetVersion();
+    const out = html.split(PLACEHOLDER).join(v);
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.setHeader("X-RW-Asset-Version", v);
+    res.type("html; charset=utf-8");
+    res.send(out);
+  });
+}
+
+module.exports = { injectHtmlAssetVersion, resolveAssetVersion, sendPublicHtmlInjected };

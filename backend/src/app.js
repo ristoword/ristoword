@@ -7,9 +7,16 @@ const { ensureTenantMigration } = require("./utils/tenantMigration");
 const { ensureTenantsTable } = require("./utils/ensureTenantsTable");
 const { ensureLicensesTable } = require("./utils/ensureLicensesTable");
 const { ensureOperationalSchema } = require("./utils/ensureOperationalSchema");
-const { injectHtmlAssetVersion, resolveAssetVersion } = require("./middleware/injectHtmlAssetVersion.middleware");
+const {
+  injectHtmlAssetVersion,
+  resolveAssetVersion,
+  sendPublicHtmlInjected,
+} = require("./middleware/injectHtmlAssetVersion.middleware");
 
 const app = express();
+
+/** Cartella public (HTML/JS/CSS); usata anche per inject __RW_ASSET_VERSION__ */
+const PUBLIC_ROOT = path.join(__dirname, "../public");
 
 ensureTenantsTable().catch((e) => {
   // eslint-disable-next-line no-console
@@ -236,11 +243,10 @@ app.use(requirePageAuth);
 // Serve tutti i file statici da /public
 // Es: /dashboard/dashboard.html, /sala/sala.html, /cucina/cucina.html, ecc.
 // Evita che il browser/CDN tengano HTML e JS “incollati” dopo un deploy (il cliente non vede le modifiche).
-const publicRoot = path.join(__dirname, "../public");
 // HTML: sostituisce __RW_ASSET_VERSION__ con commit/deploy/env (ogni deploy = nuovi ?v= su JS/CSS)
-app.use(injectHtmlAssetVersion(publicRoot));
+app.use(injectHtmlAssetVersion(PUBLIC_ROOT));
 app.use(
-  express.static(publicRoot, {
+  express.static(PUBLIC_ROOT, {
     setHeaders(res, filePath) {
       const fp = String(filePath || "");
       if (/\.html$/i.test(fp)) {
