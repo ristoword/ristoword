@@ -1,160 +1,76 @@
 // backend/src/repositories/users.repository.js
-// JSON-based user storage for login/roles. Passwords hashed with bcrypt.
+// Router: users.json (default) oppure MySQL (MYSQL_DATA_PRIMARY=1). Mirror JSON opzionale.
 
-const path = require("path");
-const bcrypt = require("bcrypt");
-const { safeReadJson, atomicWriteJson } = require("../utils/safeFileIO");
+const file = require("./users.repository.file");
+const sql = require("./users.repository.sql");
+const { isMysqlPrimary, isJsonMirror } = require("../utils/mysqlPrimary");
 
-const DATA_FILE = path.join(__dirname, "..", "..", "data", "users.json");
-const BCRYPT_ROUNDS = 10;
-
-function readUsers() {
-  const data = safeReadJson(DATA_FILE, { users: [] });
-  return Array.isArray(data.users) ? data.users : [];
+async function mirrorFileFromSqlIfNeeded() {
+  if (!isMysqlPrimary() || !isJsonMirror()) return;
+  const all = await sql.readUsers();
+  file.writeUsers(all);
 }
 
-function writeUsers(users) {
-  const data = safeReadJson(DATA_FILE, { users: [] });
-  data.users = Array.isArray(users) ? users : [];
-  atomicWriteJson(DATA_FILE, data);
+async function readUsers() {
+  if (!isMysqlPrimary()) return file.readUsers();
+  return sql.readUsers();
 }
 
-function normalizeUsername(u) {
-  return String(u || "").trim().toLowerCase();
-}
-
-function isBcryptHash(str) {
-  return typeof str === "string" && (str.startsWith("$2a$") || str.startsWith("$2b$") || str.startsWith("$2y$"));
+async function writeUsers(users) {
+  if (!isMysqlPrimary()) {
+    file.writeUsers(users);
+    return;
+  }
+  await sql.writeUsers(users);
+  await mirrorFileFromSqlIfNeeded();
 }
 
 async function findByCredentials(username, password) {
-  const users = readUsers();
-  const u = normalizeUsername(username);
-  const p = String(password || "");
-  const user = users.find((x) => x.is_active !== false && normalizeUsername(x.username) === u);
-  if (!user) return null;
-
-  // Solo user.password (bcrypt o plain legacy). Eventuale campo legacy `pin` nel JSON non va usato per l’auth.
-  const stored = user.password || "";
-  if (isBcryptHash(stored)) {
-    const match = await bcrypt.compare(p, stored);
-    if (match) return { ...user };
-    return null;
-  }
-  if (stored === p) {
-    const hash = await bcrypt.hash(p, BCRYPT_ROUNDS);
-    const updated = users.map((x) =>
-      x === user ? { ...x, password: hash } : x
-    );
-    writeUsers(updated);
-    return { ...user };
-  }
-  return null;
+  if (!isMysqlPrimary()) return file.findByCredentials(username, password);
+  const u = await sql.findByCredentials(username, password);
+  if (u && isJsonMirror()) await mirrorFileFromSqlIfNeeded();
+  return u;
 }
 
-function findByUsername(username) {
-  const users = readUsers();
-  const u = normalizeUsername(username);
-  const user = users.find((x) => x.is_active !== false && normalizeUsername(x.username) === u);
-  if (!user) return null;
-  const { password, ...safe } = user;
-  return safe;
+async function findByUsername(username) {
+  if (!isMysqlPrimary()) return file.findByUsername(username);
+  return sql.findByUsername(username);
 }
 
-const DEFAULT_LEAVE_BALANCES = {
-  ferieMaturate: 0,
-  ferieUsate: 0,
-  permessiUsati: 0,
-  malattiaGiorni: 0,
-};
-
-function ensureLeaveBalances(user) {
-  if (!user) return user;
-  if (user.leaveBalances && typeof user.leaveBalances === "object") return user;
-  return { ...user, leaveBalances: { ...DEFAULT_LEAVE_BALANCES } };
+async function findById(id) {
+  if (!isMysqlPrimary()) return file.findById(id);
+  return sql.findById(id);
 }
 
-function findById(id) {
-  const users = readUsers();
-  const sid = String(id || "").trim();
-  const user = users.find((x) => String(x.id) === sid) || null;
-  return user ? ensureLeaveBalances(user) : null;
-}
-
-function findByRestaurantId(restaurantId) {
-  const rid = String(restaurantId || "").trim();
-  if (!rid) return [];
-  return readUsers().filter((x) => x.restaurantId === rid).map(ensureLeaveBalances);
+async function findByRestaurantId(restaurantId) {
+  if (!isMysqlPrimary()) return file.findByRestaurantId(restaurantId);
+  return sql.findByRestaurantId(restaurantId);
 }
 
 async function createUser(userData) {
-  const users = readUsers();
-  const username = normalizeUsername(userData.username);
-  if (users.some((x) => normalizeUsername(x.username) === username)) {
-    return null;
-  }
-  const nextId = users.length > 0
-    ? Math.max(...users.map((x) => parseInt(x.id, 10) || 0)) + 1
-    : 1;
-  const id = String(nextId);
-  const now = new Date().toISOString();
-  const record = {
-    id,
-    name: userData.name != null ? String(userData.name).trim() : "",
-    surname: userData.surname != null ? String(userData.surname).trim() : "",
-    username: userData.username,
-    email: userData.email != null ? String(userData.email).trim() : undefined,
-    password: userData.password,
-    role: userData.role || "staff",
-    is_active: userData.is_active !== false,
-    restaurantId: userData.restaurantId || null,
-    mustChangePassword: userData.mustChangePassword === true,
-    hourlyRate: userData.hourlyRate != null ? Number(userData.hourlyRate) : undefined,
-    employmentType: userData.employmentType != null ? String(userData.employmentType).trim() : undefined,
-    leaveBalances: userData.leaveBalances && typeof userData.leaveBalances === "object" ? { ...DEFAULT_LEAVE_BALANCES, ...userData.leaveBalances } : { ...DEFAULT_LEAVE_BALANCES },
-    createdAt: userData.createdAt || now,
-  };
-  users.push(record);
-  writeUsers(users);
-  return record;
+  if (!isMysqlPrimary()) return file.createUser(userData);
+  const r = await sql.createUser(userData);
+  if (r && isJsonMirror()) await mirrorFileFromSqlIfNeeded();
+  return r;
 }
 
-function updateUser(id, patch) {
-  const users = readUsers();
-  const sid = String(id || "").trim();
-  const idx = users.findIndex((x) => String(x.id) === sid);
-  if (idx === -1) return null;
-  const allowed = ["name", "surname", "role", "is_active", "mustChangePassword", "hourlyRate", "employmentType"];
-  for (const key of allowed) {
-    if (patch[key] !== undefined) {
-      if (key === "is_active") users[idx].is_active = patch[key] !== false;
-      else if (key === "hourlyRate") users[idx].hourlyRate = patch[key] != null ? Number(patch[key]) : undefined;
-      else users[idx][key] = patch[key];
-    }
-  }
-  writeUsers(users);
-  const { password, ...out } = users[idx];
-  return out;
+async function updateUser(id, patch) {
+  if (!isMysqlPrimary()) return file.updateUser(id, patch);
+  const r = await sql.updateUser(id, patch);
+  if (r && isJsonMirror()) await mirrorFileFromSqlIfNeeded();
+  return r;
 }
 
-function findOwnerByRestaurantId(restaurantId) {
-  const rid = String(restaurantId || "").trim();
-  if (!rid) return null;
-  return readUsers().find((u) => u.role === "owner" && String(u.restaurantId || "").trim() === rid) || null;
+async function findOwnerByRestaurantId(restaurantId) {
+  if (!isMysqlPrimary()) return file.findOwnerByRestaurantId(restaurantId);
+  return sql.findOwnerByRestaurantId(restaurantId);
 }
 
-function setUserPassword(userId, hashedPassword, opts = {}) {
-  const users = readUsers();
-  const idx = users.findIndex((x) => String(x.id) === String(userId));
-  if (idx === -1) return false;
-  users[idx].password = hashedPassword;
-  if (opts && Object.prototype.hasOwnProperty.call(opts, "mustChangePassword")) {
-    users[idx].mustChangePassword = opts.mustChangePassword === true;
-  } else {
-    users[idx].mustChangePassword = false;
-  }
-  writeUsers(users);
-  return true;
+async function setUserPassword(userId, hashedPassword, opts = {}) {
+  if (!isMysqlPrimary()) return file.setUserPassword(userId, hashedPassword, opts);
+  const ok = await sql.setUserPassword(userId, hashedPassword, opts);
+  if (ok && isJsonMirror()) await mirrorFileFromSqlIfNeeded();
+  return ok;
 }
 
 module.exports = {
@@ -168,6 +84,6 @@ module.exports = {
   updateUser,
   findOwnerByRestaurantId,
   setUserPassword,
-  ensureLeaveBalances,
-  DEFAULT_LEAVE_BALANCES,
+  ensureLeaveBalances: file.ensureLeaveBalances,
+  DEFAULT_LEAVE_BALANCES: file.DEFAULT_LEAVE_BALANCES,
 };

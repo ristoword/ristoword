@@ -166,11 +166,11 @@ async function completeActivation(req, res) {
 
   const hashedPassword = await bcrypt.hash(pwd, BCRYPT_ROUNDS);
 
-  let owner = usersRepository.findOwnerByRestaurantId(restaurantId);
+  let owner = await usersRepository.findOwnerByRestaurantId(restaurantId);
   if (owner) {
-    usersRepository.setUserPassword(owner.id, hashedPassword);
+    await usersRepository.setUserPassword(owner.id, hashedPassword);
   } else {
-    const created = usersRepository.createUser({
+    const created = await usersRepository.createUser({
       username,
       password: hashedPassword,
       role: "owner",
@@ -179,7 +179,7 @@ async function completeActivation(req, res) {
       mustChangePassword: false,
     });
     if (!created) {
-      const existing = usersRepository.findByUsername(username);
+      const existing = await usersRepository.findByUsername(username);
       if (!existing) {
         return res.status(500).json({
           ok: false,
@@ -193,7 +193,7 @@ async function completeActivation(req, res) {
         });
       }
       if (existing.role === "owner") {
-        usersRepository.setUserPassword(existing.id, hashedPassword);
+        await usersRepository.setUserPassword(existing.id, hashedPassword);
       } else {
         return res.status(409).json({
           ok: false,
@@ -223,7 +223,7 @@ async function completeActivation(req, res) {
     });
   }
 
-  owner = usersRepository.findOwnerByRestaurantId(restaurantId) || usersRepository.findByUsername(username);
+  owner = (await usersRepository.findOwnerByRestaurantId(restaurantId)) || (await usersRepository.findByUsername(username));
   if (!owner) {
     return res.status(500).json({
       ok: false,

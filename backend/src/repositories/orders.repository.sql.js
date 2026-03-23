@@ -1,6 +1,12 @@
 /**
  * Persistenza ordini su MySQL (tenant-aware).
- * Schema: chiave composta (tenant_id, id) per allineamento ai vecchi ID per-tenant.
+ *
+ * Schema: `orders` ha PRIMARY KEY (tenant_id, id) — non un solo id AUTO_INCREMENT —
+ * così ogni ristorante (tenant) mantiene ID ordine compatibili con la vecchia persistenza JSON
+ * e con il frontend invariato. `order_items` referenzia (tenant_id, order_id).
+ *
+ * Migrazione soft: se la tabella è vuota per il tenant, importa da JSON
+ * (`data/tenants/<tenant>/orders.json` o, per `default`, anche `data/orders.json` legacy).
  */
 const fs = require("fs");
 const path = require("path");
@@ -121,6 +127,16 @@ async function ensureSchema(conn) {
   `);
 }
 
+function resolveOrdersJsonPathForMigration(tenantId) {
+  const tenantFp = path.join(paths.DATA, "tenants", tenantId, "orders.json");
+  if (fs.existsSync(tenantFp)) return tenantFp;
+  if (tenantId === "default") {
+    const legacyFp = paths.legacy("orders.json");
+    if (fs.existsSync(legacyFp)) return legacyFp;
+  }
+  return null;
+}
+
 async function migrateTenantFromJsonIfEmpty(pool, tenantId) {
   const [cntRows] = await pool.query(
     "SELECT COUNT(*) AS c FROM orders WHERE tenant_id = ?",
@@ -129,8 +145,8 @@ async function migrateTenantFromJsonIfEmpty(pool, tenantId) {
   const n = Number(cntRows[0] && cntRows[0].c) || 0;
   if (n > 0) return;
 
-  const fp = path.join(paths.DATA, "tenants", tenantId, "orders.json");
-  if (!fs.existsSync(fp)) return;
+  const fp = resolveOrdersJsonPathForMigration(tenantId);
+  if (!fp) return;
   const raw = safeReadJson(fp, []);
   if (!Array.isArray(raw) || raw.length === 0) return;
 

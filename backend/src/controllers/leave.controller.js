@@ -60,7 +60,7 @@ exports.create = async (req, res) => {
     return res.status(409).json({ error: "Richiesta duplicata: esiste già una richiesta (pending/approvata) per questo periodo e tipo." });
   }
 
-  const fullUser = usersRepository.findById(user.id);
+  const fullUser = await usersRepository.findById(user.id);
   const name = fullUser?.name ?? "";
   const surname = fullUser?.surname ?? "";
   const username = fullUser?.username ?? user.username ?? "";
@@ -140,13 +140,13 @@ exports.approve = async (req, res) => {
     ownerNote: (req.body?.ownerNote != null ? String(req.body.ownerNote) : record.ownerNote) || "",
   });
 
-  const balances = leaveRepository.getOrInitUserBalances(usersRepository.findById(record.userId));
+  const balances = leaveRepository.getOrInitUserBalances(await usersRepository.findById(record.userId));
   if (record.type === "ferie") {
-    leaveRepository.updateUserBalances(record.userId, restaurantId, { ferieUsate: balances.ferieUsate + (record.days || 1) });
+    await leaveRepository.updateUserBalances(record.userId, restaurantId, { ferieUsate: balances.ferieUsate + (record.days || 1) });
   } else if (record.type === "permesso") {
-    leaveRepository.updateUserBalances(record.userId, restaurantId, { permessiUsati: balances.permessiUsati + 1 });
+    await leaveRepository.updateUserBalances(record.userId, restaurantId, { permessiUsati: balances.permessiUsati + 1 });
   } else if (record.type === "malattia") {
-    leaveRepository.updateUserBalances(record.userId, restaurantId, { malattiaGiorni: balances.malattiaGiorni + (record.days || 1) });
+    await leaveRepository.updateUserBalances(record.userId, restaurantId, { malattiaGiorni: balances.malattiaGiorni + (record.days || 1) });
   }
 
   const updated = leaveRepository.findLeaveById(restaurantId, id);
@@ -179,7 +179,7 @@ exports.reject = async (req, res) => {
 exports.balancesMe = async (req, res) => {
   const user = req.session?.user;
   if (!user?.id) return res.status(401).json({ error: "Non autenticato." });
-  const u = usersRepository.findById(user.id);
+  const u = await usersRepository.findById(user.id);
   const balances = leaveRepository.getOrInitUserBalances(u);
   res.json(balances);
 };
@@ -190,7 +190,7 @@ exports.balancesUser = async (req, res) => {
   if (!restaurantId) return;
 
   const userId = req.params.userId;
-  const user = usersRepository.findById(userId);
+  const user = await usersRepository.findById(userId);
   if (!user || user.restaurantId !== restaurantId) return res.status(404).json({ error: "Utente non trovato." });
   const balances = leaveRepository.getOrInitUserBalances(user);
   res.json(balances);

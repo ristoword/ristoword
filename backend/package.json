@@ -10,6 +10,8 @@
     "start": "node src/server.js",
     "test": "node --test test/smoke.test.js",
     "test:mysql": "node scripts/test-mysql-connection.js",
+    "backup:data": "node scripts/backup-json-data.js",
+    "migrate:mysql": "node scripts/migrate-json-to-mysql.js",
     "migrate:passwords": "node scripts/migrate-passwords-to-bcrypt.js",
     "audit:deps": "npm audit --omit=dev"
   },

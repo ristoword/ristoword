@@ -6,6 +6,7 @@ const sessionMiddleware = require("./config/session");
 const { ensureTenantMigration } = require("./utils/tenantMigration");
 const { ensureTenantsTable } = require("./utils/ensureTenantsTable");
 const { ensureLicensesTable } = require("./utils/ensureLicensesTable");
+const { ensureOperationalSchema } = require("./utils/ensureOperationalSchema");
 
 const app = express();
 
@@ -17,6 +18,11 @@ ensureTenantsTable().catch((e) => {
 ensureLicensesTable().catch((e) => {
   // eslint-disable-next-line no-console
   console.warn("[licenses] ensureLicensesTable:", e && e.message ? e.message : e);
+});
+
+ensureOperationalSchema().catch((e) => {
+  // eslint-disable-next-line no-console
+  console.warn("[mysql] ensureOperationalSchema:", e && e.message ? e.message : e);
 });
 
 // Trust proxy (Railway, Heroku, etc.)

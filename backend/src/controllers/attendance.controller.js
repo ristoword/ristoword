@@ -39,7 +39,7 @@ exports.dailySummary = async (req, res) => {
   const restaurantId = ensureOwner(req, res);
   if (!restaurantId) return;
   const date = req.query.date || new Date().toISOString().slice(0, 10);
-  const users = usersRepository.findByRestaurantId(restaurantId);
+  const users = await usersRepository.findByRestaurantId(restaurantId);
   const usersWithRates = users.map((u) => ({ id: u.id, hourlyRate: u.hourlyRate }));
   const summary = attendanceRepository.getDailySummary(restaurantId, date, usersWithRates);
   res.json(summary);

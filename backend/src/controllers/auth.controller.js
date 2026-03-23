@@ -187,7 +187,7 @@ exports.changePassword = async (req, res, next) => {
       }
     }
 
-    const users = usersRepository.readUsers();
+    const users = await usersRepository.readUsers();
     const idx = users.findIndex((u) => String(u.username).toLowerCase() === String(sessionUser.username).toLowerCase());
     if (idx < 0) {
       return res.status(404).json({
@@ -202,7 +202,7 @@ exports.changePassword = async (req, res, next) => {
       password: hash,
       mustChangePassword: false,
     };
-    usersRepository.writeUsers(users);
+    await usersRepository.writeUsers(users);
 
     req.session.user = {
       ...sessionUser,

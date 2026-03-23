@@ -60,8 +60,8 @@ function getOrInitUserBalances(user) {
   return defaultBalances();
 }
 
-function updateUserBalances(userId, restaurantId, patch) {
-  const user = usersRepository.findById(userId);
+async function updateUserBalances(userId, restaurantId, patch) {
+  const user = await usersRepository.findById(userId);
   if (!user || user.restaurantId !== restaurantId) return null;
   const current = getOrInitUserBalances(user);
   const next = {
@@ -70,7 +70,7 @@ function updateUserBalances(userId, restaurantId, patch) {
     permessiUsati: patch.permessiUsati !== undefined ? Number(patch.permessiUsati) : current.permessiUsati,
     malattiaGiorni: patch.malattiaGiorni !== undefined ? Number(patch.malattiaGiorni) : current.malattiaGiorni,
   };
-  return usersRepository.updateUser(userId, { leaveBalances: next });
+  return await usersRepository.updateUser(userId, { leaveBalances: next });
 }
 
 function dateOnly(str) {

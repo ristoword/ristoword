@@ -124,7 +124,7 @@ async function completeActivation(req, res) {
   }
 
   if (license.status === "used") {
-    const existingOwner = usersRepository.findOwnerByRestaurantId(restaurantId);
+    const existingOwner = await usersRepository.findOwnerByRestaurantId(restaurantId);
     if (existingOwner) {
       return res.status(409).json({
         success: false,
@@ -135,11 +135,11 @@ async function completeActivation(req, res) {
 
   const hashedPassword = await bcrypt.hash(String(password), BCRYPT_ROUNDS);
 
-  let owner = usersRepository.findOwnerByRestaurantId(restaurantId);
+  let owner = await usersRepository.findOwnerByRestaurantId(restaurantId);
   if (owner) {
-    usersRepository.setUserPassword(owner.id, hashedPassword);
+    await usersRepository.setUserPassword(owner.id, hashedPassword);
   } else {
-    const created = usersRepository.createUser({
+    const created = await usersRepository.createUser({
       username,
       password: hashedPassword,
       role: "owner",
@@ -149,7 +149,7 @@ async function completeActivation(req, res) {
       email: emailVal,
     });
     if (!created) {
-      const existing = usersRepository.findByUsername(username);
+      const existing = await usersRepository.findByUsername(username);
       if (!existing) {
         return res.status(500).json({
           success: false,
@@ -163,8 +163,8 @@ async function completeActivation(req, res) {
         });
       }
       if (existing.role === "owner") {
-        usersRepository.setUserPassword(existing.id, hashedPassword);
-        owner = usersRepository.findById(existing.id);
+        await usersRepository.setUserPassword(existing.id, hashedPassword);
+        owner = await usersRepository.findById(existing.id);
       } else {
         return res.status(409).json({
           success: false,
@@ -177,7 +177,7 @@ async function completeActivation(req, res) {
   }
 
   if (!owner) {
-    owner = usersRepository.findOwnerByRestaurantId(restaurantId);
+    owner = await usersRepository.findOwnerByRestaurantId(restaurantId);
   }
 
   const nowIso = new Date().toISOString();

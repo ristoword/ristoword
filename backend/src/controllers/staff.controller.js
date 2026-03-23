@@ -42,7 +42,7 @@ exports.listStaff = async (req, res) => {
   const restaurantId = ensureOwnerOrSupervisor(req, res);
   if (!restaurantId) return;
 
-  const users = usersRepository.findByRestaurantId(restaurantId);
+  const users = await usersRepository.findByRestaurantId(restaurantId);
   const staffOnly = users.filter((u) => String(u.role).toLowerCase() !== "owner");
   const list = staffOnly.map(sanitizeUser);
   res.json(list);
@@ -53,7 +53,7 @@ exports.getStaffById = async (req, res) => {
   const restaurantId = ensureOwnerOrSupervisor(req, res);
   if (!restaurantId) return;
 
-  const user = usersRepository.findById(req.params.id);
+  const user = await usersRepository.findById(req.params.id);
   if (!user || user.restaurantId !== restaurantId) {
     return res.status(404).json({ error: "Utente non trovato." });
   }
@@ -97,7 +97,7 @@ exports.updateStaff = async (req, res) => {
   if (!restaurantId) return;
 
   const id = req.params.id;
-  const user = usersRepository.findById(id);
+  const user = await usersRepository.findById(id);
   if (!user || user.restaurantId !== restaurantId) {
     return res.status(404).json({ error: "Utente non trovato." });
   }
@@ -111,7 +111,7 @@ exports.updateStaff = async (req, res) => {
   if (hourlyRate !== undefined) patch.hourlyRate = hourlyRate;
   if (employmentType !== undefined) patch.employmentType = String(employmentType).trim();
 
-  const updated = usersRepository.updateUser(id, patch);
+  const updated = await usersRepository.updateUser(id, patch);
   res.json(sanitizeUser(updated));
 };
 
@@ -121,11 +121,11 @@ exports.deleteStaff = async (req, res) => {
   if (!restaurantId) return;
 
   const id = req.params.id;
-  const user = usersRepository.findById(id);
+  const user = await usersRepository.findById(id);
   if (!user || user.restaurantId !== restaurantId) {
     return res.status(404).json({ error: "Utente non trovato." });
   }
-  usersRepository.updateUser(id, { is_active: false });
+  await usersRepository.updateUser(id, { is_active: false });
   res.json({ success: true });
 };
 
@@ -135,21 +135,21 @@ exports.resetPassword = async (req, res) => {
   if (!restaurantId) return;
 
   const id = req.params.id;
-  const user = usersRepository.findById(id);
+  const user = await usersRepository.findById(id);
   if (!user || user.restaurantId !== restaurantId) {
     return res.status(404).json({ error: "Utente non trovato." });
   }
 
   const temporaryPassword = crypto.randomBytes(6).toString("base64").replace(/[+/=]/g, "").slice(0, 10);
   const hash = await bcrypt.hash(temporaryPassword, BCRYPT_ROUNDS);
-  const users = usersRepository.readUsers();
+  const users = await usersRepository.readUsers();
   const idx = users.findIndex((u) => String(u.id) === String(id));
   if (idx === -1) {
     return res.status(404).json({ error: "Utente non trovato." });
   }
   users[idx].password = hash;
   users[idx].mustChangePassword = true;
-  usersRepository.writeUsers(users);
+  await usersRepository.writeUsers(users);
 
   res.json({ ok: true, temporaryPassword });
 };

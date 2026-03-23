@@ -1,6 +1,7 @@
 // Atomic writes and safe reads for JSON data files.
 const fs = require("fs");
 const path = require("path");
+const paths = require("../config/paths");
 
 /**
  * Safely read JSON file. Returns fallback on missing/corrupted.
@@ -21,9 +22,44 @@ function safeReadJson(filePath, fallback = null) {
 }
 
 /**
- * Atomic write: write to .tmp then rename. Fallback to direct write if rename fails.
+ * Se MYSQL_DATA_PRIMARY e path è data/tenants/{id}/{chiave}.json, replica su tenant_json_store.
  */
-function atomicWriteJson(filePath, data) {
+function mirrorTenantJsonToMysqlIfPrimary(filePath, data) {
+  try {
+    const { isMysqlPrimary } = require("./mysqlPrimary");
+    if (!isMysqlPrimary()) return;
+    const tenantsRoot = path.join(paths.DATA, "tenants");
+    const norm = path.normalize(filePath);
+    const normRoot = path.normalize(tenantsRoot);
+    if (!norm.startsWith(normRoot)) return;
+    const rel = path.relative(normRoot, norm);
+    const parts = rel.split(path.sep).filter(Boolean);
+    if (parts.length < 2) return;
+    const tenantId = parts[0];
+    const file = parts[parts.length - 1];
+    if (!file.endsWith(".json")) return;
+    const storeKey = file.replace(/\.json$/i, "");
+    if (!paths.sanitizeTenantId(tenantId) || !storeKey) return;
+    const tenantJsonStore = require("../repositories/tenantJsonStore.repository");
+    setImmediate(() => {
+      tenantJsonStore.set(tenantId, storeKey, data).catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error("[tenant_json_store] mirror write failed:", err && err.message ? err.message : err);
+      });
+    });
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("[tenant_json_store] mirror hook:", e && e.message ? e.message : e);
+  }
+}
+
+/**
+ * Atomic write: write to .tmp then rename. Fallback to direct write if rename fails.
+ * @param {string} filePath
+ * @param {*} data
+ * @param {{ skipMysqlMirror?: boolean }} [opts] — usato da hydrateTenantFilesFromMysql per evitare round-trip inutile
+ */
+function atomicWriteJson(filePath, data, opts = {}) {
   const dir = path.dirname(filePath);
   const tmpPath = filePath + "." + Date.now() + ".tmp";
   try {
@@ -35,6 +71,9 @@ function atomicWriteJson(filePath, data) {
       if (fs.existsSync(tmpPath)) fs.unlinkSync(tmpPath);
     } catch (_) {}
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
+  }
+  if (!opts.skipMysqlMirror) {
+    mirrorTenantJsonToMysqlIfPrimary(filePath, data);
   }
 }
 

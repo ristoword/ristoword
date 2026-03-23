@@ -9,4 +9,7 @@ module.exports = {
   saveAllOrders: (orders) => sql.saveAllOrders(orders),
   getNextId: (orders) => sql.getNextId(orders),
   getOrderById: (id) => sql.getOrderById(id),
+  createOrder: (order) => sql.createOrder(order),
+  updateOrderStatus: (id, status) => sql.updateOrderStatus(id, status),
+  addItems: (orderId, items) => sql.addItems(orderId, items),
 };

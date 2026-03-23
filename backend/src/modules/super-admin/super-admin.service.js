@@ -559,7 +559,7 @@ async function apiBlockCustomer({ restaurantId }) {
     if (String(u.restaurantId || "").trim() === rid) return { ...u, is_active: false };
     return u;
   });
-  usersRepository.writeUsers(next);
+  await usersRepository.writeUsers(next);
   return { ok: true };
 }
 
@@ -572,7 +572,7 @@ async function apiUnblockCustomer({ restaurantId }) {
     if (String(u.restaurantId || "").trim() === rid) return { ...u, is_active: true };
     return u;
   });
-  usersRepository.writeUsers(next);
+  await usersRepository.writeUsers(next);
   return { ok: true };
 }
 
@@ -697,12 +697,12 @@ async function apiGetConsoleUsers() {
 async function apiPostResetUserPassword({ userId, forceMustChange } = {}) {
   const id = String(userId || "").trim();
   if (!id) return { ok: false, error: "userId_obbligatorio" };
-  const user = usersRepository.findById(id);
+  const user = await usersRepository.findById(id);
   if (!user) return { ok: false, error: "utente_non_trovato" };
   const plain = randomPlainPassword(18);
   const hash = await bcrypt.hash(plain, BCRYPT_USER_ROUNDS);
   const mustChange = forceMustChange !== false;
-  usersRepository.setUserPassword(id, hash, { mustChangePassword: mustChange });
+  await usersRepository.setUserPassword(id, hash, { mustChangePassword: mustChange });
   return {
     ok: true,
     userId: id,

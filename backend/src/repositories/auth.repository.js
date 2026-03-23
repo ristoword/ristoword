@@ -80,7 +80,7 @@ exports.findByCredentials = async (username, password, role) => {
 };
 
 exports.findByUsername = async (username) => {
-  const fromJson = usersRepository.findByUsername(username);
+  const fromJson = await usersRepository.findByUsername(username);
   if (fromJson) return normalize(fromJson);
   const user = DEMO_USERS.find((u) => u.username === String(username).trim().toLowerCase());
   if (!user) return null;

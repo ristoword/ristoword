@@ -432,7 +432,7 @@ async function performActionUnlockUser({ userId, username, tenantId }) {
   if (!target && username) target = list.find((u) => String(u.username).toLowerCase() === String(username).toLowerCase());
   if (!target) return { ok: false, error: "utente_non_trovato" };
   if (tid && String(target.restaurantId || "").trim() !== String(tid)) return { ok: false, error: "tenant_mismatch" };
-  const updated = usersRepository.updateUser(target.id, { is_active: true });
+  const updated = await usersRepository.updateUser(target.id, { is_active: true });
   return { ok: !!updated, updated: updated || null };
 }
 

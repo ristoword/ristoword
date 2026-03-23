@@ -57,26 +57,40 @@ const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 initWebSocket(server, sessionMiddleware);
 
-server.listen(PORT, () => {
-  const mode = process.env.NODE_ENV === "production" ? "production" : "dev";
-  const baseUrl =
-    (process.env.PUBLIC_APP_URL && String(process.env.PUBLIC_APP_URL).trim()) ||
-    (process.env.BASE_URL && String(process.env.BASE_URL).trim()) ||
-    (process.env.APP_URL && String(process.env.APP_URL).trim()) ||
-    "(non impostato)";
-  // eslint-disable-next-line no-console
-  console.log("RUNNING ON PORT:", PORT);
-  // eslint-disable-next-line no-console
-  console.log("[Ristoword] MODE:", mode);
-  // eslint-disable-next-line no-console
-  console.log("[Ristoword] PORT:", PORT);
-  // eslint-disable-next-line no-console
-  console.log("[Ristoword] BASE_URL:", baseUrl);
-  // eslint-disable-next-line no-console
-  console.log("[Ristoword] SECURITY: basic checks done");
-  logger.info("Server started", { port: PORT, websocket: "/ws" });
+async function maybeHydrateTenantJsonFromMysql() {
+  try {
+    const { isMysqlPrimary } = require("./utils/mysqlPrimary");
+    if (!isMysqlPrimary()) return;
+    const { hydrateTenantFilesFromMysql } = require("./utils/tenantJsonMysqlBridge");
+    await hydrateTenantFilesFromMysql();
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn("[mysql] hydrate tenant JSON (non bloccante):", e && e.message ? e.message : e);
+  }
+}
 
-  // BACKUP IMMEDIATO + AUTO
-  backupNow();
-  startAutoBackup();
+maybeHydrateTenantJsonFromMysql().then(() => {
+  server.listen(PORT, () => {
+    const mode = process.env.NODE_ENV === "production" ? "production" : "dev";
+    const baseUrl =
+      (process.env.PUBLIC_APP_URL && String(process.env.PUBLIC_APP_URL).trim()) ||
+      (process.env.BASE_URL && String(process.env.BASE_URL).trim()) ||
+      (process.env.APP_URL && String(process.env.APP_URL).trim()) ||
+      "(non impostato)";
+    // eslint-disable-next-line no-console
+    console.log("RUNNING ON PORT:", PORT);
+    // eslint-disable-next-line no-console
+    console.log("[Ristoword] MODE:", mode);
+    // eslint-disable-next-line no-console
+    console.log("[Ristoword] PORT:", PORT);
+    // eslint-disable-next-line no-console
+    console.log("[Ristoword] BASE_URL:", baseUrl);
+    // eslint-disable-next-line no-console
+    console.log("[Ristoword] SECURITY: basic checks done");
+    logger.info("Server started", { port: PORT, websocket: "/ws" });
+
+    // BACKUP IMMEDIATO + AUTO
+    backupNow();
+    startAutoBackup();
+  });
 });
