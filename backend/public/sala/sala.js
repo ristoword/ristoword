@@ -405,8 +405,14 @@ async function apiSetStatus(id, status) {
 // =============================
 
 async function loadOfficialMenu() {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 12000);
   try {
-    const res = await fetch("/api/menu/active", { credentials: "same-origin" });
+    const res = await fetch("/api/menu/active", {
+      credentials: "same-origin",
+      signal: ctrl.signal,
+    });
+    clearTimeout(t);
     if (res.ok) {
       const arr = await res.json();
       menuOfficial = Array.isArray(arr) ? arr : [];
@@ -418,7 +424,14 @@ async function loadOfficialMenu() {
       return;
     }
   } catch (apiErr) {
-    console.warn("Menu API non disponibile, uso cache:", apiErr.message);
+    clearTimeout(t);
+    const msg =
+      apiErr && apiErr.name === "AbortError"
+        ? "timeout"
+        : apiErr && apiErr.message
+          ? apiErr.message
+          : String(apiErr);
+    console.warn("Menu API non disponibile, uso cache:", msg);
   }
   try {
     const raw = localStorage.getItem("rw_menu_official");
@@ -1463,12 +1476,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initPopupUiOnce();
 
-  await loadOfficialMenu();
-  populateMenuSelect();
-
-  renderSelectedItems();
-  setupAddFromMenu();
-  setupAddCustom();
+  /* Mappa, toolbar e ordini subito: non devono attendere /api/menu/active (evita sala “vuota” se il menu è lento o bloccato). */
+  setupFilters();
+  setupFloorToolbar();
+  initStaffAccess();
+  renderFloorMap();
+  loadOrdersAndRender();
 
   document.getElementById("field-table")?.addEventListener("input", () => {
     renderSelectedItems();
@@ -1476,11 +1489,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document
     .getElementById("btn-create-order")
-    .addEventListener("click", handleCreateOrder);
+    ?.addEventListener("click", handleCreateOrder);
 
   document
     .getElementById("btn-refresh")
-    .addEventListener("click", loadOrdersAndRender);
+    ?.addEventListener("click", loadOrdersAndRender);
 
   window.addEventListener("rw:orders-update", (ev) => {
     if (ev.detail?.orders) {
@@ -1491,23 +1504,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  setupFilters();
-  setupFloorToolbar();
-  initStaffAccess();
-
-  renderFloorMap();
-  loadOrdersAndRender();
-
   setInterval(loadOrdersAndRender, 15000);
 
-  loadDailyMenuSala();
+  await loadOfficialMenu();
+  populateMenuSelect();
+  renderSelectedItems();
+  setupAddFromMenu();
+  setupAddCustom();
+
+  void loadDailyMenuSala();
 });
 
 async function loadDailyMenuSala() {
   const container = document.getElementById("daily-menu-sala-content");
   if (!container) return;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 12000);
   try {
-    const res = await fetch("/api/daily-menu/active", { credentials: "same-origin" });
+    const res = await fetch("/api/daily-menu/active", {
+      credentials: "same-origin",
+      signal: ctrl.signal,
+    });
+    clearTimeout(t);
     if (!res.ok) throw new Error();
     const data = await res.json();
     if (!data.menuActive || !data.dishes || data.dishes.length === 0) {
@@ -1560,7 +1578,8 @@ async function loadDailyMenuSala() {
     });
     container.innerHTML =
       html || '<div class="daily-menu-empty">Nessun piatto attivo.</div>';
-  } catch (_) {
+  } catch (err) {
+    clearTimeout(t);
     container.innerHTML =
       '<div class="daily-menu-empty">Menu del giorno non disponibile.</div>';
   }

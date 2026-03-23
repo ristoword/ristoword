@@ -7,6 +7,7 @@ const { ensureTenantMigration } = require("./utils/tenantMigration");
 const { ensureTenantsTable } = require("./utils/ensureTenantsTable");
 const { ensureLicensesTable } = require("./utils/ensureLicensesTable");
 const { ensureOperationalSchema } = require("./utils/ensureOperationalSchema");
+const { injectHtmlAssetVersion, resolveAssetVersion } = require("./middleware/injectHtmlAssetVersion.middleware");
 
 const app = express();
 
@@ -161,6 +162,7 @@ function healthHandler(req, res) {
     serverTime: new Date().toISOString(),
     uptime: uptimeStr,
     version: process.env.RISTOWORD_VERSION || "ristoword-dev",
+    staticAssetVersion: resolveAssetVersion(),
   });
 }
 app.get("/api/system/health", healthHandler);
@@ -233,7 +235,24 @@ app.use(requirePageAuth);
 
 // Serve tutti i file statici da /public
 // Es: /dashboard/dashboard.html, /sala/sala.html, /cucina/cucina.html, ecc.
-app.use(express.static(path.join(__dirname, "../public")));
+// Evita che il browser/CDN tengano HTML e JS “incollati” dopo un deploy (il cliente non vede le modifiche).
+const publicRoot = path.join(__dirname, "../public");
+// HTML: sostituisce __RW_ASSET_VERSION__ con commit/deploy/env (ogni deploy = nuovi ?v= su JS/CSS)
+app.use(injectHtmlAssetVersion(publicRoot));
+app.use(
+  express.static(publicRoot, {
+    setHeaders(res, filePath) {
+      const fp = String(filePath || "");
+      if (/\.html$/i.test(fp)) {
+        res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+        res.setHeader("Pragma", "no-cache");
+        res.setHeader("Expires", "0");
+      } else if (/\.(js|css)$/i.test(fp)) {
+        res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+      }
+    },
+  })
+);
 
 // =======================
 //  API (ROUTES) – orders, menu, reports, ai, recipes + others
