@@ -205,7 +205,7 @@ async function gatherOperationalData() {
   dateTo.setHours(23, 59, 59, 999);
 
   const [allOrders, payments, inventory, recipes] = await Promise.all([
-    Promise.resolve(ordersRepository.getAllOrders()),
+    ordersRepository.getAllOrders(),
     paymentsRepository.listPayments({
       dateFrom: dateFrom.toISOString(),
       dateTo: dateTo.toISOString(),
@@ -863,7 +863,7 @@ async function getDailyBrain() {
 }
 
 async function gatherKitchenContext() {
-  const orders = ordersRepository.getAllOrders();
+  const orders = await ordersRepository.getAllOrders();
   const inventory = inventoryRepository.getAll();
 
   const activeOrders = (orders || []).filter(
@@ -897,7 +897,7 @@ async function gatherKitchenContext() {
 }
 
 async function gatherSalesContext() {
-  const orders = ordersRepository.getAllOrders();
+  const orders = await ordersRepository.getAllOrders();
   const reports = await reportsRepository.getAll();
   const summary = summarizeOrders(orders || []);
   const topItems = (summary.topItems || []).slice(0, 10).map((t) => ({ name: t.name }));
@@ -1272,7 +1272,7 @@ function detectIntent(question) {
   return "general";
 }
 
-function tryAnswerSpecificQuestion(question) {
+async function tryAnswerSpecificQuestion(question) {
   const q = String(question || "").trim();
   if (!q) return null;
 
@@ -1284,7 +1284,7 @@ function tryAnswerSpecificQuestion(question) {
   if (itemSoldMatch) {
     const itemName = (itemSoldMatch[1] || itemSoldMatch[2] || "").trim();
     if (itemName.length >= 2) {
-      const orders = ordersRepository.getAllOrders();
+      const orders = await ordersRepository.getAllOrders();
       let total = 0;
       const normalized = itemName.toLowerCase();
       const stem = normalized.replace(/(he|i|e)$/, "").slice(0, 7);
@@ -1305,7 +1305,7 @@ function tryAnswerSpecificQuestion(question) {
   }
 
   if (/quanti\s+ordini\s+aperti|ordini\s+aperti|ordini\s+aperte?/i.test(q)) {
-    const orders = ordersRepository.getAllOrders();
+    const orders = await ordersRepository.getAllOrders();
     const openCount = (orders || []).filter(
       (o) =>
         String(o.status || "").toLowerCase() !== "chiuso" &&
@@ -1540,7 +1540,7 @@ function getAssistantResponse(type = "general", context = {}) {
 }
 
 async function getResponseForQuestion(question) {
-  const specific = tryAnswerSpecificQuestion(question);
+  const specific = await tryAnswerSpecificQuestion(question);
   if (specific) return specific;
 
   const intent = detectIntent(question);

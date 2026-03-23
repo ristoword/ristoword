@@ -12,3 +12,10 @@ yarn-error.log*
 
 # Super Admin: credenziali e sessioni (generati in locale)
 backend/data/super-admin/
+
+# Sessioni express-session (file store in produzione)
+backend/data/sessions/
+
+# Path duplicato accidentale + backup locali
+backend/backend/
+backend/backups/

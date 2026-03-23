@@ -9,6 +9,30 @@
 (function () {
   "use strict";
 
+  (function patchFetchLicenseHeader() {
+    try {
+      const orig = window.fetch.bind(window);
+      window.fetch = function (input, init) {
+        if (typeof Request !== "undefined" && input instanceof Request) {
+          const headers = new Headers(input.headers);
+          try {
+            const k = localStorage.getItem("licenseKey");
+            if (k && !headers.has("x-license-key")) headers.set("x-license-key", k);
+          } catch (_) {}
+          return orig(new Request(input, { headers }));
+        }
+        init = init && typeof init === "object" ? Object.assign({}, init) : {};
+        const headers = new Headers(init.headers || {});
+        try {
+          const k = localStorage.getItem("licenseKey");
+          if (k && !headers.has("x-license-key")) headers.set("x-license-key", k);
+        } catch (_) {}
+        init.headers = headers;
+        return orig(input, init);
+      };
+    } catch (_) {}
+  })();
+
   const LOGIN_PATH = "/login/login.html";
 
   function getPathRoles() {

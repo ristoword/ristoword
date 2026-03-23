@@ -5,6 +5,9 @@ const { stripeDevRoutesOnly } = require("../middleware/stripeDevRoutes.middlewar
 // POST /api/checkout
 router.post("/", checkoutController.startCheckout);
 
+// POST /api/checkout/create-session — Stripe Live (subscription); webhook crea tenant+licenza in DB
+router.post("/create-session", checkoutController.createStripeSubscriptionSession);
+
 // POST /api/checkout/mock/complete — solo dev o STRIPE_ALLOW_DEV_ROUTES=true in produzione
 router.post("/mock/complete", stripeDevRoutesOnly, checkoutController.mockCompleteCheckout);
 

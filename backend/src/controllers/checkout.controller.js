@@ -1,5 +1,8 @@
+const Stripe = require("stripe");
 const checkoutService = require("../stripe/checkout.service");
 const { getWebhookStatus } = require("../stripe/stripeWebhook.service");
+
+const STRIPE_API_VERSION = "2024-11-20.acacia";
 
 // POST /api/checkout
 // Starts a local mock checkout session.
@@ -77,8 +80,67 @@ async function mockCompleteCheckout(req, res) {
   }
 }
 
+/**
+ * POST /api/checkout/create-session
+ * Checkout Stripe reale (subscription) senza restaurantId: il webhook crea tenant+licenza in DB.
+ */
+async function createStripeSubscriptionSession(req, res) {
+  const sk = process.env.STRIPE_SECRET_KEY && String(process.env.STRIPE_SECRET_KEY).trim();
+  if (!sk) {
+    return res.status(503).json({ ok: false, error: "Stripe non configurato (STRIPE_SECRET_KEY)" });
+  }
+  const priceId =
+    (process.env.STRIPE_PRICE_ID && String(process.env.STRIPE_PRICE_ID).trim()) ||
+    (process.env.STRIPE_PRICE_RISTOWORD_MONTHLY && String(process.env.STRIPE_PRICE_RISTOWORD_MONTHLY).trim());
+  if (!priceId) {
+    return res.status(503).json({
+      ok: false,
+      error: "Imposta STRIPE_PRICE_ID o STRIPE_PRICE_RISTOWORD_MONTHLY",
+    });
+  }
+  const base =
+    (process.env.BASE_URL && String(process.env.BASE_URL).trim()) ||
+    (process.env.PUBLIC_APP_URL && String(process.env.PUBLIC_APP_URL).trim()) ||
+    "";
+  if (!base) {
+    return res.status(503).json({ ok: false, error: "Imposta BASE_URL o PUBLIC_APP_URL" });
+  }
+  const baseNoSlash = base.replace(/\/$/, "");
+  const successPath =
+    (process.env.STRIPE_CHECKOUT_SUCCESS_PATH && String(process.env.STRIPE_CHECKOUT_SUCCESS_PATH).trim()) ||
+    "/owner-activate?checkout=success&session_id={CHECKOUT_SESSION_ID}";
+  const cancelPath =
+    (process.env.STRIPE_CHECKOUT_CANCEL_PATH && String(process.env.STRIPE_CHECKOUT_CANCEL_PATH).trim()) ||
+    "/owner-activate?checkout=cancel";
+
+  try {
+    const stripe = new Stripe(sk, { apiVersion: STRIPE_API_VERSION });
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "subscription",
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${baseNoSlash}${successPath.startsWith("/") ? "" : "/"}${successPath}`,
+      cancel_url: `${baseNoSlash}${cancelPath.startsWith("/") ? "" : "/"}${cancelPath}`,
+      metadata: {
+        auto_provision: "true",
+        source: "ristoword_create_session",
+      },
+    });
+    return res.json({ ok: true, url: session.url, sessionId: session.id });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("[checkout] create-session", err);
+    return res.status(500).json({
+      ok: false,
+      error: "Stripe error",
+      message: err && err.message ? err.message : String(err),
+    });
+  }
+}
+
 module.exports = {
   startCheckout,
   mockCompleteCheckout,
+  createStripeSubscriptionSession,
 };
 

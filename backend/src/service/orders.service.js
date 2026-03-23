@@ -2,10 +2,11 @@
 // Business logic for orders. Data access via orders.repository only.
 
 const ordersRepository = require("../repositories/orders.repository");
+const cashRepository = require("../repositories/cash.repository.sql");
 
 async function listOrders() {
   try {
-    const orders = ordersRepository.getAllOrders();
+    const orders = await ordersRepository.getAllOrders();
     return Array.isArray(orders) ? orders : [];
   } catch (err) {
     // CORE PROTECTION: order listing must never crash because of IO/parsing issues.
@@ -39,7 +40,7 @@ function getOrderDateStr(order) {
 async function listActiveOrders() {
   let all = [];
   try {
-    all = ordersRepository.getAllOrders();
+    all = await ordersRepository.getAllOrders();
   } catch (err) {
     // If anything goes wrong reading orders, return an empty list instead of breaking UI.
     all = [];
@@ -55,7 +56,7 @@ async function listActiveOrders() {
  * Returns all orders for a specific date (for storico giornaliero).
  */
 async function listOrdersByDate(dateStr) {
-  const all = ordersRepository.getAllOrders();
+  const all = await ordersRepository.getAllOrders();
   const target = String(dateStr || "").slice(0, 10);
   if (!target) return [];
 
@@ -74,7 +75,7 @@ function normalizeItemCourse(it) {
 async function createOrder(payload) {
   const body = payload || {};
   const orders = await ordersRepository.getAllOrders();
-  const id = ordersRepository.getNextId(orders);
+  const id = await ordersRepository.getNextId(orders);
   const now = new Date().toISOString();
 
   const rawItems = Array.isArray(body.items) ? body.items : [];
@@ -98,8 +99,20 @@ async function createOrder(payload) {
   };
 
   orders.push(newOrder);
-  ordersRepository.saveAllOrders(orders);
+  await ordersRepository.saveAllOrders(orders);
   return newOrder;
+}
+
+async function patchOrderFoodCost(id, { totalCost, totalPrice, margin }) {
+  const orders = await ordersRepository.getAllOrders();
+  const target = orders.find((o) => String(o.id) === String(id));
+  if (!target) return null;
+  target.totalCost = totalCost;
+  target.totalPrice = totalPrice;
+  target.margin = margin;
+  target.updatedAt = new Date().toISOString();
+  await ordersRepository.saveAllOrders(orders);
+  return target;
 }
 
 async function setStatus(id, status) {
@@ -114,7 +127,12 @@ async function setStatus(id, status) {
   target.status = status;
   target.updatedAt = new Date().toISOString();
 
-  ordersRepository.saveAllOrders(orders);
+  await ordersRepository.saveAllOrders(orders);
+  try {
+    await cashRepository.recordSaleAfterOrderStatusIfNeeded(target);
+  } catch (err) {
+    console.warn("[Cash] recordSaleAfterOrderStatusIfNeeded:", err && err.message ? err.message : err);
+  }
   return target;
 }
 
@@ -134,7 +152,7 @@ async function setActiveCourse(id, activeCourse) {
   }
   target.activeCourse = Math.floor(n);
   target.updatedAt = new Date().toISOString();
-  ordersRepository.saveAllOrders(orders);
+  await ordersRepository.saveAllOrders(orders);
   return target;
 }
 
@@ -142,14 +160,14 @@ async function setActiveCourse(id, activeCourse) {
  * Try to mark order as inventory-processed. Returns true if we marked it (caller should deduct),
  * false if already marked (idempotent – do not deduct again).
  */
-function tryMarkOrderInventoryProcessed(id) {
-  const orders = ordersRepository.getAllOrders();
+async function tryMarkOrderInventoryProcessed(id) {
+  const orders = await ordersRepository.getAllOrders();
   const target = orders.find((o) => String(o.id) === String(id));
   if (!target) return false;
   if (target.inventoryProcessedAt) return false;
 
   target.inventoryProcessedAt = new Date().toISOString();
-  ordersRepository.saveAllOrders(orders);
+  await ordersRepository.saveAllOrders(orders);
   return true;
 }
 
@@ -159,6 +177,7 @@ module.exports = {
   listActiveOrders,
   listOrdersByDate,
   createOrder,
+  patchOrderFoodCost,
   setStatus,
   setActiveCourse,
   tryMarkOrderInventoryProcessed,

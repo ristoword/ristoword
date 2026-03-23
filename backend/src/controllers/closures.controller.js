@@ -42,7 +42,7 @@ async function computeDayTotals(dateStr) {
     isSameDay(getPaymentDate(p), day)
   );
 
-  const allOrders = ordersRepository.getAllOrders();
+  const allOrders = await ordersRepository.getAllOrders();
   const closedOrders = allOrders.filter(
     (o) =>
       isSameDay(o.updatedAt || o.createdAt, day) &&

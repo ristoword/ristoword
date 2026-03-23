@@ -115,6 +115,17 @@ async function fetchDashboardSummary() {
   }
 }
 
+async function fetchKPI() {
+  try {
+    // Test Baia Verde senza cambiare sessione: aggiungi headers: { "x-tenant-id": "1" }
+    const res = await fetch("/api/kpi", { credentials: "same-origin" });
+    if (!res.ok) throw new Error();
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 // =============================
 // KPI ORDINI
 // =============================
@@ -406,9 +417,10 @@ async function loadDashboard() {
   const ordersList = document.getElementById("last-orders-list");
   if (ordersList) ordersList.innerHTML = '<div class="placeholder">Caricamento...</div>';
 
-  const [orders, dashboard] = await Promise.all([
+  const [orders, dashboard, kpi] = await Promise.all([
     fetchOrders(),
     fetchDashboardSummary(),
+    fetchKPI(),
   ]);
 
   updateOrderKpi(orders);
@@ -418,7 +430,38 @@ async function loadDashboard() {
   const cash = dashboard?.cash;
   const alerts = dashboard?.alerts;
 
-  if (summary) {
+  if (kpi) {
+    const box = document.querySelector(".topbar-right");
+    let el = document.getElementById("daily-summary");
+    if (!el && box) {
+      el = document.createElement("div");
+      el.id = "daily-summary";
+      el.className = "user-box";
+      box.prepend(el);
+    }
+    if (el) {
+      el.innerHTML = `
+        <div class="user-info">
+          <div class="user-label">Incasso</div>
+          <div class="user-name">${formatMoney(kpi.revenue)}</div>
+        </div>
+        <div class="user-info">
+          <div class="user-label">Margine</div>
+          <div class="user-name">${formatMoney(kpi.margin)}</div>
+        </div>
+        <div class="user-info">
+          <div class="user-label">Scontrino medio</div>
+          <div class="user-name">${formatMoney(kpi.avgTicket)}</div>
+        </div>
+        <div class="user-info">
+          <div class="user-label">Coperti</div>
+          <div class="user-name">${kpi.covers ?? 0}</div>
+        </div>
+      `;
+    }
+    const lateEl = document.getElementById("kpi-late");
+    if (lateEl && kpi.delayed != null) lateEl.textContent = String(kpi.delayed);
+  } else if (summary) {
     const box = document.querySelector(".topbar-right");
     let el = document.getElementById("daily-summary");
     if (!el && box) {

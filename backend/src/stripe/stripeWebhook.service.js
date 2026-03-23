@@ -1,6 +1,7 @@
 const stripeMockRepository = require("./stripeMock.repository");
 const stripeLiveWebhookDedup = require("./stripeLiveWebhookDedup");
 const { syncLicenseFromPaidSession } = require("./stripeLicenseSync.service");
+const { provisionDbTenantAndLicenseFromStripeSession } = require("./stripeProvisionDb.service");
 
 function normalizeRestaurantId(id) {
   return String(id || "").trim();
@@ -40,13 +41,29 @@ async function processVerifiedStripeEvent(event) {
       meta.tenantId ||
       session.client_reference_id ||
       null;
-    if (!rid) {
-      throw new Error("stripe_session_missing_restaurant_metadata");
-    }
 
     const paid = String(session.payment_status || "").toLowerCase() === "paid";
     if (!paid) {
       return { processed: true, skipped: true, reason: "not_paid", eventId: id };
+    }
+
+    if (!rid) {
+      const disableAuto =
+        String(process.env.STRIPE_AUTO_PROVISION_DB || "").toLowerCase() === "false";
+      if (disableAuto) {
+        throw new Error("stripe_session_missing_restaurant_metadata");
+      }
+      const paidMeta = await provisionDbTenantAndLicenseFromStripeSession({
+        session,
+        eventId: id,
+      });
+      stripeLiveWebhookDedup.markStripeEventProcessed(id);
+      return {
+        processed: true,
+        eventId: id,
+        source: "stripe_live_db_provision",
+        ...paidMeta,
+      };
     }
 
     const modeFromMeta = String(meta.mode || "").toLowerCase();

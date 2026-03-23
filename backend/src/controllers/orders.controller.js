@@ -2,6 +2,8 @@
 const ordersService = require("../service/orders.service");
 const logger = require("../utils/logger");
 const { orderHasFoodInventoryItems } = require("../utils/orderInventoryHelpers");
+const { deductIngredients } = require("../services/inventory.service");
+const { calculateOrderCost } = require("../services/foodcost.service");
 
 // IMPORTANT CORE PROTECTION
 // This controller serves /api/orders for Sala, Cucina, Pizzeria, Cassa, Supervisor.
@@ -104,6 +106,44 @@ async function listOrdersHistory(req, res, next) {
 async function createOrder(req, res, next) {
   try {
     const order = await ordersService.createOrder(req.body || {});
+    try {
+      await deductIngredients(order.items || []);
+      // eslint-disable-next-line no-console
+      console.log("Magazzino aggiornato per ordine:", order.id);
+    } catch (invErr) {
+      logger.warn("Inventory deduct (DB) non applicato", {
+        orderId: order.id,
+        message: invErr && invErr.message ? invErr.message : String(invErr),
+      });
+    }
+
+    let orderToRespond = order;
+    try {
+      const totalCost = await calculateOrderCost(order.items || []);
+      const totalPrice = (order.items || []).reduce(
+        (sum, i) => sum + (Number(i.price) || 0) * (Number(i.qty) || 1),
+        0
+      );
+      const margin = totalPrice - totalCost;
+      // eslint-disable-next-line no-console
+      console.log("FOOD COST:", totalCost);
+      // eslint-disable-next-line no-console
+      console.log("RICAVO:", totalPrice);
+      // eslint-disable-next-line no-console
+      console.log("MARGINE:", margin);
+      const patched = await ordersService.patchOrderFoodCost(order.id, {
+        totalCost,
+        totalPrice,
+        margin,
+      });
+      if (patched) orderToRespond = patched;
+    } catch (fcErr) {
+      logger.warn("Food cost / margin non persistito (ordine salvato)", {
+        orderId: order.id,
+        message: fcErr && fcErr.message ? fcErr.message : String(fcErr),
+      });
+    }
+
     await broadcastOrderUpdates();
 
     // Auto-route print jobs by department
@@ -111,9 +151,9 @@ async function createOrder(req, res, next) {
       // Optional, do not break core order creation if print routing fails to load or execute.
       // eslint-disable-next-line global-require
       const printService = require("../service/print.service");
-      const printResults = await printService.submitOrderTickets(order);
+      const printResults = await printService.submitOrderTickets(orderToRespond);
       if (printResults.length > 0) {
-        order._printJobs = printResults.map((r) => ({
+        orderToRespond._printJobs = printResults.map((r) => ({
           department: r.department,
           jobId: r.job.id,
           routed: r.routed,
@@ -125,7 +165,7 @@ async function createOrder(req, res, next) {
       logger.warn("Print job creation failed (order still saved)", { orderId: order.id, message: printErr.message });
     }
 
-    res.status(201).json(order);
+    res.status(201).json(orderToRespond);
   } catch (err) {
     next(err);
   }
@@ -166,7 +206,7 @@ async function setStatus(req, res, next) {
     if (updated && isFinalState) {
       const inventoryService = getInventoryServiceSafe();
       if (inventoryService) {
-        const shouldDeduct = ordersService.tryMarkOrderInventoryProcessed(updated.id);
+        const shouldDeduct = await ordersService.tryMarkOrderInventoryProcessed(updated.id);
         if (shouldDeduct) {
           logger.info("Order final state (inventory sync)", {
             orderId: updated.id,

@@ -1,3 +1,3 @@
-/ bridge verso config/env.js
+// bridge verso config/env.js
 
 module.exports = require("./config/env");

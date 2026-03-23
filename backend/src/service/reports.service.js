@@ -184,7 +184,7 @@ async function buildDashboardSummary(targetDate = new Date()) {
     closuresRepository.isDayClosed(dateStr),
   ]);
 
-  const allOrders = ordersRepository.getAllOrders();
+  const allOrders = await ordersRepository.getAllOrders();
   const dailyOrders = allOrders.filter((o) =>
     isSameDay(o.updatedAt || o.createdAt, date)
   );
@@ -277,7 +277,7 @@ async function buildAccountantReport(dateFrom, dateTo) {
   }
 
   const allPayments = await paymentsRepository.listPayments({});
-  const allOrders = ordersRepository.getAllOrders();
+  const allOrders = await ordersRepository.getAllOrders();
   const closures = await closuresRepository.listClosures({
     dateFrom: from.toISOString().slice(0, 10),
     dateTo: to.toISOString().slice(0, 10),
@@ -388,7 +388,7 @@ async function buildAccountantReport(dateFrom, dateTo) {
 async function getTopDishes(targetDate = new Date(), limit = 10) {
   const date = normalizeDate(targetDate) || new Date();
   const dateStr = date.toISOString().slice(0, 10);
-  const allOrders = ordersRepository.getAllOrders();
+  const allOrders = await ordersRepository.getAllOrders();
   const dailyOrders = allOrders.filter((o) =>
     isSameDay(o.updatedAt || o.createdAt, date)
   );
@@ -421,7 +421,7 @@ async function getTopDishes(targetDate = new Date(), limit = 10) {
 async function getDishMargins(targetDate = new Date()) {
   const date = normalizeDate(targetDate) || new Date();
   const dateStr = date.toISOString().slice(0, 10);
-  const allOrders = ordersRepository.getAllOrders();
+  const allOrders = await ordersRepository.getAllOrders();
   const dailyOrders = allOrders.filter((o) =>
     isSameDay(o.updatedAt || o.createdAt, date)
   );

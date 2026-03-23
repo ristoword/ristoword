@@ -1,19 +1,12 @@
-// backend/src/repositories/pos-shifts.repository.js
-// POS cash register shifts – tenant-aware, uses data/tenants/{tenantId}/pos-shifts.json
-
-const fs = require("fs");
-const fsp = require("fs").promises;
-const path = require("path");
+// POS cash register shifts — persistenza MySQL (cash_sessions) via cash.repository.sql.js
 const crypto = require("crypto");
-const paths = require("../config/paths");
+const { getDbPool } = require("../config/dbPool");
 const tenantContext = require("../context/tenantContext");
+const cashSql = require("./cash.repository.sql");
 
-function getDataDir() {
-  return path.join(paths.DATA, "tenants", tenantContext.getRestaurantId());
-}
-
-function getShiftsFilePath() {
-  return paths.tenantDataPath(tenantContext.getRestaurantId(), "pos-shifts.json");
+function createId() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return `shift_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
 }
 
 function toNumber(v, fallback = 0) {
@@ -26,117 +19,88 @@ function normalizeString(v, fallback = "") {
   return String(v).trim();
 }
 
-function createId() {
-  if (crypto.randomUUID) return crypto.randomUUID();
-  return `shift_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-}
-
-async function ensureFile() {
-  const SHIFTS_FILE = getShiftsFilePath();
-  const legacyPosShifts = paths.legacy("pos-shifts.json");
-  const legacyShifts = paths.legacy("shifts.json");
-
-  await fsp.mkdir(getDataDir(), { recursive: true });
-  if (!fs.existsSync(SHIFTS_FILE)) {
-    if (fs.existsSync(legacyPosShifts)) {
-      await fsp.copyFile(legacyPosShifts, SHIFTS_FILE);
-    } else if (fs.existsSync(legacyShifts)) {
-      try {
-        const legacyRaw = await fsp.readFile(legacyShifts, "utf8");
-        const legacy = JSON.parse(legacyRaw.trim() || "{}");
-        const shifts = Array.isArray(legacy?.shifts) ? legacy.shifts : [];
-        await fsp.writeFile(SHIFTS_FILE, JSON.stringify({ shifts }, null, 2), "utf8");
-      } catch {
-        await fsp.writeFile(SHIFTS_FILE, JSON.stringify({ shifts: [] }, null, 2), "utf8");
-      }
-    } else {
-      await fsp.writeFile(SHIFTS_FILE, JSON.stringify({ shifts: [] }, null, 2), "utf8");
-    }
-    return;
-  }
-  const raw = await fsp.readFile(SHIFTS_FILE, "utf8");
-  if (!raw.trim()) {
-    await fsp.writeFile(SHIFTS_FILE, JSON.stringify({ shifts: [] }, null, 2), "utf8");
-  }
-}
-
-async function readShifts() {
-  await ensureFile();
-  const raw = await fsp.readFile(getShiftsFilePath(), "utf8");
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed.shifts) ? parsed.shifts : [];
-  } catch (err) {
-    throw new Error("pos-shifts.json non valido");
-  }
-}
-
-async function writeShifts(shifts) {
-  await ensureFile();
-  const data = { shifts: Array.isArray(shifts) ? shifts : [] };
-  await fsp.writeFile(getShiftsFilePath(), JSON.stringify(data, null, 2), "utf8");
-}
-
 async function getOpenShift() {
-  const shifts = await readShifts();
-  return shifts.find((s) => String(s.status || "").toLowerCase() === "open") || null;
+  const row = await cashSql.getActiveSession();
+  return cashSql.rowToShift(row);
 }
 
 async function createShift(shiftData) {
-  const shifts = await readShifts();
-  const shift = {
-    id: shiftData.id || createId(),
-    opened_at: shiftData.opened_at || new Date().toISOString(),
-    closed_at: shiftData.closed_at || null,
-    operator: normalizeString(shiftData.operator, ""),
-    opening_float: toNumber(shiftData.opening_float, 0),
-    cash_total: toNumber(shiftData.cash_total, 0),
-    card_total: toNumber(shiftData.card_total, 0),
-    other_total: toNumber(shiftData.other_total, 0),
-    status: normalizeString(shiftData.status, "open"),
-  };
-  shifts.push(shift);
-  await writeShifts(shifts);
-  return shift;
+  const row = await cashSql.openSession(
+    toNumber(shiftData.opening_float, 0),
+    normalizeString(shiftData.operator, ""),
+    shiftData.opened_at || new Date().toISOString(),
+    shiftData.id || createId()
+  );
+  return cashSql.rowToShift(row);
 }
 
 async function closeShift(id, updates) {
-  const shifts = await readShifts();
-  const index = shifts.findIndex((s) => String(s.id) === String(id));
-  if (index === -1) return null;
-
-  const current = shifts[index];
-  const closed = {
-    ...current,
-    ...updates,
-    id: current.id,
-    closed_at: updates.closed_at || new Date().toISOString(),
-    status: "closed",
-  };
-  shifts[index] = closed;
-  await writeShifts(shifts);
-  return closed;
+  const row = await cashSql.closeSession(id, {
+    cash_total: updates.cash_total,
+    card_total: updates.card_total,
+    other_total: updates.other_total,
+    closed_at: updates.closed_at,
+  });
+  return cashSql.rowToShift(row);
 }
 
 async function getShiftsByDate(dateStr) {
-  const shifts = await readShifts();
-  const target = String(dateStr || "").slice(0, 10);
-  return shifts.filter((s) => {
-    const opened = (s.opened_at || "").slice(0, 10);
-    return opened === target;
-  });
+  const rows = await cashSql.listSessionsByOpenedDate(dateStr);
+  return rows.map((r) => cashSql.rowToShift(r));
+}
+
+async function readShifts() {
+  await cashSql.ensureReady();
+  const pool = getDbPool();
+  const tenantId = tenantContext.getRestaurantId();
+  const [rows] = await pool.query(
+    "SELECT * FROM cash_sessions WHERE tenant_id = ? ORDER BY opened_at DESC",
+    [tenantId]
+  );
+  return rows.map((r) => cashSql.rowToShift(r));
+}
+
+async function writeShifts() {
+  throw new Error("writeShifts non supportato in modalità DB cassa");
 }
 
 async function updateShift(id, updates) {
-  const shifts = await readShifts();
-  const index = shifts.findIndex((s) => String(s.id) === String(id));
-  if (index === -1) return null;
+  await cashSql.ensureReady();
+  const row = await cashSql.getSessionByPublicId(id);
+  if (!row) return null;
+  const pool = getDbPool();
+  const tenantId = tenantContext.getRestaurantId();
+  const openedAt = updates.opened_at != null ? new Date(updates.opened_at) : row.opened_at;
+  let closedAt = row.closed_at;
+  if (updates.closed_at !== undefined) {
+    closedAt = updates.closed_at ? new Date(updates.closed_at) : null;
+  }
+  const openingFloat =
+    updates.opening_float != null ? toNumber(updates.opening_float, 0) : row.opening_float;
+  const operator = updates.operator !== undefined ? normalizeString(updates.operator, "") : row.operator;
+  const cashTotal = updates.cash_total != null ? toNumber(updates.cash_total, 0) : row.cash_total;
+  const cardTotal = updates.card_total != null ? toNumber(updates.card_total, 0) : row.card_total;
+  const otherTotal = updates.other_total != null ? toNumber(updates.other_total, 0) : row.other_total;
+  const status = updates.status != null ? normalizeString(updates.status, row.status) : row.status;
 
-  const current = shifts[index];
-  const next = { ...current, ...updates, id: current.id };
-  shifts[index] = next;
-  await writeShifts(shifts);
-  return next;
+  await pool.query(
+    `UPDATE cash_sessions SET opened_at=?, closed_at=?, opening_float=?, operator=?, cash_total=?, card_total=?, other_total=?, status=?
+     WHERE tenant_id=? AND shift_public_id=?`,
+    [
+      openedAt,
+      closedAt,
+      openingFloat,
+      operator,
+      cashTotal,
+      cardTotal,
+      otherTotal,
+      status,
+      tenantId,
+      String(id),
+    ]
+  );
+  const next = await cashSql.getSessionByPublicId(id);
+  return cashSql.rowToShift(next);
 }
 
 module.exports = {

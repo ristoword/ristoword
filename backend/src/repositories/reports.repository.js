@@ -36,7 +36,7 @@ function isSameDay(dateValue, targetDate) {
  * Used by reports service for daily summary and dashboard KPIs.
  */
 async function getDailyData(targetDate = new Date()) {
-  const allOrders = ordersRepository.getAllOrders();
+  const allOrders = await ordersRepository.getAllOrders();
   const allPayments = await paymentsRepository.listPayments({});
   const date = targetDate instanceof Date ? targetDate : new Date(targetDate);
 

@@ -206,7 +206,7 @@ async function zReport(body = {}) {
 
   const grandTotal = cashTotal + cardTotal + otherTotal;
 
-  const allOrders = ordersRepository.getAllOrders();
+  const allOrders = await ordersRepository.getAllOrders();
   const closedOrdersCount = allOrders.filter(
     (o) =>
       isSameDay(o.updatedAt || o.createdAt, new Date(dateStr)) &&

@@ -171,7 +171,7 @@ async function createPayment(req, res) {
 
   const orderIds = Array.isArray(payload.orderIds) ? payload.orderIds.map(String) : [];
   if (orderIds.length > 0) {
-    const allOrders = ordersRepository.getAllOrders();
+    const allOrders = await ordersRepository.getAllOrders();
     for (const oid of orderIds) {
       const order = allOrders.find((o) => String(o.id) === oid);
       if (order && String(order.status || "").toLowerCase() === "chiuso") {

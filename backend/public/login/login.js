@@ -101,6 +101,23 @@ form.addEventListener("submit", async (event) => {
       })
     );
 
+    // Licenza API (x-license-key): in produzione non impostare mai una chiave fissa da JS.
+    // Dev locale: chiave di test DB; override opzionale: window.__RW_DEV_LICENSE_KEY__ = "..."
+    try {
+      const devOverride =
+        typeof window.__RW_DEV_LICENSE_KEY__ === "string" && window.__RW_DEV_LICENSE_KEY__.trim()
+          ? window.__RW_DEV_LICENSE_KEY__.trim()
+          : null;
+      const h = window.location.hostname;
+      const isLocalDev =
+        h === "localhost" || h === "127.0.0.1" || h === "[::1]";
+      if (devOverride) {
+        localStorage.setItem("licenseKey", devOverride);
+      } else if (isLocalDev) {
+        localStorage.setItem("licenseKey", "RISTO-TEST-001");
+      }
+    } catch (_) {}
+
     showMessage("Accesso effettuato.", "success");
 
     const redirectTo = getReturnUrl() || data.redirectTo || getRedirectByRole(data.role || role);

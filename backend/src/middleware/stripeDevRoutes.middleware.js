@@ -1,15 +1,10 @@
 // backend/src/middleware/stripeDevRoutes.middleware.js
-// Blocca in produzione route mock/sync Stripe salvo STRIPE_ALLOW_DEV_ROUTES=true
+// Delega a stripe.routes.js (Blocco 3): 404 se STRIPE_ALLOW_DEV_ROUTES !== 'true'
+
+const { stripeDevRoutesGuard } = require("../routes/stripe.routes");
 
 function stripeDevRoutesOnly(req, res, next) {
-  if (process.env.NODE_ENV === "production" && String(process.env.STRIPE_ALLOW_DEV_ROUTES || "").toLowerCase() !== "true") {
-    return res.status(403).json({
-      error: "stripe_dev_route_disabled",
-      message:
-        "Operazione riservata a sviluppo o recupero manuale. In produzione usa il webhook firmato da Stripe.",
-    });
-  }
-  return next();
+  return stripeDevRoutesGuard(req, res, next);
 }
 
 module.exports = { stripeDevRoutesOnly };

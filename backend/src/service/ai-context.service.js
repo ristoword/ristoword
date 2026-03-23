@@ -38,7 +38,7 @@ async function buildContextForQuery() {
 
   const [allOrders, payments, inventory, recipes, dailyData, bookings, foodCosts] =
     await Promise.all([
-      Promise.resolve(ordersRepository.getAllOrders()),
+      ordersRepository.getAllOrders(),
       paymentsRepository.listPayments({
         dateFrom: dateFrom.toISOString(),
         dateTo: dateTo.toISOString(),

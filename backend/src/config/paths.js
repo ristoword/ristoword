@@ -5,6 +5,17 @@ const path = require("path");
 // root progetto
 const ROOT = path.resolve(__dirname, "../../");
 
+/** Consente slug tipo baia-verde, risto1, Boss_risto3; blocca .. e path traversal. */
+const SAFE_TENANT_ID_RE = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,127}$/;
+
+function sanitizeTenantId(raw) {
+  if (raw == null) return null;
+  const id = String(raw).trim();
+  if (!id) return null;
+  if (!SAFE_TENANT_ID_RE.test(id)) return null;
+  return id;
+}
+
 const paths = {
   ROOT,
 
@@ -38,7 +49,7 @@ const paths = {
    * @returns {string} Full path: data/tenants/{restaurantId}/{fileName} or data/{fileName} when no tenant
    */
   tenant(restaurantId, fileName) {
-    const id = restaurantId != null && String(restaurantId).trim() !== "" ? String(restaurantId).trim() : null;
+    const id = sanitizeTenantId(restaurantId);
     if (!id) {
       return path.join(paths.DATA, fileName);
     }
@@ -50,7 +61,7 @@ const paths = {
    * Falls back to default tenant when id is missing.
    */
   tenantDataPath(tenantId, fileName) {
-    const id = tenantId != null && String(tenantId).trim() !== "" ? String(tenantId).trim() : "default";
+    const id = sanitizeTenantId(tenantId) || "default";
     return path.join(paths.DATA, "tenants", id, fileName);
   },
 
@@ -62,4 +73,5 @@ const paths = {
   },
 };
 
+paths.sanitizeTenantId = sanitizeTenantId;
 module.exports = paths;

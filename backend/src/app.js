@@ -1,10 +1,23 @@
 // backend/src/app.js
 const express = require("express");
+const rateLimit = require("express-rate-limit");
 const path = require("path");
 const sessionMiddleware = require("./config/session");
 const { ensureTenantMigration } = require("./utils/tenantMigration");
+const { ensureTenantsTable } = require("./utils/ensureTenantsTable");
+const { ensureLicensesTable } = require("./utils/ensureLicensesTable");
 
 const app = express();
+
+ensureTenantsTable().catch((e) => {
+  // eslint-disable-next-line no-console
+  console.warn("[tenants] ensureTenantsTable:", e && e.message ? e.message : e);
+});
+
+ensureLicensesTable().catch((e) => {
+  // eslint-disable-next-line no-console
+  console.warn("[licenses] ensureLicensesTable:", e && e.message ? e.message : e);
+});
 
 // Trust proxy (Railway, Heroku, etc.)
 app.set("trust proxy", 1);
@@ -17,7 +30,13 @@ try {
   const expressRaw = require("express").raw({ type: "application/json" });
   const asyncHandler = require("./utils/asyncHandler");
   const { handleStripeWebhook } = require("./controllers/stripeWebhook.controller");
-  app.post("/api/stripe/webhook", expressRaw, asyncHandler(handleStripeWebhook));
+  const { stripeWebhookDisabledIfNoSecret } = require("./routes/stripe.routes");
+  app.post(
+    "/api/stripe/webhook",
+    expressRaw,
+    stripeWebhookDisabledIfNoSecret,
+    asyncHandler(handleStripeWebhook)
+  );
 } catch (e) {
   console.warn("stripe webhook mount failed:", e.message);
 }
@@ -29,6 +48,27 @@ app.use(express.json());
 const { corsOptional } = require("./middleware/corsOptional.middleware");
 app.use(corsOptional);
 app.use(sessionMiddleware);
+
+const licenseMiddleware = require("./middleware/license.middleware");
+app.use("/api", licenseMiddleware);
+
+const tenantMiddleware = require("./middleware/tenant.middleware");
+app.use(tenantMiddleware);
+
+// Rate limiting (Blocco 4): brute-force login + protezione API
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { error: "Troppi tentativi, riprova più tardi" },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 200,
+});
+app.use("/api/auth/login", loginLimiter);
+app.use("/api/", apiLimiter);
 
 // Tenant context for multi-tenant data isolation (resolves restaurantId from session)
 const { setTenantContext } = require("./middleware/tenantContext.middleware");
@@ -134,6 +174,7 @@ const ROLES_MENU = ["owner", "sala", "cassa", "supervisor"];
 const ROLES_PAYMENTS = ["owner", "cassa"];
 const ROLES_REPORTS = ["owner", "sala", "cucina", "cassa"];
 const ROLES_CLOSURES = ["owner", "cassa", "supervisor"];
+const ROLES_KPI = ["owner", "sala", "cucina", "cassa", "supervisor"];
 
 // =======================
 //  ROUTE PAGINA HOME / DASHBOARD (prima di static, così / serve la dashboard)
@@ -321,6 +362,14 @@ try {
   app.use("/api/catering", requireAuth, requireRole(ROLES_ALL), cateringRouter);
 } catch (e) {
   console.warn("catering.routes non trovato (ok se non ancora creato)");
+}
+
+// KPI – /api/kpi (DB: incasso, margine, coperti, ritardi cucina)
+try {
+  const kpiRouter = require("./routes/kpi.routes");
+  app.use("/api/kpi", requireAuth, requireRole(ROLES_KPI), kpiRouter);
+} catch (e) {
+  console.warn("kpi.routes non trovato:", e.message);
 }
 
 // REPORTS – /api/reports
