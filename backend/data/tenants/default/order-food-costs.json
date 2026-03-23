@@ -62,5 +62,29 @@
     "closedAt": "2026-03-19T15:51:39.088Z",
     "estimatedRevenue": 25,
     "estimatedMargin": 25
+  },
+  {
+    "orderId": 23,
+    "date": "2026-03-22",
+    "totalFoodCost": 0,
+    "closedAt": "2026-03-22T15:50:28.320Z",
+    "estimatedRevenue": 79,
+    "estimatedMargin": 79
+  },
+  {
+    "orderId": 24,
+    "date": "2026-03-22",
+    "totalFoodCost": 0,
+    "closedAt": "2026-03-22T15:55:55.362Z",
+    "estimatedRevenue": 8.5,
+    "estimatedMargin": 8.5
+  },
+  {
+    "orderId": 25,
+    "date": "2026-03-22",
+    "totalFoodCost": 0,
+    "closedAt": "2026-03-22T16:06:55.608Z",
+    "estimatedRevenue": 38.5,
+    "estimatedMargin": 38.5
   }
 ]

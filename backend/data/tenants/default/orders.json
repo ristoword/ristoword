@@ -488,5 +488,214 @@
     "createdAt": "2026-03-19T15:48:39.148Z",
     "updatedAt": "2026-03-19T15:50:24.528Z",
     "inventoryProcessedAt": "2026-03-19T15:49:47.481Z"
+  },
+  {
+    "id": 21,
+    "table": 10,
+    "covers": 5,
+    "area": "cucina",
+    "waiter": "Pippo",
+    "notes": "",
+    "items": [
+      {
+        "name": "Margherita",
+        "qty": 5,
+        "category": "Pizze",
+        "area": "cucina",
+        "price": 8.5,
+        "note": null,
+        "course": 1
+      },
+      {
+        "name": "Carbonara",
+        "qty": 5,
+        "category": "Primi",
+        "area": "cucina",
+        "price": 14,
+        "note": null,
+        "course": 2
+      },
+      {
+        "name": "Carbonara",
+        "qty": 5,
+        "category": "Primi",
+        "area": "cucina",
+        "price": 14,
+        "note": null,
+        "course": 5
+      },
+      {
+        "name": "Piatto del giorno",
+        "qty": 5,
+        "category": "Extra",
+        "area": "cucina",
+        "price": 16,
+        "note": null,
+        "course": 6
+      },
+      {
+        "name": "Piatto del giorno",
+        "qty": 5,
+        "category": "Extra",
+        "area": "cucina",
+        "price": 16,
+        "note": null,
+        "course": 7
+      }
+    ],
+    "activeCourse": 11,
+    "status": "chiuso",
+    "createdAt": "2026-03-22T11:52:22.256Z",
+    "updatedAt": "2026-03-22T16:06:37.317Z",
+    "inventoryProcessedAt": "2026-03-22T11:55:47.807Z"
+  },
+  {
+    "id": 22,
+    "table": 10,
+    "covers": 5,
+    "area": "cucina",
+    "waiter": "luca",
+    "notes": "",
+    "items": [],
+    "activeCourse": 4,
+    "status": "chiuso",
+    "createdAt": "2026-03-22T11:53:47.102Z",
+    "updatedAt": "2026-03-22T16:06:37.377Z",
+    "inventoryProcessedAt": "2026-03-22T11:55:37.011Z"
+  },
+  {
+    "id": 23,
+    "table": 2,
+    "covers": 2,
+    "area": "cucina",
+    "waiter": "paolo",
+    "notes": "",
+    "items": [
+      {
+        "name": "Carbonara",
+        "qty": 1,
+        "category": "Primi",
+        "area": "cucina",
+        "price": 14,
+        "note": null,
+        "course": 1
+      },
+      {
+        "name": "Piatto del giorno",
+        "qty": 1,
+        "category": "Extra",
+        "area": "cucina",
+        "price": 16,
+        "note": null,
+        "course": 1
+      },
+      {
+        "name": "Piatto del giorno",
+        "qty": 1,
+        "category": "Extra",
+        "area": "cucina",
+        "price": 16,
+        "note": null,
+        "course": 2
+      },
+      {
+        "name": "Piatto del giorno",
+        "qty": 1,
+        "category": "Extra",
+        "area": "cucina",
+        "price": 16,
+        "note": null,
+        "course": 2
+      },
+      {
+        "name": "Margherita",
+        "qty": 1,
+        "category": "Pizze",
+        "area": "cucina",
+        "price": 8.5,
+        "note": null,
+        "course": 3
+      },
+      {
+        "name": "Margherita",
+        "qty": 1,
+        "category": "Pizze",
+        "area": "cucina",
+        "price": 8.5,
+        "note": null,
+        "course": 3
+      }
+    ],
+    "activeCourse": 7,
+    "status": "servito",
+    "createdAt": "2026-03-22T15:50:15.565Z",
+    "updatedAt": "2026-03-22T16:05:34.138Z",
+    "inventoryProcessedAt": "2026-03-22T15:50:28.326Z"
+  },
+  {
+    "id": 24,
+    "table": 2,
+    "covers": 1,
+    "area": "cucina",
+    "waiter": "pippo",
+    "notes": "",
+    "items": [
+      {
+        "name": "Margherita",
+        "qty": 1,
+        "category": "Pizze",
+        "area": "cucina",
+        "price": 8.5,
+        "note": null,
+        "course": 1
+      }
+    ],
+    "activeCourse": 2,
+    "status": "servito",
+    "createdAt": "2026-03-22T15:54:01.016Z",
+    "updatedAt": "2026-03-22T15:55:55.362Z",
+    "inventoryProcessedAt": "2026-03-22T15:55:55.364Z"
+  },
+  {
+    "id": 25,
+    "table": 2,
+    "covers": 2,
+    "area": "cucina",
+    "waiter": "pippo",
+    "notes": "",
+    "items": [
+      {
+        "name": "Margherita",
+        "qty": 1,
+        "category": "Pizze",
+        "area": "cucina",
+        "price": 8.5,
+        "note": null,
+        "course": 1
+      },
+      {
+        "name": "Carbonara",
+        "qty": 1,
+        "category": "Primi",
+        "area": "cucina",
+        "price": 14,
+        "note": null,
+        "course": 2
+      },
+      {
+        "name": "Piatto del giorno",
+        "qty": 1,
+        "category": "Extra",
+        "area": "cucina",
+        "price": 16,
+        "note": null,
+        "course": 3
+      }
+    ],
+    "activeCourse": 8,
+    "status": "servito",
+    "createdAt": "2026-03-22T15:55:23.852Z",
+    "updatedAt": "2026-03-22T16:06:55.608Z",
+    "inventoryProcessedAt": "2026-03-22T16:06:55.613Z"
   }
 ]
