@@ -998,17 +998,27 @@ function renderShoppingList() {
 
     const btnEdit = document.createElement("button");
     btnEdit.type = "button";
-    btnEdit.className = "btn-xs shopping-edit-btn";
+    btnEdit.className = "btn-xs";
     btnEdit.textContent = "Modifica";
     btnEdit.setAttribute("aria-label", "Modifica voce");
-    btnEdit.dataset.idx = String(idx);
 
     const btnDel = document.createElement("button");
     btnDel.type = "button";
-    btnDel.className = "btn-xs danger shopping-del-btn";
+    btnDel.className = "btn-xs danger";
     btnDel.textContent = "X";
     btnDel.setAttribute("aria-label", "Rimuovi voce");
-    btnDel.dataset.idx = String(idx);
+
+    btnEdit.addEventListener("click", () => {
+      startEditShoppingItem(idx, div);
+    });
+    btnDel.addEventListener("click", () => {
+      if (!Array.isArray(shoppingItems)) {
+        shoppingItems = [];
+      }
+      shoppingItems.splice(idx, 1);
+      saveShoppingToStorage();
+      renderShoppingList();
+    });
 
     actions.appendChild(btnEdit);
     actions.appendChild(btnDel);
@@ -1019,36 +1029,9 @@ function renderShoppingList() {
   });
 }
 
-function initShoppingListDelegationOnce() {
-  const container = document.getElementById("shopping-list");
-  if (!container || container.dataset.rwDelegated === "1") return;
-  container.dataset.rwDelegated = "1";
-  container.addEventListener("click", (e) => {
-    const editBtn = e.target.closest(".shopping-edit-btn");
-    const delBtn = e.target.closest(".shopping-del-btn");
-    if (editBtn) {
-      const idx = Number(editBtn.dataset.idx);
-      const row = editBtn.closest(".shopping-item");
-      if (row && Number.isFinite(idx)) startEditShoppingItem(idx, row);
-      e.preventDefault();
-      return;
-    }
-    if (delBtn) {
-      const idx = Number(delBtn.dataset.idx);
-      if (!Number.isFinite(idx)) return;
-      if (!Array.isArray(shoppingItems)) shoppingItems = [];
-      shoppingItems.splice(idx, 1);
-      saveShoppingToStorage();
-      renderShoppingList();
-      e.preventDefault();
-    }
-  });
-}
-
 function initShopping() {
   loadShoppingFromStorage();
   loadSupplierEmailPrefs();
-  initShoppingListDelegationOnce();
   renderShoppingList();
   initSpeechRecognition();
 
@@ -1544,7 +1527,7 @@ function initReceiveVoice() {
       .then((r) => r.json())
       .then((data) => {
         lastReceivePreview = data.preview;
-        if (data.preview?.parsed && previewGrid && previewSection) {
+        if (data.preview?.parsed) {
           previewGrid.innerHTML = `
             <div><strong>Prodotto:</strong> ${escapeHtml(data.preview.productName || "-")}</div>
             <div><strong>Quantità:</strong> ${data.preview.quantity} ${data.preview.unit}</div>

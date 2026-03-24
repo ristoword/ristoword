@@ -1,0 +1,8 @@
+# Railway: impostare nel servizio "Root Directory" = backend
+# Build / start eseguiti dalla cartella backend (nessun "cd backend").
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install"
+
+[deploy]
+startCommand = "npm start"

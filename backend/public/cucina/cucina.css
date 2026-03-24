@@ -595,8 +595,6 @@ body {
   gap: 6px;
   align-items: center;
   flex-shrink: 0;
-  position: relative;
-  z-index: 2;
 }
 
 .shopping-item-actions .btn-xs {

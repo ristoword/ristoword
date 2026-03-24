@@ -4,11 +4,8 @@
   <meta charset="UTF-8" />
   <title>RISTOWORD – Sala</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <!-- v= bump su deploy UI per forzare reload JS/CSS (cache browser/CDN) -->
-  <link rel="stylesheet" href="sala.css?v=__RW_ASSET_VERSION__" />
-  <link rel="stylesheet" href="/shared/staff-access.css?v=__RW_ASSET_VERSION__" />
+  <link rel="stylesheet" href="sala.css" />
+  <link rel="stylesheet" href="/shared/staff-access.css" />
 </head>
 <body>
   <div class="layout">
@@ -268,9 +265,9 @@
     <div class="sala-popup-body" id="sala-popup-body"></div>
   </div>
 
-  <script src="/shared/auth-guard.js?v=__RW_ASSET_VERSION__" data-allowed-roles="owner,sala,sala_manager,supervisor,staff"></script>
-  <script src="/shared/websocket.js?v=__RW_ASSET_VERSION__"></script>
-  <script src="/shared/staff-access.js?v=__RW_ASSET_VERSION__"></script>
-  <script src="sala.js?v=__RW_ASSET_VERSION__"></script>
+  <script src="/shared/auth-guard.js" data-allowed-roles="owner,sala"></script>
+  <script src="/shared/websocket.js"></script>
+  <script src="/shared/staff-access.js"></script>
+  <script src="sala.js"></script>
 </body>
 </html>

@@ -735,31 +735,30 @@ function initVoice() {
 }
 
 function initMagazzino() {
-  /* Navigazione in cima: non deve dipendere da altri elementi del form */
+  document.querySelectorAll(".mag-tab").forEach((btn) => {
+    btn.addEventListener("click", () => showTab(btn.dataset.tab));
+  });
+
+  document.getElementById("btn-add-product").addEventListener("click", (e) => {
+    e.preventDefault();
+    addProduct();
+  });
+
+  document.getElementById("btn-refresh").addEventListener("click", (e) => {
+    e.preventDefault();
+    loadAll();
+  });
+
   document.getElementById("btn-to-cucina")?.addEventListener("click", (e) => {
     e.preventDefault();
     window.location.href = "/cucina/cucina.html";
   });
 
-  document.querySelectorAll(".mag-tab").forEach((btn) => {
-    btn.addEventListener("click", () => showTab(btn.dataset.tab));
-  });
-
-  document.getElementById("btn-add-product")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    addProduct();
-  });
-
-  document.getElementById("btn-refresh")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    loadAll();
-  });
-
-  document.getElementById("search-input")?.addEventListener("input", () => {
+  document.getElementById("search-input").addEventListener("input", () => {
     renderCurrentTab();
   });
 
-  document.getElementById("btn-ai-refresh")?.addEventListener("click", () => {
+  document.getElementById("btn-ai-refresh").addEventListener("click", () => {
     loadAISuggestion();
   });
 
@@ -768,17 +767,17 @@ function initMagazzino() {
     if (labelEl) labelEl.textContent = TRANSFER_DEPT_LABELS[e.target.value] || e.target.value;
   });
 
-  document.getElementById("modal-transfer-close")?.addEventListener("click", closeTransferModal);
-  document.getElementById("modal-transfer-cancel")?.addEventListener("click", closeTransferModal);
-  document.getElementById("modal-transfer-confirm")?.addEventListener("click", confirmTransfer);
-  document.getElementById("modal-transfer")?.addEventListener("click", (e) => {
+  document.getElementById("modal-transfer-close").addEventListener("click", closeTransferModal);
+  document.getElementById("modal-transfer-cancel").addEventListener("click", closeTransferModal);
+  document.getElementById("modal-transfer-confirm").addEventListener("click", confirmTransfer);
+  document.getElementById("modal-transfer").addEventListener("click", (e) => {
     if (e.target.id === "modal-transfer") closeTransferModal();
   });
 
-  document.getElementById("modal-return-close")?.addEventListener("click", closeReturnModal);
-  document.getElementById("modal-return-cancel")?.addEventListener("click", closeReturnModal);
-  document.getElementById("modal-return-confirm")?.addEventListener("click", confirmReturn);
-  document.getElementById("modal-return")?.addEventListener("click", (e) => {
+  document.getElementById("modal-return-close").addEventListener("click", closeReturnModal);
+  document.getElementById("modal-return-cancel").addEventListener("click", closeReturnModal);
+  document.getElementById("modal-return-confirm").addEventListener("click", confirmReturn);
+  document.getElementById("modal-return").addEventListener("click", (e) => {
     if (e.target.id === "modal-return") closeReturnModal();
   });
 
@@ -860,13 +859,4 @@ function initMagazzino() {
   loadAISuggestion();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  try {
-    initMagazzino();
-  } catch (err) {
-    console.error("[magazzino] init error:", err);
-    window.alert(
-      "Errore inizializzazione Magazzino. Ricarica la pagina. Se il problema resta, apri la console (F12)."
-    );
-  }
-});
+document.addEventListener("DOMContentLoaded", initMagazzino);

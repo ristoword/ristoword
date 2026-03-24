@@ -27,6 +27,7 @@ let activeTableContext = null;
 let orderFlowMode = null;
 
 let popupOpenTable = null;
+let popupMoveTarget = null; /* quando impostato, mostra form "Sposta a tavolo" inline */
 let dragState = null;
 let suppressTableClick = false;
 
@@ -405,14 +406,8 @@ async function apiSetStatus(id, status) {
 // =============================
 
 async function loadOfficialMenu() {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 12000);
   try {
-    const res = await fetch("/api/menu/active", {
-      credentials: "same-origin",
-      signal: ctrl.signal,
-    });
-    clearTimeout(t);
+    const res = await fetch("/api/menu/active", { credentials: "same-origin" });
     if (res.ok) {
       const arr = await res.json();
       menuOfficial = Array.isArray(arr) ? arr : [];
@@ -424,14 +419,7 @@ async function loadOfficialMenu() {
       return;
     }
   } catch (apiErr) {
-    clearTimeout(t);
-    const msg =
-      apiErr && apiErr.name === "AbortError"
-        ? "timeout"
-        : apiErr && apiErr.message
-          ? apiErr.message
-          : String(apiErr);
-    console.warn("Menu API non disponibile, uso cache:", msg);
+    console.warn("Menu API non disponibile, uso cache:", apiErr.message);
   }
   try {
     const raw = localStorage.getItem("rw_menu_official");
@@ -658,6 +646,7 @@ function setupTableDrag(node, tableNum, floorEl) {
 
 function closeTablePopup() {
   popupOpenTable = null;
+  popupMoveTarget = null;
   const back = document.getElementById("sala-popup-backdrop");
   const pop = document.getElementById("sala-popup");
   if (back) {
@@ -688,7 +677,9 @@ function openTablePopup(tableNum) {
     syncCourseDraftFromPrimaryOrder(tableNum);
   }
 
-  if (!hasOrders && !f.reserved) {
+  if (popupMoveTarget === tableNum) {
+    body.innerHTML = buildPopupMoveTableForm(tableNum);
+  } else if (!hasOrders && !f.reserved) {
     body.innerHTML = buildPopupFree(tableNum);
   } else if (!hasOrders && f.reserved) {
     body.innerHTML = buildPopupReservedFree(tableNum);
@@ -750,9 +741,11 @@ function initPopupUiOnce() {
       activeTableContext = tableNum;
       orderFlowMode = "food";
       setFlags(tableNum, { reserved: false });
+      courseStart(tableNum);
       closeTablePopup();
       document.getElementById("field-covers")?.focus();
       renderFloorMap();
+      renderSelectedItems();
       return;
     }
     if (act === "reserve") {
@@ -813,21 +806,41 @@ function initPopupUiOnce() {
       return;
     }
     if (act === "move-table") {
-      const dest = prompt("Sposta bozza locale al tavolo n°:", "");
-      if (!dest) return;
+      popupMoveTarget = tableNum;
+      openTablePopup(tableNum);
+      setTimeout(() => document.getElementById("sala-move-dest")?.focus(), 80);
+      return;
+    }
+    if (act === "move-confirm") {
+      const input = document.getElementById("sala-move-dest");
+      const dest = input?.value?.trim();
+      if (!dest) {
+        alert("Inserisci il numero del tavolo di destinazione.");
+        return;
+      }
       const n = Number(dest);
       if (!Number.isFinite(n) || n <= 0) {
         alert("Numero non valido.");
         return;
       }
+      if (n === tableNum) {
+        alert("Il tavolo di destinazione deve essere diverso.");
+        return;
+      }
       moveTableLocalState(tableNum, n);
       document.getElementById("field-table").value = String(n);
       activeTableContext = n;
+      popupMoveTarget = null;
       closeTablePopup();
       renderFloorMap();
       alert(
-        "Stato locale (corsi) spostato. Gli ordini già inviati al server restano sul tavolo originale."
+        "Stato locale (corsi e flags) spostato al tavolo " + n + ". Gli ordini già inviati restano sul tavolo originale."
       );
+      return;
+    }
+    if (act === "move-cancel") {
+      popupMoveTarget = null;
+      openTablePopup(tableNum);
       return;
     }
     if (act === "ask-bill") {
@@ -925,45 +938,43 @@ function buildPopupCoursesBlockHtml(tableNum) {
   `;
 }
 
+function buildPopupMoveTableForm(tableNum) {
+  return `
+    <p class="sala-popup-hint">Sposta contenuto e stato del tavolo ${tableNum} a un altro numero.</p>
+    <div class="sala-move-form">
+      <label>
+        Nuovo numero tavolo
+        <input type="number" id="sala-move-dest" min="1" placeholder="Es. 7" />
+      </label>
+      <div class="sala-popup-actions">
+        <button type="button" class="sala-popup-btn" data-act="move-confirm">Conferma spostamento</button>
+        <button type="button" class="sala-popup-btn ghost" data-act="move-cancel">Annulla</button>
+      </div>
+    </div>
+  `;
+}
+
 function buildPopupFree(tableNum) {
   return `
-    <p class="sala-popup-hint">Tavolo libero — usa <strong>Start / Aggiungi</strong> per i corsi, poi il menù a sinistra per i piatti.</p>
+    <p class="sala-popup-hint">Tavolo libero.</p>
     <div class="sala-popup-actions">
       <button type="button" class="sala-popup-btn" data-act="open-table">Apri tavolo</button>
       <button type="button" class="sala-popup-btn" data-act="reserve">Riserva tavolo</button>
     </div>
-    <div class="sala-popup-actions" style="margin-top:8px;">
-      <button type="button" class="sala-popup-btn food" data-act="order-food">Prendi ordine (cucina / food)</button>
-      <button type="button" class="sala-popup-btn bar" data-act="order-bar">Aggiungi bevande (bar)</button>
-      <button type="button" class="sala-popup-btn" data-act="next-course">Marcia prossima portata</button>
-      <button type="button" class="sala-popup-btn" data-act="remove-last">Cancella ultimo articolo (corso attivo)</button>
-      <button type="button" class="sala-popup-btn" data-act="move-table">Sposta tavolo</button>
-      <button type="button" class="sala-popup-btn" data-act="view-order">Anteprima bozza / ordine</button>
-    </div>
-    <p class="sala-popup-hint" style="margin-top:12px;margin-bottom:6px;font-size:13px;">Corsi (bozza locale)</p>
+    <p class="sala-popup-hint" style="margin-top:12px;margin-bottom:6px;font-size:13px;">Corsi — Start per il primo, Aggiungi per i successivi</p>
     ${buildPopupCoursesBlockHtml(tableNum)}
-    <div id="sala-view-order" class="sala-order-preview" style="display:none;margin-top:12px;"></div>
   `;
 }
 
 function buildPopupReservedFree(tableNum) {
   return `
-    <p class="sala-popup-hint">Tavolo riservato (nessun ordine ancora) — imposta i corsi qui sotto.</p>
+    <p class="sala-popup-hint">Tavolo riservato — nessun ordine ancora.</p>
     <div class="sala-popup-actions">
       <button type="button" class="sala-popup-btn" data-act="open-table">Apri tavolo</button>
       <button type="button" class="sala-popup-btn" data-act="unreserve">Rimuovi riserva</button>
     </div>
-    <div class="sala-popup-actions" style="margin-top:8px;">
-      <button type="button" class="sala-popup-btn food" data-act="order-food">Prendi ordine (cucina / food)</button>
-      <button type="button" class="sala-popup-btn bar" data-act="order-bar">Aggiungi bevande (bar)</button>
-      <button type="button" class="sala-popup-btn" data-act="next-course">Marcia prossima portata</button>
-      <button type="button" class="sala-popup-btn" data-act="remove-last">Cancella ultimo articolo (corso attivo)</button>
-      <button type="button" class="sala-popup-btn" data-act="move-table">Sposta tavolo</button>
-      <button type="button" class="sala-popup-btn" data-act="view-order">Anteprima bozza / ordine</button>
-    </div>
-    <p class="sala-popup-hint" style="margin-top:12px;margin-bottom:6px;font-size:13px;">Corsi (bozza locale)</p>
+    <p class="sala-popup-hint" style="margin-top:12px;margin-bottom:6px;font-size:13px;">Corsi — Start per il primo, Aggiungi per i successivi</p>
     ${buildPopupCoursesBlockHtml(tableNum)}
-    <div id="sala-view-order" class="sala-order-preview" style="display:none;margin-top:12px;"></div>
   `;
 }
 
@@ -1476,12 +1487,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initPopupUiOnce();
 
-  /* Mappa, toolbar e ordini subito: non devono attendere /api/menu/active (evita sala “vuota” se il menu è lento o bloccato). */
-  setupFilters();
-  setupFloorToolbar();
-  initStaffAccess();
-  renderFloorMap();
-  loadOrdersAndRender();
+  await loadOfficialMenu();
+  populateMenuSelect();
+
+  renderSelectedItems();
+  setupAddFromMenu();
+  setupAddCustom();
 
   document.getElementById("field-table")?.addEventListener("input", () => {
     renderSelectedItems();
@@ -1489,11 +1500,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document
     .getElementById("btn-create-order")
-    ?.addEventListener("click", handleCreateOrder);
+    .addEventListener("click", handleCreateOrder);
 
   document
     .getElementById("btn-refresh")
-    ?.addEventListener("click", loadOrdersAndRender);
+    .addEventListener("click", loadOrdersAndRender);
 
   window.addEventListener("rw:orders-update", (ev) => {
     if (ev.detail?.orders) {
@@ -1504,28 +1515,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  setupFilters();
+  setupFloorToolbar();
+  initStaffAccess();
+
+  renderFloorMap();
+  loadOrdersAndRender();
+
   setInterval(loadOrdersAndRender, 15000);
 
-  await loadOfficialMenu();
-  populateMenuSelect();
-  renderSelectedItems();
-  setupAddFromMenu();
-  setupAddCustom();
-
-  void loadDailyMenuSala();
+  loadDailyMenuSala();
 });
 
 async function loadDailyMenuSala() {
   const container = document.getElementById("daily-menu-sala-content");
   if (!container) return;
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), 12000);
   try {
-    const res = await fetch("/api/daily-menu/active", {
-      credentials: "same-origin",
-      signal: ctrl.signal,
-    });
-    clearTimeout(t);
+    const res = await fetch("/api/daily-menu/active", { credentials: "same-origin" });
     if (!res.ok) throw new Error();
     const data = await res.json();
     if (!data.menuActive || !data.dishes || data.dishes.length === 0) {
@@ -1578,8 +1584,7 @@ async function loadDailyMenuSala() {
     });
     container.innerHTML =
       html || '<div class="daily-menu-empty">Nessun piatto attivo.</div>';
-  } catch (err) {
-    clearTimeout(t);
+  } catch (_) {
     container.innerHTML =
       '<div class="daily-menu-empty">Menu del giorno non disponibile.</div>';
   }

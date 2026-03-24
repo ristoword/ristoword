@@ -302,10 +302,10 @@ body {
 .sala-table-node {
   position: absolute;
   width: 14%;
-  min-width: 72px;
-  max-width: 120px;
+  min-width: 80px;
+  max-width: 140px;
   aspect-ratio: 1;
-  min-height: 72px;
+  min-height: 80px;
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
@@ -332,7 +332,7 @@ body {
 }
 
 .sala-table-num {
-  font-size: clamp(18px, 2.8vw, 26px);
+  font-size: clamp(20px, 3vw, 28px);
   font-weight: 800;
   line-height: 1;
 }
@@ -461,8 +461,9 @@ body {
 
 .sala-popup-btn {
   width: 100%;
-  min-height: 48px;
+  min-height: 52px;
   font-size: 16px;
+  touch-action: manipulation;
   font-weight: 600;
   border-radius: var(--radius-md);
   border: 1px solid #343848;
@@ -491,6 +492,36 @@ body {
   color: #ffb4b4;
 }
 
+.sala-popup-btn.ghost {
+  background: transparent;
+  color: var(--text-soft);
+}
+
+/* Form Sposta tavolo */
+.sala-move-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.sala-move-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.sala-move-form input {
+  padding: 12px 14px;
+  font-size: 18px;
+  border-radius: var(--radius-md);
+  border: 2px solid #343848;
+  background: #151822;
+  color: var(--text);
+  min-height: 48px;
+}
+
 .sala-popup-hint {
   font-size: 12px;
   color: var(--text-soft);
@@ -515,6 +546,7 @@ body {
   min-height: 48px;
   font-size: 16px;
   font-weight: 700;
+  touch-action: manipulation;
   border-radius: var(--radius-md);
   border: 2px solid #343848;
   background: #1a1e28;
